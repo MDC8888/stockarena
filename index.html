@@ -532,7 +532,14 @@ const STOCKS=[
 const CASH0=10000, END=new Date("2026-07-01"), PG=30;
 const FMP_KEY="DH5Ok3sQuOf99czXACqQk0h4ftJpKaDj";
 // ══ FIREBASE (paste your config to enable real accounts + shared leaderboard) ══
-const FIREBASE_CONFIG={apiKey:"PASTE_CONFIG_HERE",authDomain:"",projectId:"",appId:""};
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyBVj5VBJd3Tl47WJJ-fGwWzgjZJ9tPEUb4",
+  authDomain:"stocksim-318a0.firebaseapp.com",
+  projectId:"stocksim-318a0",
+  storageBucket:"stocksim-318a0.firebasestorage.app",
+  messagingSenderId:"430148503558",
+  appId:"1:430148503558:web:47654c1b5e427f6f31db87"
+};
 let FB=null,FBuser=null,lbData=[],lbUnsub=null,appStarted=false;
 try{
   if(FIREBASE_CONFIG.apiKey&&!FIREBASE_CONFIG.apiKey.startsWith("PASTE")&&typeof firebase!=="undefined"){
