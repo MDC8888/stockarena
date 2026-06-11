@@ -735,12 +735,11 @@ function authWith(provider){
   const isSignup=$("auth-signup").style.display!=="none";
   if(FB){
     if(provider==="apple")return showToast("Apple sign-in coming soon","err");
-    if(isSignup)onboarding=true;
     const gp=new firebase.auth.GoogleAuthProvider();
     FB.auth.signInWithPopup(gp).then(cred=>{
-      appStarted=true;username=cred.user.displayName||"Player";saveState();
-      if(isSignup)show("lang-screen");else{store.set("sa_onboarded",true);startLoading();}
-    }).catch(()=>{onboarding=false;showToast("Google sign-in failed","err");});
+      username=cred.user.displayName||"Player";saveState();
+      // Routing is handled by onAuthStateChanged: no accepted rules on this device -> full onboarding
+    }).catch(()=>showToast("Google sign-in failed","err"));
     return;
   }
   username=provider==="google"?"Google User":"Apple User";saveState();
