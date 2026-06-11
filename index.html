@@ -359,46 +359,149 @@ const L={
 
 // ══ STOCKS (fallback prices, updated June 2026 where known) ══
 const STOCKS=[
-  {t:"AAPL",n:"Apple",s:"Tech",b:307},{t:"MSFT",n:"Microsoft",s:"Tech",b:417},{t:"NVDA",n:"NVIDIA",s:"Semi",b:1180},
-  {t:"GOOGL",n:"Alphabet",s:"Tech",b:196},{t:"META",n:"Meta",s:"Social",b:585},{t:"AMZN",n:"Amazon",s:"E-com",b:218},
-  {t:"TSLA",n:"Tesla",s:"Auto",b:265},{t:"AMD",n:"AMD",s:"Semi",b:172},{t:"INTC",n:"Intel",s:"Semi",b:33},
-  {t:"ORCL",n:"Oracle",s:"Tech",b:168},{t:"CRM",n:"Salesforce",s:"SaaS",b:290},{t:"ADBE",n:"Adobe",s:"SaaS",b:420},
-  {t:"NFLX",n:"Netflix",s:"Media",b:780},{t:"SPOT",n:"Spotify",s:"Media",b:390},{t:"JPM",n:"JPMorgan",s:"Finance",b:235},
-  {t:"GS",n:"Goldman Sachs",s:"Finance",b:560},{t:"V",n:"Visa",s:"Finance",b:300},{t:"MA",n:"Mastercard",s:"Finance",b:510},
-  {t:"BAC",n:"Bank of America",s:"Finance",b:44},{t:"AXP",n:"Amex",s:"Finance",b:255},
-  {t:"XOM",n:"ExxonMobil",s:"Energy",b:118},{t:"CVX",n:"Chevron",s:"Energy",b:158},
-  {t:"SHEL",n:"Shell",s:"Energy",b:34},{t:"BP",n:"BP",s:"Energy",b:36},{t:"NEE",n:"NextEra Energy",s:"Utilities",b:74},
-  {t:"COST",n:"Costco",s:"Retail",b:940},{t:"WMT",n:"Walmart",s:"Retail",b:82},{t:"HD",n:"Home Depot",s:"Retail",b:370},
-  {t:"MCD",n:"McDonald's",s:"Food",b:300},{t:"SBUX",n:"Starbucks",s:"Food",b:88},{t:"KO",n:"Coca-Cola",s:"Food",b:70},
-  {t:"PEP",n:"PepsiCo",s:"Food",b:175},{t:"PFE",n:"Pfizer",s:"Pharma",b:29},{t:"JNJ",n:"J&J",s:"Pharma",b:158},
-  {t:"LLY",n:"Eli Lilly",s:"Pharma",b:850},{t:"MRK",n:"Merck",s:"Pharma",b:122},{t:"ABBV",n:"AbbVie",s:"Pharma",b:185},
-  {t:"AMGN",n:"Amgen",s:"Pharma",b:295},{t:"VRTX",n:"Vertex",s:"Pharma",b:440},{t:"MRNA",n:"Moderna",s:"Pharma",b:32},
-  {t:"NKE",n:"Nike",s:"Sport",b:80},{t:"LULU",n:"Lululemon",s:"Sport",b:310},
-  {t:"ASML",n:"ASML",s:"Semi",b:920},{t:"QCOM",n:"Qualcomm",s:"Semi",b:178},{t:"AVGO",n:"Broadcom",s:"Semi",b:1750},
-  {t:"MRVL",n:"Marvell Tech",s:"Semi",b:76},{t:"ON",n:"ON Semi",s:"Semi",b:52},
-  {t:"UNH",n:"UnitedHealth",s:"Health",b:540},{t:"ISRG",n:"Intuitive Surgical",s:"MedTech",b:450},
-  {t:"CRWD",n:"CrowdStrike",s:"Cyber",b:340},{t:"PANW",n:"Palo Alto",s:"Cyber",b:350},
-  {t:"SNOW",n:"Snowflake",s:"Cloud",b:160},{t:"NET",n:"Cloudflare",s:"Cloud",b:92},
-  {t:"NOW",n:"ServiceNow",s:"SaaS",b:560},{t:"DDOG",n:"Datadog",s:"SaaS",b:130},
-  {t:"BA",n:"Boeing",s:"Aero",b:190},{t:"LMT",n:"Lockheed Martin",s:"Aero",b:470},
-  {t:"CAT",n:"Caterpillar",s:"Industrial",b:355},{t:"HON",n:"Honeywell",s:"Industrial",b:210},
-  {t:"UPS",n:"UPS",s:"Logistics",b:135},{t:"FDX",n:"FedEx",s:"Logistics",b:265},
-  {t:"DIS",n:"Disney",s:"Media",b:108},{t:"SNAP",n:"Snap",s:"Social",b:13},
-  {t:"UBER",n:"Uber",s:"Tech",b:82},{t:"ABNB",n:"Airbnb",s:"Travel",b:165},
-  {t:"BKNG",n:"Booking Holdings",s:"Travel",b:4100},{t:"DAL",n:"Delta Air",s:"Travel",b:48},
-  {t:"PLTR",n:"Palantir",s:"Tech",b:28},{t:"SHOP",n:"Shopify",s:"E-com",b:78},
-  {t:"COIN",n:"Coinbase",s:"Crypto",b:210},{t:"SQ",n:"Block",s:"Fintech",b:72},
-  {t:"PYPL",n:"PayPal",s:"Fintech",b:74},{t:"HOOD",n:"Robinhood",s:"Fintech",b:18},
-  {t:"GM",n:"General Motors",s:"Auto",b:52},{t:"F",n:"Ford",s:"Auto",b:13},{t:"RIVN",n:"Rivian",s:"Auto",b:14},
-  {t:"MSTR",n:"MicroStrategy",s:"Crypto",b:390},{t:"MARA",n:"Marathon Digital",s:"Crypto",b:21},
-  {t:"DKNG",n:"DraftKings",s:"Gaming",b:42},{t:"RBLX",n:"Roblox",s:"Gaming",b:44},
-  {t:"DUOL",n:"Duolingo",s:"EdTech",b:270},{t:"TTD",n:"The Trade Desk",s:"AdTech",b:120},
-  {t:"NVO",n:"Novo Nordisk",s:"Pharma",b:90},{t:"AZN",n:"AstraZeneca",s:"Pharma",b:74},
-  {t:"SAP",n:"SAP SE",s:"Tech",b:215},{t:"ENPH",n:"Enphase",s:"Solar",b:74},{t:"FSLR",n:"First Solar",s:"Solar",b:160},
-  {t:"SPY",n:"S&P 500 ETF",s:"ETF",b:580},{t:"QQQ",n:"Nasdaq 100 ETF",s:"ETF",b:500},
-  {t:"GLD",n:"Gold ETF",s:"Commod.",b:245},{t:"TLT",n:"Treasury ETF",s:"ETF",b:92},
-  {t:"BTC-USD",n:"Bitcoin",s:"Crypto",b:67800},{t:"ETH-USD",n:"Ethereum",s:"Crypto",b:3420},
-  {t:"SOL-USD",n:"Solana",s:"Crypto",b:148},{t:"DOGE-USD",n:"Dogecoin",s:"Crypto",b:0.18},
+// ── MEGA TECH & SOFTWARE ──
+{t:"AAPL",n:"Apple",s:"Tech",b:307},{t:"MSFT",n:"Microsoft",s:"Tech",b:417},{t:"GOOGL",n:"Alphabet A",s:"Tech",b:196},
+{t:"GOOG",n:"Alphabet C",s:"Tech",b:198},{t:"META",n:"Meta",s:"Social",b:585},{t:"AMZN",n:"Amazon",s:"E-com",b:218},
+{t:"NVDA",n:"NVIDIA",s:"Semi",b:168},{t:"TSLA",n:"Tesla",s:"Auto",b:265},{t:"AVGO",n:"Broadcom",s:"Semi",b:245},
+{t:"ORCL",n:"Oracle",s:"Tech",b:168},{t:"CRM",n:"Salesforce",s:"SaaS",b:290},{t:"ADBE",n:"Adobe",s:"SaaS",b:420},
+{t:"NFLX",n:"Netflix",s:"Media",b:780},{t:"AMD",n:"AMD",s:"Semi",b:172},{t:"INTC",n:"Intel",s:"Semi",b:33},
+{t:"QCOM",n:"Qualcomm",s:"Semi",b:178},{t:"TXN",n:"Texas Instruments",s:"Semi",b:195},{t:"MU",n:"Micron",s:"Semi",b:130},
+{t:"AMAT",n:"Applied Materials",s:"Semi",b:210},{t:"LRCX",n:"Lam Research",s:"Semi",b:95},{t:"KLAC",n:"KLA Corp",s:"Semi",b:780},
+{t:"ADI",n:"Analog Devices",s:"Semi",b:230},{t:"NXPI",n:"NXP Semi",s:"Semi",b:230},{t:"MRVL",n:"Marvell",s:"Semi",b:76},
+{t:"ON",n:"ON Semi",s:"Semi",b:52},{t:"MCHP",n:"Microchip",s:"Semi",b:80},{t:"TSM",n:"TSMC",s:"Semi",b:195},
+{t:"ASML",n:"ASML",s:"Semi",b:920},{t:"ARM",n:"Arm Holdings",s:"Semi",b:140},{t:"SMCI",n:"Super Micro",s:"Tech",b:45},
+{t:"DELL",n:"Dell",s:"Tech",b:120},{t:"HPQ",n:"HP",s:"Tech",b:35},{t:"IBM",n:"IBM",s:"Tech",b:200},
+{t:"ACN",n:"Accenture",s:"IT Svc",b:320},{t:"CSCO",n:"Cisco",s:"Tech",b:52},{t:"ANET",n:"Arista Networks",s:"Tech",b:110},
+{t:"GLW",n:"Corning",s:"Tech",b:45},{t:"SONY",n:"Sony",s:"Tech",b:105},{t:"SAP",n:"SAP SE",s:"Tech",b:215},
+// ── CYBER / CLOUD / SAAS ──
+{t:"PANW",n:"Palo Alto",s:"Cyber",b:350},{t:"CRWD",n:"CrowdStrike",s:"Cyber",b:340},{t:"ZS",n:"Zscaler",s:"Cyber",b:190},
+{t:"FTNT",n:"Fortinet",s:"Cyber",b:95},{t:"OKTA",n:"Okta",s:"Cyber",b:95},{t:"NET",n:"Cloudflare",s:"Cloud",b:92},
+{t:"DDOG",n:"Datadog",s:"SaaS",b:130},{t:"SNOW",n:"Snowflake",s:"Cloud",b:160},{t:"MDB",n:"MongoDB",s:"Cloud",b:280},
+{t:"NOW",n:"ServiceNow",s:"SaaS",b:560},{t:"WDAY",n:"Workday",s:"SaaS",b:240},{t:"ADSK",n:"Autodesk",s:"SaaS",b:260},
+{t:"INTU",n:"Intuit",s:"SaaS",b:640},{t:"TEAM",n:"Atlassian",s:"SaaS",b:180},{t:"ZM",n:"Zoom",s:"SaaS",b:65},
+{t:"DOCU",n:"DocuSign",s:"SaaS",b:55},{t:"TWLO",n:"Twilio",s:"SaaS",b:70},{t:"GTLB",n:"GitLab",s:"SaaS",b:50},
+{t:"ESTC",n:"Elastic",s:"SaaS",b:90},{t:"PATH",n:"UiPath",s:"SaaS",b:12},{t:"AI",n:"C3.ai",s:"Tech",b:25},
+// ── FINTECH / INTERNET ──
+{t:"SHOP",n:"Shopify",s:"E-com",b:78},{t:"SQ",n:"Block",s:"Fintech",b:72},{t:"PYPL",n:"PayPal",s:"Fintech",b:74},
+{t:"COIN",n:"Coinbase",s:"Fintech",b:210},{t:"HOOD",n:"Robinhood",s:"Fintech",b:18},{t:"AFRM",n:"Affirm",s:"Fintech",b:40},
+{t:"SOFI",n:"SoFi",s:"Fintech",b:9},{t:"PLTR",n:"Palantir",s:"Tech",b:28},{t:"FI",n:"Fiserv",s:"Fintech",b:165},
+{t:"GPN",n:"Global Payments",s:"Fintech",b:105},{t:"FIS",n:"FIS",s:"Fintech",b:80},{t:"MSTR",n:"MicroStrategy",s:"Tech",b:390},
+{t:"MARA",n:"Marathon Digital",s:"Tech",b:21},{t:"RIOT",n:"Riot Platforms",s:"Tech",b:12},
+{t:"UBER",n:"Uber",s:"Tech",b:82},{t:"LYFT",n:"Lyft",s:"Tech",b:14},{t:"ABNB",n:"Airbnb",s:"Travel",b:165},
+{t:"DASH",n:"DoorDash",s:"Tech",b:180},{t:"DUOL",n:"Duolingo",s:"EdTech",b:270},{t:"SE",n:"Sea Limited",s:"E-com",b:95},
+{t:"MELI",n:"MercadoLibre",s:"E-com",b:1900},{t:"BABA",n:"Alibaba",s:"E-com",b:90},{t:"PDD",n:"PDD Holdings",s:"E-com",b:120},
+{t:"JD",n:"JD.com",s:"E-com",b:35},{t:"BIDU",n:"Baidu",s:"Tech",b:95},{t:"NTES",n:"NetEase",s:"Gaming",b:100},
+{t:"SNAP",n:"Snap",s:"Social",b:13},{t:"PINS",n:"Pinterest",s:"Social",b:35},{t:"MTCH",n:"Match Group",s:"Social",b:32},
+{t:"SPOT",n:"Spotify",s:"Media",b:390},{t:"TTD",n:"Trade Desk",s:"AdTech",b:120},{t:"APP",n:"AppLovin",s:"AdTech",b:320},
+{t:"EA",n:"Electronic Arts",s:"Gaming",b:145},{t:"TTWO",n:"Take-Two",s:"Gaming",b:200},{t:"RBLX",n:"Roblox",s:"Gaming",b:44},
+{t:"U",n:"Unity",s:"Gaming",b:22},{t:"DKNG",n:"DraftKings",s:"Gaming",b:42},
+{t:"IONQ",n:"IonQ",s:"Tech",b:30},{t:"RKLB",n:"Rocket Lab",s:"Aero",b:22},{t:"ASTS",n:"AST SpaceMobile",s:"Tech",b:30},
+// ── HEALTHCARE ──
+{t:"UNH",n:"UnitedHealth",s:"Health",b:540},{t:"LLY",n:"Eli Lilly",s:"Pharma",b:850},{t:"JNJ",n:"Johnson & Johnson",s:"Pharma",b:158},
+{t:"ABBV",n:"AbbVie",s:"Pharma",b:185},{t:"MRK",n:"Merck",s:"Pharma",b:122},{t:"PFE",n:"Pfizer",s:"Pharma",b:29},
+{t:"TMO",n:"Thermo Fisher",s:"MedTech",b:560},{t:"ABT",n:"Abbott",s:"MedTech",b:120},{t:"DHR",n:"Danaher",s:"MedTech",b:250},
+{t:"BMY",n:"Bristol Myers",s:"Pharma",b:52},{t:"AMGN",n:"Amgen",s:"Pharma",b:295},{t:"GILD",n:"Gilead",s:"Pharma",b:95},
+{t:"VRTX",n:"Vertex",s:"Pharma",b:440},{t:"REGN",n:"Regeneron",s:"Pharma",b:850},{t:"MRNA",n:"Moderna",s:"Pharma",b:32},
+{t:"BNTX",n:"BioNTech",s:"Pharma",b:95},{t:"BIIB",n:"Biogen",s:"Pharma",b:180},{t:"ISRG",n:"Intuitive Surgical",s:"MedTech",b:450},
+{t:"SYK",n:"Stryker",s:"MedTech",b:350},{t:"BSX",n:"Boston Scientific",s:"MedTech",b:95},{t:"MDT",n:"Medtronic",s:"MedTech",b:88},
+{t:"EW",n:"Edwards Life",s:"MedTech",b:75},{t:"DXCM",n:"Dexcom",s:"MedTech",b:80},{t:"ZTS",n:"Zoetis",s:"Pharma",b:165},
+{t:"CVS",n:"CVS Health",s:"Health",b:62},{t:"CI",n:"Cigna",s:"Health",b:340},{t:"HUM",n:"Humana",s:"Health",b:360},
+{t:"ELV",n:"Elevance",s:"Health",b:480},{t:"HCA",n:"HCA Health",s:"Health",b:340},{t:"MCK",n:"McKesson",s:"Health",b:580},
+{t:"NVO",n:"Novo Nordisk",s:"Pharma",b:90},{t:"AZN",n:"AstraZeneca",s:"Pharma",b:74},{t:"SNY",n:"Sanofi",s:"Pharma",b:52},
+{t:"GSK",n:"GSK",s:"Pharma",b:40},{t:"NVS",n:"Novartis",s:"Pharma",b:110},{t:"HIMS",n:"Hims & Hers",s:"Health",b:22},
+{t:"PHG",n:"Philips",s:"MedTech",b:28},
+// ── FINANCIALS ──
+{t:"JPM",n:"JPMorgan",s:"Finance",b:235},{t:"BAC",n:"Bank of America",s:"Finance",b:44},{t:"WFC",n:"Wells Fargo",s:"Finance",b:70},
+{t:"C",n:"Citigroup",s:"Finance",b:75},{t:"GS",n:"Goldman Sachs",s:"Finance",b:560},{t:"MS",n:"Morgan Stanley",s:"Finance",b:125},
+{t:"SCHW",n:"Charles Schwab",s:"Finance",b:78},{t:"BLK",n:"BlackRock",s:"Finance",b:950},{t:"BX",n:"Blackstone",s:"Finance",b:150},
+{t:"KKR",n:"KKR",s:"Finance",b:130},{t:"APO",n:"Apollo",s:"Finance",b:140},{t:"V",n:"Visa",s:"Finance",b:300},
+{t:"MA",n:"Mastercard",s:"Finance",b:510},{t:"AXP",n:"Amex",s:"Finance",b:255},{t:"DFS",n:"Discover",s:"Finance",b:175},
+{t:"COF",n:"Capital One",s:"Finance",b:180},{t:"USB",n:"US Bancorp",s:"Finance",b:48},{t:"PNC",n:"PNC",s:"Finance",b:190},
+{t:"TFC",n:"Truist",s:"Finance",b:45},{t:"BK",n:"BNY Mellon",s:"Finance",b:85},{t:"BRK-B",n:"Berkshire B",s:"Finance",b:480},
+{t:"PGR",n:"Progressive",s:"Insurance",b:250},{t:"CB",n:"Chubb",s:"Insurance",b:280},{t:"TRV",n:"Travelers",s:"Insurance",b:240},
+{t:"ALL",n:"Allstate",s:"Insurance",b:200},{t:"AIG",n:"AIG",s:"Insurance",b:78},{t:"MET",n:"MetLife",s:"Insurance",b:82},
+{t:"PRU",n:"Prudential",s:"Insurance",b:115},{t:"AFL",n:"Aflac",s:"Insurance",b:105},{t:"MMC",n:"Marsh McLennan",s:"Insurance",b:220},
+{t:"AON",n:"Aon",s:"Insurance",b:380},{t:"ICE",n:"ICE",s:"Finance",b:165},{t:"CME",n:"CME Group",s:"Finance",b:240},
+{t:"NDAQ",n:"Nasdaq",s:"Finance",b:80},{t:"SPGI",n:"S&P Global",s:"Finance",b:520},{t:"MCO",n:"Moody's",s:"Finance",b:480},
+{t:"MSCI",n:"MSCI",s:"Finance",b:580},{t:"ING",n:"ING Group",s:"Finance",b:18},{t:"UBS",n:"UBS",s:"Finance",b:32},
+{t:"HSBC",n:"HSBC",s:"Finance",b:48},{t:"DB",n:"Deutsche Bank",s:"Finance",b:18},{t:"SAN",n:"Santander",s:"Finance",b:5.5},
+// ── CONSUMER / RETAIL / FOOD ──
+{t:"WMT",n:"Walmart",s:"Retail",b:95},{t:"COST",n:"Costco",s:"Retail",b:940},{t:"TGT",n:"Target",s:"Retail",b:135},
+{t:"HD",n:"Home Depot",s:"Retail",b:370},{t:"LOW",n:"Lowe's",s:"Retail",b:250},{t:"DG",n:"Dollar General",s:"Retail",b:90},
+{t:"DLTR",n:"Dollar Tree",s:"Retail",b:75},{t:"BBY",n:"Best Buy",s:"Retail",b:85},{t:"TJX",n:"TJX",s:"Retail",b:125},
+{t:"ROST",n:"Ross Stores",s:"Retail",b:150},{t:"ULTA",n:"Ulta Beauty",s:"Retail",b:420},{t:"LULU",n:"Lululemon",s:"Sport",b:310},
+{t:"NKE",n:"Nike",s:"Sport",b:80},{t:"SKX",n:"Skechers",s:"Sport",b:60},{t:"DECK",n:"Deckers",s:"Sport",b:150},
+{t:"ONON",n:"On Holding",s:"Sport",b:50},{t:"CROX",n:"Crocs",s:"Sport",b:110},{t:"MCD",n:"McDonald's",s:"Food",b:300},
+{t:"SBUX",n:"Starbucks",s:"Food",b:88},{t:"CMG",n:"Chipotle",s:"Food",b:55},{t:"YUM",n:"Yum Brands",s:"Food",b:140},
+{t:"QSR",n:"Restaurant Brands",s:"Food",b:70},{t:"DPZ",n:"Domino's",s:"Food",b:480},{t:"WING",n:"Wingstop",s:"Food",b:280},
+{t:"KO",n:"Coca-Cola",s:"Food",b:70},{t:"PEP",n:"PepsiCo",s:"Food",b:175},{t:"MNST",n:"Monster",s:"Food",b:55},
+{t:"CELH",n:"Celsius",s:"Food",b:35},{t:"KDP",n:"Keurig DP",s:"Food",b:35},{t:"MDLZ",n:"Mondelez",s:"Food",b:68},
+{t:"KHC",n:"Kraft Heinz",s:"Food",b:30},{t:"GIS",n:"General Mills",s:"Food",b:62},{t:"HSY",n:"Hershey",s:"Food",b:180},
+{t:"K",n:"Kellanova",s:"Food",b:80},{t:"PG",n:"P&G",s:"Consumer",b:165},{t:"CL",n:"Colgate",s:"Consumer",b:95},
+{t:"KMB",n:"Kimberly-Clark",s:"Consumer",b:140},{t:"EL",n:"Estée Lauder",s:"Consumer",b:75},{t:"CHD",n:"Church & Dwight",s:"Consumer",b:105},
+{t:"CLX",n:"Clorox",s:"Consumer",b:140},{t:"PM",n:"Philip Morris",s:"Consumer",b:125},{t:"MO",n:"Altria",s:"Consumer",b:52},
+{t:"STZ",n:"Constellation",s:"Consumer",b:240},{t:"DEO",n:"Diageo",s:"Consumer",b:120},{t:"BUD",n:"AB InBev",s:"Consumer",b:62},
+{t:"TAP",n:"Molson Coors",s:"Consumer",b:55},{t:"UL",n:"Unilever",s:"Consumer",b:60},
+// ── AUTO ──
+{t:"F",n:"Ford",s:"Auto",b:13},{t:"GM",n:"General Motors",s:"Auto",b:52},{t:"RIVN",n:"Rivian",s:"Auto",b:14},
+{t:"LCID",n:"Lucid",s:"Auto",b:3},{t:"TM",n:"Toyota",s:"Auto",b:200},{t:"RACE",n:"Ferrari",s:"Auto",b:480},
+{t:"STLA",n:"Stellantis",s:"Auto",b:13},{t:"HMC",n:"Honda",s:"Auto",b:32},
+// ── INDUSTRIAL / AERO / DEFENSE / TRANSPORT ──
+{t:"BA",n:"Boeing",s:"Aero",b:190},{t:"LMT",n:"Lockheed Martin",s:"Aero",b:470},{t:"RTX",n:"RTX",s:"Aero",b:125},
+{t:"NOC",n:"Northrop",s:"Aero",b:480},{t:"GD",n:"General Dynamics",s:"Aero",b:290},{t:"LHX",n:"L3Harris",s:"Aero",b:230},
+{t:"HII",n:"Huntington Ingalls",s:"Aero",b:280},{t:"AXON",n:"Axon",s:"Defense",b:580},{t:"CAT",n:"Caterpillar",s:"Industrial",b:355},
+{t:"DE",n:"John Deere",s:"Industrial",b:420},{t:"HON",n:"Honeywell",s:"Industrial",b:210},{t:"GE",n:"GE Aerospace",s:"Industrial",b:200},
+{t:"GEV",n:"GE Vernova",s:"Industrial",b:350},{t:"MMM",n:"3M",s:"Industrial",b:130},{t:"EMR",n:"Emerson",s:"Industrial",b:115},
+{t:"ETN",n:"Eaton",s:"Industrial",b:330},{t:"PH",n:"Parker Hannifin",s:"Industrial",b:580},{t:"ITW",n:"Illinois Tool",s:"Industrial",b:250},
+{t:"CMI",n:"Cummins",s:"Industrial",b:340},{t:"PCAR",n:"Paccar",s:"Industrial",b:105},{t:"URI",n:"United Rentals",s:"Industrial",b:720},
+{t:"WM",n:"Waste Mgmt",s:"Industrial",b:210},{t:"RSG",n:"Republic Svcs",s:"Industrial",b:200},
+{t:"UPS",n:"UPS",s:"Logistics",b:135},{t:"FDX",n:"FedEx",s:"Logistics",b:265},{t:"UNP",n:"Union Pacific",s:"Rail",b:240},
+{t:"CSX",n:"CSX",s:"Rail",b:35},{t:"NSC",n:"Norfolk Southern",s:"Rail",b:250},{t:"ODFL",n:"Old Dominion",s:"Logistics",b:180},
+// ── TRAVEL ──
+{t:"DAL",n:"Delta Air",s:"Travel",b:48},{t:"UAL",n:"United Airlines",s:"Travel",b:85},{t:"AAL",n:"American Airlines",s:"Travel",b:14},
+{t:"LUV",n:"Southwest",s:"Travel",b:30},{t:"RYAAY",n:"Ryanair",s:"Travel",b:130},{t:"CCL",n:"Carnival",s:"Travel",b:22},
+{t:"RCL",n:"Royal Caribbean",s:"Travel",b:220},{t:"NCLH",n:"Norwegian",s:"Travel",b:22},{t:"MAR",n:"Marriott",s:"Travel",b:260},
+{t:"HLT",n:"Hilton",s:"Travel",b:240},{t:"BKNG",n:"Booking",s:"Travel",b:4100},{t:"EXPE",n:"Expedia",s:"Travel",b:165},
+// ── ENERGY / UTILITIES / MATERIALS ──
+{t:"XOM",n:"ExxonMobil",s:"Energy",b:118},{t:"CVX",n:"Chevron",s:"Energy",b:158},{t:"COP",n:"ConocoPhillips",s:"Energy",b:105},
+{t:"SLB",n:"Schlumberger",s:"Energy",b:42},{t:"HAL",n:"Halliburton",s:"Energy",b:28},{t:"OXY",n:"Occidental",s:"Energy",b:50},
+{t:"EOG",n:"EOG Resources",s:"Energy",b:125},{t:"PSX",n:"Phillips 66",s:"Energy",b:130},{t:"VLO",n:"Valero",s:"Energy",b:140},
+{t:"MPC",n:"Marathon Petroleum",s:"Energy",b:165},{t:"KMI",n:"Kinder Morgan",s:"Energy",b:26},{t:"WMB",n:"Williams",s:"Energy",b:55},
+{t:"SHEL",n:"Shell",s:"Energy",b:34},{t:"BP",n:"BP",s:"Energy",b:36},{t:"TTE",n:"TotalEnergies",s:"Energy",b:62},
+{t:"ENB",n:"Enbridge",s:"Energy",b:42},{t:"NEE",n:"NextEra",s:"Utilities",b:74},{t:"DUK",n:"Duke Energy",s:"Utilities",b:110},
+{t:"SO",n:"Southern Co",s:"Utilities",b:88},{t:"D",n:"Dominion",s:"Utilities",b:55},{t:"AEP",n:"AEP",s:"Utilities",b:100},
+{t:"EXC",n:"Exelon",s:"Utilities",b:42},{t:"XEL",n:"Xcel",s:"Utilities",b:68},{t:"SRE",n:"Sempra",s:"Utilities",b:80},
+{t:"CEG",n:"Constellation Energy",s:"Utilities",b:280},{t:"VST",n:"Vistra",s:"Utilities",b:140},
+{t:"LIN",n:"Linde",s:"Chemicals",b:470},{t:"APD",n:"Air Products",s:"Chemicals",b:290},{t:"SHW",n:"Sherwin-Williams",s:"Chemicals",b:360},
+{t:"ECL",n:"Ecolab",s:"Chemicals",b:250},{t:"DOW",n:"Dow",s:"Chemicals",b:42},{t:"DD",n:"DuPont",s:"Chemicals",b:80},
+{t:"FCX",n:"Freeport",s:"Materials",b:46},{t:"NEM",n:"Newmont",s:"Materials",b:52},{t:"AA",n:"Alcoa",s:"Materials",b:38},
+{t:"NUE",n:"Nucor",s:"Materials",b:150},{t:"STLD",n:"Steel Dynamics",s:"Materials",b:130},{t:"ALB",n:"Albemarle",s:"Materials",b:90},
+{t:"MP",n:"MP Materials",s:"Materials",b:25},{t:"CF",n:"CF Industries",s:"Materials",b:85},{t:"MOS",n:"Mosaic",s:"Materials",b:30},
+{t:"VMC",n:"Vulcan",s:"Materials",b:270},{t:"MLM",n:"Martin Marietta",s:"Materials",b:580},
+{t:"ENPH",n:"Enphase",s:"Solar",b:74},{t:"FSLR",n:"First Solar",s:"Solar",b:160},
+// ── MEDIA / TELECOM / REIT ──
+{t:"DIS",n:"Disney",s:"Media",b:108},{t:"CMCSA",n:"Comcast",s:"Media",b:38},{t:"WBD",n:"Warner Bros",s:"Media",b:11},
+{t:"PARA",n:"Paramount",s:"Media",b:12},{t:"FOXA",n:"Fox",s:"Media",b:50},{t:"LYV",n:"Live Nation",s:"Media",b:140},
+{t:"T",n:"AT&T",s:"Telecom",b:22},{t:"VZ",n:"Verizon",s:"Telecom",b:42},{t:"TMUS",n:"T-Mobile",s:"Telecom",b:240},
+{t:"AMT",n:"American Tower",s:"REIT",b:200},{t:"PLD",n:"Prologis",s:"REIT",b:115},{t:"EQIX",n:"Equinix",s:"REIT",b:880},
+{t:"O",n:"Realty Income",s:"REIT",b:56},{t:"SPG",n:"Simon Property",s:"REIT",b:165},{t:"PSA",n:"Public Storage",s:"REIT",b:300},
+{t:"CCI",n:"Crown Castle",s:"REIT",b:100},{t:"WELL",n:"Welltower",s:"REIT",b:130},{t:"DLR",n:"Digital Realty",s:"REIT",b:160},
+// ── ETFs ──
+{t:"SPY",n:"S&P 500 ETF",s:"ETF",b:580},{t:"VOO",n:"Vanguard S&P 500",s:"ETF",b:535},{t:"IVV",n:"iShares S&P 500",s:"ETF",b:585},
+{t:"QQQ",n:"Nasdaq 100 ETF",s:"ETF",b:500},{t:"VTI",n:"Total US Market",s:"ETF",b:290},{t:"DIA",n:"Dow Jones ETF",s:"ETF",b:430},
+{t:"IWM",n:"Russell 2000",s:"ETF",b:220},{t:"VEA",n:"Developed Markets",s:"ETF",b:52},{t:"VWO",n:"Emerging Markets",s:"ETF",b:46},
+{t:"EFA",n:"MSCI EAFE",s:"ETF",b:82},{t:"EEM",n:"MSCI Emerging",s:"ETF",b:44},{t:"VGK",n:"Europe ETF",s:"ETF",b:70},
+{t:"EWJ",n:"Japan ETF",s:"ETF",b:72},{t:"ARKK",n:"ARK Innovation",s:"ETF",b:55},{t:"XLK",n:"Tech Sector",s:"ETF",b:230},
+{t:"XLF",n:"Financials Sector",s:"ETF",b:48},{t:"XLE",n:"Energy Sector",s:"ETF",b:92},{t:"XLV",n:"Health Sector",s:"ETF",b:145},
+{t:"XLI",n:"Industrials Sector",s:"ETF",b:135},{t:"XLY",n:"Consumer Discr.",s:"ETF",b:200},{t:"XLP",n:"Consumer Staples",s:"ETF",b:78},
+{t:"XLU",n:"Utilities Sector",s:"ETF",b:78},{t:"XLB",n:"Materials Sector",s:"ETF",b:90},{t:"XLRE",n:"Real Estate Sector",s:"ETF",b:40},
+{t:"XLC",n:"Comm. Sector",s:"ETF",b:95},{t:"SMH",n:"Semiconductor ETF",s:"ETF",b:270},{t:"SOXX",n:"iShares Semi",s:"ETF",b:240},
+{t:"GLD",n:"Gold ETF",s:"ETF",b:245},{t:"SLV",n:"Silver ETF",s:"ETF",b:28},{t:"GDX",n:"Gold Miners",s:"ETF",b:42},
+{t:"USO",n:"Oil Fund",s:"ETF",b:75},{t:"TLT",n:"20Y Treasury",s:"ETF",b:92},{t:"IEF",n:"7-10Y Treasury",s:"ETF",b:95},
+{t:"LQD",n:"IG Corp Bonds",s:"ETF",b:110},{t:"HYG",n:"High Yield Bonds",s:"ETF",b:79},{t:"AGG",n:"US Aggregate Bond",s:"ETF",b:99},
+{t:"BND",n:"Total Bond Market",s:"ETF",b:73},{t:"VNQ",n:"Real Estate ETF",s:"ETF",b:90},{t:"SCHD",n:"Dividend ETF",s:"ETF",b:28},
+{t:"VYM",n:"High Dividend",s:"ETF",b:125},{t:"VUG",n:"Growth ETF",s:"ETF",b:400},{t:"VTV",n:"Value ETF",s:"ETF",b:170},
+{t:"JEPI",n:"JPM Equity Income",s:"ETF",b:58},
 ];
 
 // ══ STATE ══
@@ -471,18 +574,6 @@ async function tryFMP(tickers){
   return out;
 }
 
-async function loadCrypto(){
-  const map={"BTC-USD":"bitcoin","ETH-USD":"ethereum","SOL-USD":"solana","DOGE-USD":"dogecoin"};
-  const out={};
-  try{
-    const res=await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(map).join(",")}&vs_currencies=usd&include_24hr_change=true`);
-    const data=await res.json();
-    for(const[tk,id]of Object.entries(map)){
-      if(data[id]&&data[id].usd)out[tk]={price:data[id].usd,change:data[id].usd_24h_change||0};
-    }
-  }catch(e){console.warn("crypto:",e.message);}
-  return out;
-}
 
 async function loadPrices(progressCb){
   let results={};
@@ -496,13 +587,18 @@ async function loadPrices(progressCb){
     if(progressCb)progressCb(55);
     // Strategy 2: FMP direct
     try{
-      results=await tryFMP(tickers);
+      const wave1=tickers.slice(0,280);
+      results=await tryFMP(wave1);
       console.log("✓ FMP direct:",Object.keys(results).length,"prices");
+      const wave2=tickers.slice(280);
+      if(wave2.length)setTimeout(async()=>{
+        const more=await tryFMP(wave2);
+        if(applyPrices(more,false)>0){live=true;updateAll();}
+        console.log("✓ FMP wave 2:",Object.keys(more).length,"prices");
+      },65000);
     }catch(e2){console.warn("FMP failed:",e2.message);}
   }
-  // Crypto always via CoinGecko
-  if(progressCb)progressCb(80);
-  Object.assign(results,await loadCrypto());
+  if(progressCb)progressCb(85);
   return results;
 }
 
