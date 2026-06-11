@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://stonkarena.net/sitemap.xml
