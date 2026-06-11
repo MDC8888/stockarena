@@ -272,6 +272,7 @@ svg.mc{flex-shrink:0}
       <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="signup-name" placeholder="Your name"></div>
       <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="signup-email" placeholder="you@example.com"></div>
       <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="signup-pass" placeholder="Min. 8 characters"></div>
+      <div class="form-group"><label class="form-label">Confirm password</label><input type="password" class="form-input" id="signup-pass2" placeholder="Repeat password"></div>
       <button class="btn-primary" onclick="signupWithEmail()">Create account</button>
       <div class="auth-footer">By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></div>
     </div>
@@ -739,8 +740,9 @@ async function loginWithEmail(){
   username=e.split("@")[0];saveState();startLoading();
 }
 async function signupWithEmail(){
-  const n=$("signup-name").value.trim(),e=$("signup-email").value.trim(),p=$("signup-pass").value;
+  const n=$("signup-name").value.trim(),e=$("signup-email").value.trim(),p=$("signup-pass").value,p2=$("signup-pass2").value;
   if(!n)return;
+  if(p!==p2)return showToast("Passwords don't match","err");
   if(FB){
     if(!e||p.length<8)return showToast("Valid email + min. 8 char password","err");
     onboarding=true;
@@ -818,11 +820,27 @@ function resetAccount(){
 // ══ LOADING ══
 function setProgress(p){$("load-bar").style.width=p+"%";}
 let pricePromise=null,pricesApplied=false;
+function saveSnapshot(){
+  try{
+    const snap={};
+    STOCKS.forEach(s=>{snap[s.t]=[Math.round(prices[s.t]*100)/100,Math.round((changes[s.t]||0)*100)/100];});
+    store.set("sa_prices",{t:Date.now(),p:snap});
+  }catch(e){}
+}
+function loadSnapshot(){
+  const c=store.get("sa_prices");
+  if(!c||!c.p||Date.now()-c.t>86400000)return 0;
+  let n=0;
+  for(const[tk,v]of Object.entries(c.p)){
+    if(v&&v[0]>0){prices[tk]=v[0];base[tk]=v[0];changes[tk]=v[1]||0;hist[tk]=[v[0]];n++;}
+  }
+  return n;
+}
 function beginPriceLoad(){
   if(pricePromise)return pricePromise;
   pricePromise=loadPrices().then(d=>{
     const n=applyPrices(d,!pricesApplied);
-    if(n>0){live=true;pricesApplied=true;updateAll();}
+    if(n>0){live=true;pricesApplied=true;saveSnapshot();updateAll();}
     return n;
   }).catch(e=>{console.warn("preload:",e.message);return 0;});
   return pricePromise;
@@ -830,6 +848,14 @@ function beginPriceLoad(){
 async function startLoading(){
   onboarding=false;appStarted=true;
   show("loading-screen");
+  if(!pricesApplied&&loadSnapshot()>0){
+    pricesApplied=true;
+    setProgress(100);
+    $("load-sub").textContent="✓ Ready";
+    beginPriceLoad();
+    setTimeout(()=>enterApp(),250);
+    return;
+  }
   setProgress(30);
   $("load-sub").textContent="Fetching live prices...";
   let p=55;
