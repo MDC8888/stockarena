@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Stock Arena">
+<meta name="apple-mobile-web-app-title" content="Stonk Arena">
 <meta name="theme-color" content="#ffffff">
-<meta name="description" content="Stock Arena — Trade virtual stocks. Win €100 every month.">
-<title>Stock Arena</title>
+<meta name="description" content="Stonk Arena — Trade virtual stocks. Win €100 every month.">
+<title>Stonk Arena</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -216,7 +216,7 @@ svg.mc{flex-shrink:0}
   <div class="auth-wrap" style="justify-content:center">
     <div class="auth-logo" style="margin-bottom:24px">
       <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
-      <span class="auth-logo-name">Stock Arena</span>
+      <span class="auth-logo-name">Stonk Arena</span>
     </div>
     <h1 class="auth-heading" style="margin-bottom:4px">Choose your<br><em>language</em></h1>
     <p class="auth-sub">Select a language to continue.</p>
@@ -229,7 +229,7 @@ svg.mc{flex-shrink:0}
   <div class="auth-wrap" style="justify-content:center">
     <div class="auth-logo" style="margin-bottom:24px">
       <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
-      <span class="auth-logo-name">Stock Arena</span>
+      <span class="auth-logo-name">Stonk Arena</span>
     </div>
     <h1 class="auth-heading" style="margin-bottom:4px" id="name-head">Choose your player name</h1>
     <p class="auth-sub" id="name-sub">This name is shown on the leaderboard.</p>
@@ -243,7 +243,7 @@ svg.mc{flex-shrink:0}
   <div class="auth-wrap">
     <div class="auth-logo">
       <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
-      <span class="auth-logo-name">Stock Arena</span>
+      <span class="auth-logo-name">Stonk Arena</span>
     </div>
     <div class="auth-toggle">
       <button class="auth-toggle-btn active" id="toggle-login" onclick="showAuthMode('login')">Sign in</button>
@@ -288,7 +288,7 @@ svg.mc{flex-shrink:0}
   <div class="auth-wrap" style="justify-content:center">
     <div class="auth-logo" style="margin-bottom:24px">
       <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
-      <span class="auth-logo-name">Stock Arena</span>
+      <span class="auth-logo-name">Stonk Arena</span>
     </div>
     <h1 class="auth-heading" style="margin-bottom:4px" id="rules-head">The rules</h1>
     <p class="auth-sub" id="rules-sub">Six rules — all designed to keep the game fair.</p>
@@ -326,7 +326,7 @@ svg.mc{flex-shrink:0}
     <div class="app-header-top">
       <div class="app-header-logo">
         <div class="app-header-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
-        <span class="app-header-logo-name">Stock Arena</span>
+        <span class="app-header-logo-name">Stonk Arena</span>
       </div>
       <div class="header-right">
         <span class="header-badge badge-sim" id="data-badge">SIM</span>
@@ -829,7 +829,7 @@ async function shareCard(){
   const v=pval(),r=pret(v);
   x.textAlign="center";
   x.fillStyle="rgba(255,255,255,.7)";x.font="600 46px -apple-system,Helvetica,sans-serif";
-  x.fillText("📈 STOCK ARENA",540,170);
+  x.fillText("📈 STONK ARENA",540,170);
   x.fillStyle="#fff";x.font="700 76px -apple-system,Helvetica,sans-serif";
   x.fillText(username.slice(0,16),540,400);
   x.fillStyle=r>=0?"#6ee7b7":"#fca5a5";x.font="800 190px -apple-system,Helvetica,sans-serif";
@@ -842,17 +842,17 @@ async function shareCard(){
   x.fillText("mdc8888.github.io/stockarena",540,1010);
   c.toBlob(async b=>{
     if(!b)return;
-    const f=new File([b],"stockarena.png",{type:"image/png"});
+    const f=new File([b],"stonkarena.png",{type:"image/png"});
     if(navigator.canShare&&navigator.canShare({files:[f]})){
-      try{await navigator.share({files:[f],title:"Stock Arena",text:"Beat me on Stock Arena 🏆"});return;}catch(e){}
+      try{await navigator.share({files:[f],title:"Stonk Arena",text:"Beat me on Stonk Arena 🏆"});return;}catch(e){}
     }
-    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="stockarena.png";a.click();
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="stonkarena.png";a.click();
     showToast("Image saved");
   },"image/png");
 }
 function shareApp(){
   const url=location.href.split("?")[0];
-  if(navigator.share){navigator.share({title:"Stock Arena",text:"Trade virtual stocks. Win €100 every month.",url}).catch(()=>{});}
+  if(navigator.share){navigator.share({title:"Stonk Arena",text:"Trade virtual stocks. Win €100 every month.",url}).catch(()=>{});}
   else{try{navigator.clipboard.writeText(url);showToast("Link copied");}catch(e){showToast(url);}}
 }
 function resetAccount(){

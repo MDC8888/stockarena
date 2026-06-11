@@ -1,6 +1,6 @@
 {
-  "name": "Stock Arena",
-  "short_name": "Stock Arena",
+  "name": "Stonk Arena",
+  "short_name": "Stonk Arena",
   "description": "Trade virtual stocks. Win €100 every month.",
   "start_url": "./",
   "scope": "./",
