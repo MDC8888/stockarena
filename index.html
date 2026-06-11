@@ -815,29 +815,29 @@ function resetAccount(){
 
 // ══ LOADING ══
 function setProgress(p){$("load-bar").style.width=p+"%";}
+let pricePromise=null,pricesApplied=false;
+function beginPriceLoad(){
+  if(pricePromise)return pricePromise;
+  pricePromise=loadPrices().then(d=>{
+    const n=applyPrices(d,!pricesApplied);
+    if(n>0){live=true;pricesApplied=true;updateAll();}
+    return n;
+  }).catch(e=>{console.warn("preload:",e.message);return 0;});
+  return pricePromise;
+}
 async function startLoading(){
   show("loading-screen");
-  setProgress(15);
+  setProgress(30);
   $("load-sub").textContent="Fetching live prices...";
-  try{
-    setProgress(35);
-    const data=await loadPrices(setProgress);
-    setProgress(92);
-    const n=applyPrices(data,true);
-    if(n>0){
-      live=true;
-      $("load-sub").textContent=`✓ ${n} live prices loaded`;
-    }else{
-      $("load-err").style.display="block";
-      $("load-err").textContent="Live prices unavailable right now — using recent reference prices. Trading works normally.";
-    }
-    setProgress(100);
-    setTimeout(()=>enterApp(),400);
-  }catch(e){
-    $("load-err").style.display="block";
-    $("load-err").textContent=e.message;
-    $("load-cont").style.display="block";
-  }
+  let p=55;
+  const anim=setInterval(()=>{p=Math.min(90,p+5);setProgress(p);},400);
+  const timeout=new Promise(r=>setTimeout(()=>r("timeout"),15000));
+  const res=await Promise.race([beginPriceLoad(),timeout]);
+  clearInterval(anim);
+  setProgress(100);
+  if(res==="timeout")$("load-sub").textContent="Prices still loading — entering app...";
+  else if(res>0)$("load-sub").textContent=`✓ ${res} live prices loaded`;
+  setTimeout(()=>enterApp(),350);
 }
 
 // ══ APP ══
@@ -1048,6 +1048,7 @@ function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
 function init(){
+  beginPriceLoad();
   const ll=$("lang-list");
   Object.entries(L).forEach(([code,l])=>{
     const b=document.createElement("button");
