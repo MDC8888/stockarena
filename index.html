@@ -185,6 +185,15 @@ svg.mc{flex-shrink:0}
 .lang-opt{display:block;width:100%;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:var(--text2);cursor:pointer;text-align:left;font-size:13px;font-family:var(--sans)}
 .lang-opt:hover{background:var(--bg)}
 .lang-opt.active{background:var(--blue3);color:var(--blue);font-weight:600}
+.rules-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.rule-item{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px}
+.rule-icon{font-size:20px;line-height:1.2}
+.rule-title{font-size:14px;font-weight:600;color:var(--text)}
+.rule-why{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.45}
+.divmeter-bar{height:8px;background:var(--bg);border-radius:6px;overflow:hidden;position:relative;margin-top:8px}
+.divmeter-fill{height:100%;border-radius:6px;transition:width .3s}
+.divmeter-limit{position:absolute;left:30%;top:0;bottom:0;width:2px;background:var(--text3);opacity:.5}
+.pos-controls{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:6px}
 #toast{position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:#fff;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:all .2s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.15)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.ok{background:#065f46}#toast.err{background:#991b1b}
@@ -237,6 +246,27 @@ svg.mc{flex-shrink:0}
       <button class="btn-primary" onclick="signupWithEmail()">Create account</button>
       <div class="auth-footer">By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></div>
     </div>
+  </div>
+</div>
+
+<!-- RULES -->
+<div id="rules-screen" class="screen">
+  <div class="auth-wrap" style="justify-content:center">
+    <div class="auth-logo" style="margin-bottom:24px">
+      <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+      <span class="auth-logo-name">Stock Arena</span>
+    </div>
+    <h1 class="auth-heading" style="margin-bottom:4px">The <em>rules</em></h1>
+    <p class="auth-sub">Six rules — all designed to keep the game fair.</p>
+    <div class="rules-list">
+      <div class="rule-item"><div class="rule-icon">💰</div><div><div class="rule-title">€10,000 virtual capital</div><div class="rule-why">Everyone starts equal. Skill decides the outcome, not budget.</div></div></div>
+      <div class="rule-item"><div class="rule-icon">📊</div><div><div class="rule-title">Max 30% per stock</div><div class="rule-why">Forces diversification and prevents all-in gambling on one bet.</div></div></div>
+      <div class="rule-item"><div class="rule-icon">🔁</div><div><div class="rule-title">Minimum 5 trades to qualify</div><div class="rule-why">Active management wins — not one lucky coin flip.</div></div></div>
+      <div class="rule-item"><div class="rule-icon">🏆</div><div><div class="rule-title">Highest return wins €100</div><div class="rule-why">The competition resets every month. Fresh start for everyone.</div></div></div>
+      <div class="rule-item"><div class="rule-icon">📈</div><div><div class="rule-title">Real market prices</div><div class="rule-why">Stocks & ETFs only, following the live market.</div></div></div>
+      <div class="rule-item"><div class="rule-icon">🆓</div><div><div class="rule-title">Free to play</div><div class="rule-why">No deposit, no stake, no risk. Just bragging rights and the prize.</div></div></div>
+    </div>
+    <button class="btn-primary" id="rules-btn" onclick="rulesContinue()">I understand →</button>
   </div>
 </div>
 
@@ -297,6 +327,7 @@ svg.mc{flex-shrink:0}
         <div class="stat-card"><div class="stat-card-label" id="pt-l2">RETURN</div><div class="stat-card-val" id="pt-v2" style="color:var(--green)">+0.00%</div></div>
         <div class="stat-card"><div class="stat-card-label" id="pt-l3">CASH</div><div class="stat-card-val" id="pt-v3" style="color:var(--blue)">€10,000</div></div>
       </div>
+      <div id="divmeter"></div>
       <div class="affiliate-card">
         <div class="affiliate-text"><strong>Ready to trade for real?</strong>Open a DEGIRO account and start with real stocks.</div>
         <button class="affiliate-btn" onclick="window.open('https://www.degiro.eu','_blank')">Open →</button>
@@ -327,6 +358,10 @@ svg.mc{flex-shrink:0}
         <div class="invite-title">Invite friends to compete</div>
         <div class="invite-sub" id="lb-invite">Share your link and build the leaderboard.</div>
       </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn-sell" style="flex:1;padding:11px;border-radius:10px" onclick="showRules(true)">📋 Rules</button>
+        <button class="btn-buy" style="flex:1;padding:11px;border-radius:10px" onclick="shareApp()">🔗 Invite friends</button>
+      </div>
       <div class="signout-row">
         <button class="signout-btn" onclick="resetAccount()">Sign out & reset portfolio</button>
       </div>
@@ -347,8 +382,8 @@ svg.mc{flex-shrink:0}
 <script>
 // ══ TRANSLATIONS ══
 const L={
-  en:{f:"🇬🇧",l:"English",hP:"PORTFOLIO",hR:"RETURN",hC:"CASH",hL:"LEFT",nM:"MARKET",nP:"PORTFOLIO",nLb:"RANKING",ptL1:"TOTAL",ptL2:"RETURN",ptL3:"CASH",ptPos:"OPEN POSITIONS",ptNoPos:"No positions yet. Go trade.",ptTr:"TRADE HISTORY",ptNoTr:"No trades yet.",lbLbl:"MONTHLY PRIZE",lbSub:"Highest return wins",dLeft:"days left",invite:"Share your link and build the leaderboard.",you:"YOU",trades:"trades",allSec:"All",noCash:"Insufficient cash",noShares:"Not enough shares",bought:"Bought",sold:"Sold",buy:"BUY",sell:"SELL"},
-  nl:{f:"🇳🇱",l:"Nederlands",hP:"PORTFOLIO",hR:"RENDEMENT",hC:"CASH",hL:"NOG",nM:"MARKT",nP:"PORTFOLIO",nLb:"KLASSEMENT",ptL1:"TOTAAL",ptL2:"RENDEMENT",ptL3:"CASH",ptPos:"OPEN POSITIES",ptNoPos:"Nog geen posities.",ptTr:"TRADE HISTORY",ptNoTr:"Nog geen trades.",lbLbl:"MAANDPRIJS",lbSub:"Hoogste rendement wint",dLeft:"dagen resterend",invite:"Nodig vrienden uit om mee te doen.",you:"JIJ",trades:"trades",allSec:"Alle",noCash:"Onvoldoende cash",noShares:"Niet genoeg aandelen",bought:"Gekocht",sold:"Verkocht",buy:"KOOP",sell:"VERKOOP"},
+  en:{f:"🇬🇧",l:"English",hP:"PORTFOLIO",hR:"RETURN",hC:"CASH",hL:"LEFT",nM:"MARKET",nP:"PORTFOLIO",nLb:"RANKING",ptL1:"TOTAL",ptL2:"RETURN",ptL3:"CASH",ptPos:"OPEN POSITIONS",ptNoPos:"No positions yet. Go trade.",ptTr:"TRADE HISTORY",ptNoTr:"No trades yet.",lbLbl:"MONTHLY PRIZE",lbSub:"Highest return wins",dLeft:"days left",invite:"Share your link and build the leaderboard.",you:"YOU",trades:"trades",allSec:"All",noCash:"Insufficient cash",noShares:"Not enough shares",bought:"Bought",sold:"Sold",buy:"BUY",sell:"SELL",maxPos:"Max 30% per stock — diversify",qual:"Qualified",qualNeed:"trades to qualify"},
+  nl:{f:"🇳🇱",l:"Nederlands",hP:"PORTFOLIO",hR:"RENDEMENT",hC:"CASH",hL:"NOG",nM:"MARKT",nP:"PORTFOLIO",nLb:"KLASSEMENT",ptL1:"TOTAAL",ptL2:"RENDEMENT",ptL3:"CASH",ptPos:"OPEN POSITIES",ptNoPos:"Nog geen posities.",ptTr:"TRADE HISTORY",ptNoTr:"Nog geen trades.",lbLbl:"MAANDPRIJS",lbSub:"Hoogste rendement wint",dLeft:"dagen resterend",invite:"Nodig vrienden uit om mee te doen.",you:"JIJ",trades:"trades",allSec:"Alle",noCash:"Onvoldoende cash",noShares:"Niet genoeg aandelen",bought:"Gekocht",sold:"Verkocht",buy:"KOOP",sell:"VERKOOP",maxPos:"Max 30% per aandeel — spreid je risico",qual:"Gekwalificeerd",qualNeed:"trades om te kwalificeren"},
   de:{f:"🇩🇪",l:"Deutsch",hP:"PORTFOLIO",hR:"RENDITE",hC:"GUTHABEN",hL:"NOCH",nM:"MARKT",nP:"PORTFOLIO",nLb:"RANGLISTE",ptL1:"GESAMT",ptL2:"RENDITE",ptL3:"GUTHABEN",ptPos:"OFFENE POSITIONEN",ptNoPos:"Noch keine Positionen.",ptTr:"HANDELSHISTORIE",ptNoTr:"Noch keine Trades.",lbLbl:"MONATSPREIS",lbSub:"Höchste Rendite gewinnt",dLeft:"Tage verbleibend",invite:"Freunde einladen.",you:"DU",trades:"Trades",allSec:"Alle",noCash:"Nicht genug Guthaben",noShares:"Nicht genug Aktien",bought:"Gekauft",sold:"Verkauft",buy:"KAUFEN",sell:"VERKAUFEN"},
   fr:{f:"🇫🇷",l:"Français",hP:"PORTEFEUILLE",hR:"RENDEMENT",hC:"LIQUIDITÉS",hL:"RESTE",nM:"MARCHÉ",nP:"PORTEFEUILLE",nLb:"CLASSEMENT",ptL1:"TOTAL",ptL2:"RENDEMENT",ptL3:"LIQUIDITÉS",ptPos:"POSITIONS OUVERTES",ptNoPos:"Aucune position.",ptTr:"HISTORIQUE",ptNoTr:"Aucune transaction.",lbLbl:"PRIX MENSUEL",lbSub:"Meilleur rendement gagne",dLeft:"jours restants",invite:"Invitez des amis.",you:"VOUS",trades:"trades",allSec:"Tous",noCash:"Liquidités insuffisantes",noShares:"Pas assez d'actions",bought:"Acheté",sold:"Vendu",buy:"ACHETER",sell:"VENDRE"},
   es:{f:"🇪🇸",l:"Español",hP:"CARTERA",hR:"RENTABILIDAD",hC:"EFECTIVO",hL:"QUEDAN",nM:"MERCADO",nP:"CARTERA",nLb:"CLASIFICACIÓN",ptL1:"TOTAL",ptL2:"RENTABILIDAD",ptL3:"EFECTIVO",ptPos:"POSICIONES ABIERTAS",ptNoPos:"Sin posiciones.",ptTr:"HISTORIAL",ptNoTr:"Sin operaciones.",lbLbl:"PREMIO MENSUAL",lbSub:"Mayor rentabilidad gana",dLeft:"días restantes",invite:"Invita amigos.",you:"TÚ",trades:"ops",allSec:"Todos",noCash:"Efectivo insuficiente",noShares:"No hay suficientes acciones",bought:"Comprado",sold:"Vendido",buy:"COMPRAR",sell:"VENDER"},
@@ -532,7 +567,7 @@ function loadState(){
 // ══ UTILS ══
 const $=id=>document.getElementById(id);
 const fmt=n=>n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-const t=k=>(L[lang]||L.en)[k]||k;
+const t=k=>(L[lang]&&L[lang][k])||L.en[k]||k;
 function pval(){let v=cash;for(const[tk,sh]of Object.entries(holdings))v+=sh*(prices[tk]||0);return v;}
 function pret(v){return((v-CASH0)/CASH0)*100;}
 function timeLeft(){const d=END-new Date();return{days:Math.max(0,Math.floor(d/86400000)),hours:Math.max(0,Math.floor((d%86400000)/3600000))};}
@@ -621,9 +656,25 @@ function showAuthMode(mode){
   $("toggle-login").classList.toggle("active",mode==="login");
   $("toggle-signup").classList.toggle("active",mode==="signup");
 }
-function authWith(provider){username=provider==="google"?"Google User":"Apple User";saveState();startLoading();}
+function authWith(provider){username=provider==="google"?"Google User":"Apple User";saveState();
+  if($("auth-signup").style.display!=="none")showRules(false);else startLoading();}
 function loginWithEmail(){const e=$("login-email").value.trim();if(!e)return;username=e.split("@")[0];saveState();startLoading();}
-function signupWithEmail(){const n=$("signup-name").value.trim();if(!n)return;username=n;saveState();startLoading();}
+function signupWithEmail(){const n=$("signup-name").value.trim();if(!n)return;username=n;saveState();showRules(false);}
+let rulesFromApp=false;
+function showRules(fromApp){
+  rulesFromApp=fromApp;
+  $("rules-btn").textContent=fromApp?"← Back to app":"I understand →";
+  show("rules-screen");
+}
+function rulesContinue(){
+  if(rulesFromApp)show("app-screen");
+  else startLoading();
+}
+function shareApp(){
+  const url=location.href.split("?")[0];
+  if(navigator.share){navigator.share({title:"Stock Arena",text:"Trade virtual stocks. Win €100 every month.",url}).catch(()=>{});}
+  else{try{navigator.clipboard.writeText(url);showToast("Link copied");}catch(e){showToast(url);}}
+}
 function resetAccount(){
   if(!confirm("Sign out and reset your portfolio? This cannot be undone."))return;
   store.del("sa_state");
@@ -736,6 +787,8 @@ function buy(ticker){
   const n=Math.max(1,parseInt(($("q-"+ticker)||{value:1}).value));
   const cost=(prices[ticker]||0)*n;
   if(cost>cash)return showToast(t("noCash"),"err");
+  const posValAfter=((holdings[ticker]||0)*(prices[ticker]||0))+cost;
+  if(posValAfter>pval()*0.30)return showToast(t("maxPos"),"err");
   cash-=cost;holdings[ticker]=(holdings[ticker]||0)+n;
   tradeLog.unshift({type:"BUY",ticker,qty:n,price:prices[ticker],time:new Date().toLocaleTimeString()});
   showToast(`${t("bought")} ${n}× ${ticker}`);
@@ -743,7 +796,8 @@ function buy(ticker){
   saveState();updateAll();
 }
 function sell(ticker){
-  const n=Math.max(1,parseInt(($("q-"+ticker)||{value:1}).value));
+  const inp=(tab==="portfolio"?$("pq-"+ticker):$("q-"+ticker))||{value:1};
+  const n=Math.max(1,parseInt(inp.value)||1);
   if(n>(holdings[ticker]||0))return showToast(t("noShares"),"err");
   cash+=(prices[ticker]||0)*n;holdings[ticker]-=n;
   if(!holdings[ticker])delete holdings[ticker];
@@ -771,11 +825,22 @@ function renderPortfolio(){
   $("pt-v2").textContent=(r>=0?"+":"")+r.toFixed(2)+"%";$("pt-v2").style.color=r>=0?"var(--green)":"var(--red)";
   $("pt-v3").textContent="€"+fmt(cash);
   const pos=Object.entries(holdings);
+  // Diversification meter
+  let topTk=null,topW=0;
+  pos.forEach(([tk,sh])=>{const w=v>0?(sh*(prices[tk]||0))/v*100:0;if(w>topW){topW=w;topTk=tk;}});
+  $("divmeter").innerHTML=pos.length===0?"":`<div class="card" style="padding:14px 16px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;letter-spacing:.5px">
+      <span style="color:var(--text3)">LARGEST POSITION</span>
+      <span style="color:${topW>27?"var(--red)":topW>20?"var(--gold)":"var(--green)"}">${topTk} · ${topW.toFixed(1)}% / 30%</span>
+    </div>
+    <div class="divmeter-bar"><div class="divmeter-fill" style="width:${Math.min(100,topW/0.3)}%;background:${topW>27?"var(--red)":topW>20?"var(--gold)":"var(--green)"}"></div></div>
+  </div>`;
   $("pos-list").innerHTML=pos.length===0?`<div class="empty-state">${t("ptNoPos")}</div>`:
     pos.map(([tk,sh])=>{
       const p=prices[tk]||0,val=sh*p,b2=base[tk]||1,r2=((p-b2)/b2)*100;
+      const w=v>0?val/v*100:0;
       const stk=STOCKS.find(s=>s.t===tk);
-      return`<div class="pos-row"><div><div class="pos-sym">${tk}</div><div class="pos-name">${stk?stk.n:""}</div></div><div class="pos-right"><div class="pos-shares">${sh}× @ $${fmt(p)}</div><div class="pos-val">$${fmt(val)} <span style="color:${r2>=0?"var(--green)":"var(--red)"};font-size:11px">${r2>=0?"+":""}${r2.toFixed(2)}%</span></div></div></div>`;
+      return`<div class="pos-row"><div style="flex:1"><div class="pos-sym">${tk} <span style="font-weight:500;color:var(--text3);font-size:11px">${w.toFixed(0)}%</span></div><div class="pos-name">${stk?stk.n:""}</div></div><div class="pos-right"><div class="pos-shares">${sh}× @ $${fmt(p)}</div><div class="pos-val">$${fmt(val)} <span style="color:${r2>=0?"var(--green)":"var(--red)"};font-size:11px">${r2>=0?"+":""}${r2.toFixed(2)}%</span></div><div class="pos-controls"><input type="number" class="qty-in" id="pq-${tk}" value="${sh}" min="1" max="${sh}"><button class="btn-sell" onclick="sell('${tk}')">${t("sell")}</button></div></div></div>`;
     }).join("");
   $("trade-list").innerHTML=tradeLog.length===0?`<div class="empty-state">${t("ptNoTr")}</div>`:
     tradeLog.slice(0,10).map(tr=>`<div class="trade-row"><span class="trade-badge tb-${tr.type.toLowerCase()}">${tr.type}</span><span class="trade-sym">${tr.ticker}</span><span class="trade-detail">${tr.qty}× @ $${fmt(tr.price)}</span><span class="trade-time">${tr.time}</span></div>`).join("");
@@ -784,7 +849,8 @@ function renderLeaderboard(){
   const v=pval(),r=pret(v),tl=timeLeft();
   $("lb-sub").textContent=`${t("lbSub")} · ${tl.days} ${t("dLeft")}`;
   $("lb-name").innerHTML=`${username} <span class="leader-you">${t("you")}</span>`;
-  $("lb-trades").textContent=`${tradeLog.length} ${t("trades")}`;
+  const q=tradeLog.length>=5;
+  $("lb-trades").innerHTML=`${tradeLog.length} ${t("trades")} · <span style="color:${q?"var(--green)":"var(--text3)"};font-weight:600">${q?"✓ "+t("qual"):tradeLog.length+"/5 "+t("qualNeed")}</span>`;
   $("lb-val").textContent="$"+fmt(v);
   $("lb-ret").textContent=(r>=0?"+":"")+r.toFixed(2)+"%";$("lb-ret").style.color=r>=0?"var(--green)":"var(--red)";
   $("lb-invite").textContent=t("invite");
