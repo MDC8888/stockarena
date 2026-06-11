@@ -572,7 +572,7 @@ const FIREBASE_CONFIG={
   messagingSenderId:"430148503558",
   appId:"1:430148503558:web:47654c1b5e427f6f31db87"
 };
-let FB=null,FBuser=null,lbData=[],lbUnsub=null,appStarted=false;
+let FB=null,FBuser=null,lbData=[],lbUnsub=null,appStarted=false,onboarding=false;
 try{
   if(FIREBASE_CONFIG.apiKey&&!FIREBASE_CONFIG.apiKey.startsWith("PASTE")&&typeof firebase!=="undefined"){
     firebase.initializeApp(FIREBASE_CONFIG);
@@ -714,11 +714,12 @@ function authWith(provider){
   const isSignup=$("auth-signup").style.display!=="none";
   if(FB){
     if(provider==="apple")return showToast("Apple sign-in coming soon","err");
+    if(isSignup)onboarding=true;
     const gp=new firebase.auth.GoogleAuthProvider();
     FB.auth.signInWithPopup(gp).then(cred=>{
       appStarted=true;username=cred.user.displayName||"Player";saveState();
       if(isSignup)show("lang-screen");else startLoading();
-    }).catch(()=>showToast("Google sign-in failed","err"));
+    }).catch(()=>{onboarding=false;showToast("Google sign-in failed","err");});
     return;
   }
   username=provider==="google"?"Google User":"Apple User";saveState();
@@ -742,11 +743,12 @@ async function signupWithEmail(){
   if(!n)return;
   if(FB){
     if(!e||p.length<8)return showToast("Valid email + min. 8 char password","err");
+    onboarding=true;
     try{
       const cred=await FB.auth.createUserWithEmailAndPassword(e,p);
       await cred.user.updateProfile({displayName:n});
       appStarted=true;username=n;saveState();show("lang-screen");
-    }catch(err){showToast(err.code==="auth/email-already-in-use"?"Email already in use":"Signup failed","err");}
+    }catch(err){onboarding=false;showToast(err.code==="auth/email-already-in-use"?"Email already in use":"Signup failed","err");}
     return;
   }
   username=n;saveState();show("lang-screen");
@@ -826,6 +828,7 @@ function beginPriceLoad(){
   return pricePromise;
 }
 async function startLoading(){
+  onboarding=false;appStarted=true;
   show("loading-screen");
   setProgress(30);
   $("load-sub").textContent="Fetching live prices...";
@@ -1077,7 +1080,7 @@ function init(){
   if(FB){
     FB.auth.onAuthStateChanged(u=>{
       FBuser=u;
-      if(u&&!appStarted){
+      if(u&&!appStarted&&!onboarding){
         appStarted=true;
         loadState();
         username=u.displayName||(u.email?u.email.split("@")[0]:"Player");
