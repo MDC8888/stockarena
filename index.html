@@ -9,6 +9,9 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="Stock Arena — Trade virtual stocks. Win €100 every month.">
 <title>Stock Arena</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -382,6 +385,7 @@ svg.mc{flex-shrink:0}
         <button class="btn-sell" style="flex:1;padding:11px;border-radius:10px" onclick="showRules('app')">📋 Rules</button>
         <button class="btn-buy" style="flex:1;padding:11px;border-radius:10px" onclick="shareApp()">🔗 Invite friends</button>
       </div>
+      <button class="btn-buy" style="width:100%;padding:12px;border-radius:10px;margin-top:8px" onclick="shareCard()">📸 Share my result</button>
       <div class="signout-row">
         <button class="signout-btn" onclick="changeName()" style="margin-right:16px">✏️ Change name</button><button class="signout-btn" onclick="resetAccount()">Sign out & reset portfolio</button>
       </div>
@@ -563,7 +567,10 @@ const STOCKS=[
 ];
 
 // ══ STATE ══
-const CASH0=10000, END=new Date("2026-07-01"), PG=30;
+const CASH0=10000,PG=30;
+const _now=new Date(),END=new Date(_now.getFullYear(),_now.getMonth()+1,1);
+const MONTH_KEY=_now.getFullYear()+"_"+String(_now.getMonth()+1).padStart(2,"0");
+const LBCOL="players_"+MONTH_KEY;
 const FMP_KEY="DH5Ok3sQuOf99czXACqQk0h4ftJpKaDj";
 // ══ FIREBASE (paste your config to enable real accounts + shared leaderboard) ══
 const FIREBASE_CONFIG={
@@ -585,14 +592,14 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 function syncMe(){
   if(!FB||!FBuser)return;
   const v=pval();
-  FB.db.collection("players").doc(FBuser.uid).set({
+  FB.db.collection(LBCOL).doc(FBuser.uid).set({
     name:username,value:Math.round(v*100)/100,ret:Math.round(pret(v)*100)/100,
     trades:tradeLog.length,updated:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true}).catch(e=>console.warn("sync:",e.message));
 }
 function startLB(){
   if(!FB||lbUnsub)return;
-  lbUnsub=FB.db.collection("players").orderBy("ret","desc").limit(50)
+  lbUnsub=FB.db.collection(LBCOL).orderBy("ret","desc").limit(50)
     .onSnapshot(snap=>{
       lbData=snap.docs.map(d=>({id:d.id,...d.data()}));
       if(tab==="leaderboard")renderLeaderboard();
@@ -610,13 +617,18 @@ const store={
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
   del(k){try{localStorage.removeItem(k)}catch{}}
 };
-function saveState(){store.set("sa_state",{username,lang,cash,holdings,tradeLog:tradeLog.slice(0,50)});}
+function saveState(){store.set("sa_state",{username,lang,cash,holdings,tradeLog:tradeLog.slice(0,50),month:MONTH_KEY});}
 function loadState(){
   const s=store.get("sa_state");
   if(!s||!s.username)return false;
   username=s.username; lang=s.lang||"en";
-  cash=typeof s.cash==="number"?s.cash:CASH0;
-  holdings=s.holdings||{}; tradeLog=s.tradeLog||[];
+  if(s.month&&s.month!==MONTH_KEY){
+    cash=CASH0;holdings={};tradeLog=[];
+    setTimeout(()=>showToast("🗓️ New month — fresh €10,000!"),1500);
+  }else{
+    cash=typeof s.cash==="number"?s.cash:CASH0;
+    holdings=s.holdings||{}; tradeLog=s.tradeLog||[];
+  }
   return true;
 }
 
@@ -804,6 +816,39 @@ function nameContinue(){
 function changeName(){
   const n=prompt("Player name:",username);
   if(n&&n.trim()){username=n.trim().slice(0,20);saveState();syncMe();updateAll();showToast("✓ "+username);}
+}
+async function shareCard(){
+  const c=document.createElement("canvas");c.width=1080;c.height=1080;
+  const x=c.getContext("2d");
+  const g=x.createLinearGradient(0,0,1080,1080);
+  g.addColorStop(0,"#1a56db");g.addColorStop(1,"#1e429f");
+  x.fillStyle=g;x.fillRect(0,0,1080,1080);
+  x.fillStyle="rgba(255,255,255,.06)";
+  x.beginPath();x.arc(950,120,260,0,7);x.fill();
+  x.beginPath();x.arc(80,1000,200,0,7);x.fill();
+  const v=pval(),r=pret(v);
+  x.textAlign="center";
+  x.fillStyle="rgba(255,255,255,.7)";x.font="600 46px -apple-system,Helvetica,sans-serif";
+  x.fillText("📈 STOCK ARENA",540,170);
+  x.fillStyle="#fff";x.font="700 76px -apple-system,Helvetica,sans-serif";
+  x.fillText(username.slice(0,16),540,400);
+  x.fillStyle=r>=0?"#6ee7b7":"#fca5a5";x.font="800 190px -apple-system,Helvetica,sans-serif";
+  x.fillText((r>=0?"+":"")+r.toFixed(2)+"%",540,640);
+  x.fillStyle="rgba(255,255,255,.85)";x.font="500 50px -apple-system,Helvetica,sans-serif";
+  x.fillText("€"+fmt(v)+" portfolio · "+tradeLog.length+" trades",540,760);
+  x.fillStyle="#fcd34d";x.font="700 54px -apple-system,Helvetica,sans-serif";
+  x.fillText("🏆 Monthly winner takes €100",540,910);
+  x.fillStyle="rgba(255,255,255,.6)";x.font="500 38px -apple-system,Helvetica,sans-serif";
+  x.fillText("mdc8888.github.io/stockarena",540,1010);
+  c.toBlob(async b=>{
+    if(!b)return;
+    const f=new File([b],"stockarena.png",{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){
+      try{await navigator.share({files:[f],title:"Stock Arena",text:"Beat me on Stock Arena 🏆"});return;}catch(e){}
+    }
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="stockarena.png";a.click();
+    showToast("Image saved");
+  },"image/png");
 }
 function shareApp(){
   const url=location.href.split("?")[0];
