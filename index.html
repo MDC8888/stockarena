@@ -718,7 +718,7 @@ function authWith(provider){
     const gp=new firebase.auth.GoogleAuthProvider();
     FB.auth.signInWithPopup(gp).then(cred=>{
       appStarted=true;username=cred.user.displayName||"Player";saveState();
-      if(isSignup)show("lang-screen");else startLoading();
+      if(isSignup)show("lang-screen");else{store.set("sa_onboarded",true);startLoading();}
     }).catch(()=>{onboarding=false;showToast("Google sign-in failed","err");});
     return;
   }
@@ -732,7 +732,7 @@ async function loginWithEmail(){
     if(!p)return showToast("Enter your password","err");
     try{
       const cred=await FB.auth.signInWithEmailAndPassword(e,p);
-      appStarted=true;username=cred.user.displayName||e.split("@")[0];saveState();startLoading();
+      appStarted=true;username=cred.user.displayName||e.split("@")[0];saveState();store.set("sa_onboarded",true);startLoading();
     }catch(err){showToast("Wrong email or password","err");}
     return;
   }
@@ -778,7 +778,7 @@ function onAcceptChange(){
 function rulesContinue(){
   if(rulesMode==="app")show("app-screen");
   else if(rulesMode==="auth")show("auth-screen");
-  else startLoading();
+  else{store.set("sa_onboarded",true);startLoading();}
 }
 function pickLang(code){
   lang=code;saveState();
@@ -809,7 +809,7 @@ function shareApp(){
 }
 function resetAccount(){
   if(!confirm("Sign out and reset your portfolio? This cannot be undone."))return;
-  store.del("sa_state");
+  store.del("sa_state");store.del("sa_onboarded");
   if(FB)try{FB.auth.signOut();}catch(e){}
   cash=CASH0;holdings={};tradeLog=[];username="User";
   setTimeout(()=>location.reload(),300);
@@ -1081,10 +1081,10 @@ function init(){
     FB.auth.onAuthStateChanged(u=>{
       FBuser=u;
       if(u&&!appStarted&&!onboarding){
-        appStarted=true;
         loadState();
         username=u.displayName||(u.email?u.email.split("@")[0]:"Player");
-        startLoading();
+        if(store.get("sa_onboarded")){appStarted=true;startLoading();}
+        else{appStarted=true;show("lang-screen");}
       }
     });
   }else if(loadState()){appStarted=true;startLoading();}
