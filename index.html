@@ -235,6 +235,7 @@ svg.mc{flex-shrink:0}
       <h1 class="auth-heading">Start trading.<br><em>Win monthly.</em></h1>
       <p class="auth-sub">€10,000 virtual capital. Real competition. Real prize.</p>
       <div class="prize-badge"><span class="prize-badge-icon">🏆</span><span class="prize-badge-text">Monthly winner takes <span class="prize-badge-amount">€100 cash</span></span></div>
+      <button class="signout-btn" style="margin:-16px 0 20px;display:block" onclick="showRules('auth')">📋 Read the rules first</button>
       <div class="social-btns">
         <button class="social-btn" onclick="authWith('google')"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg><span class="social-btn-text">Sign up with Google</span></button>
         <button class="social-btn" onclick="authWith('apple')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><span class="social-btn-text">Sign up with Apple</span></button>
@@ -328,10 +329,6 @@ svg.mc{flex-shrink:0}
         <div class="stat-card"><div class="stat-card-label" id="pt-l3">CASH</div><div class="stat-card-val" id="pt-v3" style="color:var(--blue)">€10,000</div></div>
       </div>
       <div id="divmeter"></div>
-      <div class="affiliate-card">
-        <div class="affiliate-text"><strong>Ready to trade for real?</strong>Open a DEGIRO account and start with real stocks.</div>
-        <button class="affiliate-btn" onclick="window.open('https://www.degiro.eu','_blank')">Open →</button>
-      </div>
       <div class="card"><div class="card-header" id="pt-poslbl">OPEN POSITIONS</div><div id="pos-list"><div class="empty-state">No positions yet.</div></div></div>
       <div class="card"><div class="card-header" id="pt-trlbl">TRADE HISTORY</div><div id="trade-list"><div class="empty-state">No trades yet.</div></div></div>
     </div>
@@ -342,24 +339,13 @@ svg.mc{flex-shrink:0}
         <div class="prize-card-amount">€<em>100</em></div>
         <div class="prize-card-sub" id="lb-sub">Highest return wins</div>
       </div>
-      <div class="leader-card me" id="my-leader">
-        <div class="leader-rank gold">1</div>
-        <div class="leader-avatar">⭐</div>
-        <div class="leader-info">
-          <div class="leader-name" id="lb-name">—<span class="leader-you" id="lb-you">YOU</span></div>
-          <div class="leader-trades" id="lb-trades">0 trades</div>
-        </div>
-        <div class="leader-right">
-          <div class="leader-val" id="lb-val">€10,000</div>
-          <div class="leader-ret" id="lb-ret">+0.00%</div>
-        </div>
-      </div>
+      <div id="leader-list"></div>
       <div class="invite-card">
         <div class="invite-title">Invite friends to compete</div>
         <div class="invite-sub" id="lb-invite">Share your link and build the leaderboard.</div>
       </div>
       <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="btn-sell" style="flex:1;padding:11px;border-radius:10px" onclick="showRules(true)">📋 Rules</button>
+        <button class="btn-sell" style="flex:1;padding:11px;border-radius:10px" onclick="showRules('app')">📋 Rules</button>
         <button class="btn-buy" style="flex:1;padding:11px;border-radius:10px" onclick="shareApp()">🔗 Invite friends</button>
       </div>
       <div class="signout-row">
@@ -379,6 +365,9 @@ svg.mc{flex-shrink:0}
 <div id="toast"></div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 // ══ TRANSLATIONS ══
 const L={
@@ -542,6 +531,32 @@ const STOCKS=[
 // ══ STATE ══
 const CASH0=10000, END=new Date("2026-07-01"), PG=30;
 const FMP_KEY="DH5Ok3sQuOf99czXACqQk0h4ftJpKaDj";
+// ══ FIREBASE (paste your config to enable real accounts + shared leaderboard) ══
+const FIREBASE_CONFIG={apiKey:"PASTE_CONFIG_HERE",authDomain:"",projectId:"",appId:""};
+let FB=null,FBuser=null,lbData=[],lbUnsub=null,appStarted=false;
+try{
+  if(FIREBASE_CONFIG.apiKey&&!FIREBASE_CONFIG.apiKey.startsWith("PASTE")&&typeof firebase!=="undefined"){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    FB={auth:firebase.auth(),db:firebase.firestore()};
+  }
+}catch(e){console.warn("Firebase init:",e.message);}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function syncMe(){
+  if(!FB||!FBuser)return;
+  const v=pval();
+  FB.db.collection("players").doc(FBuser.uid).set({
+    name:username,value:Math.round(v*100)/100,ret:Math.round(pret(v)*100)/100,
+    trades:tradeLog.length,updated:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true}).catch(e=>console.warn("sync:",e.message));
+}
+function startLB(){
+  if(!FB||lbUnsub)return;
+  lbUnsub=FB.db.collection("players").orderBy("ret","desc").limit(50)
+    .onSnapshot(snap=>{
+      lbData=snap.docs.map(d=>({id:d.id,...d.data()}));
+      if(tab==="leaderboard")renderLeaderboard();
+    },e=>console.warn("lb:",e.message));
+}
 let lang="en", username="User", live=false;
 let prices={}, changes={}, hist={}, base={};
 let cash=CASH0, holdings={}, tradeLog=[];
@@ -656,18 +671,56 @@ function showAuthMode(mode){
   $("toggle-login").classList.toggle("active",mode==="login");
   $("toggle-signup").classList.toggle("active",mode==="signup");
 }
-function authWith(provider){username=provider==="google"?"Google User":"Apple User";saveState();
-  if($("auth-signup").style.display!=="none")showRules(false);else startLoading();}
-function loginWithEmail(){const e=$("login-email").value.trim();if(!e)return;username=e.split("@")[0];saveState();startLoading();}
-function signupWithEmail(){const n=$("signup-name").value.trim();if(!n)return;username=n;saveState();showRules(false);}
-let rulesFromApp=false;
-function showRules(fromApp){
-  rulesFromApp=fromApp;
-  $("rules-btn").textContent=fromApp?"← Back to app":"I understand →";
+function authWith(provider){
+  const isSignup=$("auth-signup").style.display!=="none";
+  if(FB){
+    if(provider==="apple")return showToast("Apple sign-in coming soon","err");
+    const gp=new firebase.auth.GoogleAuthProvider();
+    FB.auth.signInWithPopup(gp).then(cred=>{
+      appStarted=true;username=cred.user.displayName||"Player";saveState();
+      if(isSignup)showRules("loading");else startLoading();
+    }).catch(()=>showToast("Google sign-in failed","err"));
+    return;
+  }
+  username=provider==="google"?"Google User":"Apple User";saveState();
+  if(isSignup)showRules("loading");else startLoading();
+}
+async function loginWithEmail(){
+  const e=$("login-email").value.trim(),p=$("login-pass").value;
+  if(!e)return;
+  if(FB){
+    if(!p)return showToast("Enter your password","err");
+    try{
+      const cred=await FB.auth.signInWithEmailAndPassword(e,p);
+      appStarted=true;username=cred.user.displayName||e.split("@")[0];saveState();startLoading();
+    }catch(err){showToast("Wrong email or password","err");}
+    return;
+  }
+  username=e.split("@")[0];saveState();startLoading();
+}
+async function signupWithEmail(){
+  const n=$("signup-name").value.trim(),e=$("signup-email").value.trim(),p=$("signup-pass").value;
+  if(!n)return;
+  if(FB){
+    if(!e||p.length<8)return showToast("Valid email + min. 8 char password","err");
+    try{
+      const cred=await FB.auth.createUserWithEmailAndPassword(e,p);
+      await cred.user.updateProfile({displayName:n});
+      appStarted=true;username=n;saveState();showRules("loading");
+    }catch(err){showToast(err.code==="auth/email-already-in-use"?"Email already in use":"Signup failed","err");}
+    return;
+  }
+  username=n;saveState();showRules("loading");
+}
+let rulesMode="loading";
+function showRules(mode){
+  rulesMode=mode;
+  $("rules-btn").textContent=mode==="loading"?"I understand →":"← Back";
   show("rules-screen");
 }
 function rulesContinue(){
-  if(rulesFromApp)show("app-screen");
+  if(rulesMode==="app")show("app-screen");
+  else if(rulesMode==="auth")show("auth-screen");
   else startLoading();
 }
 function shareApp(){
@@ -678,8 +731,9 @@ function shareApp(){
 function resetAccount(){
   if(!confirm("Sign out and reset your portfolio? This cannot be undone."))return;
   store.del("sa_state");
+  if(FB)try{FB.auth.signOut();}catch(e){}
   cash=CASH0;holdings={};tradeLog=[];username="User";
-  location.reload();
+  setTimeout(()=>location.reload(),300);
 }
 
 // ══ LOADING ══
@@ -710,7 +764,7 @@ async function startLoading(){
 }
 
 // ══ APP ══
-function enterApp(){show("app-screen");setLang(lang);updateAll();startSim();}
+function enterApp(){show("app-screen");setLang(lang);updateAll();startSim();syncMe();startLB();}
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");}
 
 let simStarted=false;
@@ -793,7 +847,7 @@ function buy(ticker){
   tradeLog.unshift({type:"BUY",ticker,qty:n,price:prices[ticker],time:new Date().toLocaleTimeString()});
   showToast(`${t("bought")} ${n}× ${ticker}`);
   const el=$("sc-"+ticker);if(el){el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),400);}
-  saveState();updateAll();
+  saveState();syncMe();updateAll();
 }
 function sell(ticker){
   const inp=(tab==="portfolio"?$("pq-"+ticker):$("q-"+ticker))||{value:1};
@@ -803,7 +857,7 @@ function sell(ticker){
   if(!holdings[ticker])delete holdings[ticker];
   tradeLog.unshift({type:"SELL",ticker,qty:n,price:prices[ticker],time:new Date().toLocaleTimeString()});
   showToast(`${t("sold")} ${n}× ${ticker}`);
-  saveState();updateAll();
+  saveState();syncMe();updateAll();
 }
 
 // ══ UPDATE UI ══
@@ -845,15 +899,40 @@ function renderPortfolio(){
   $("trade-list").innerHTML=tradeLog.length===0?`<div class="empty-state">${t("ptNoTr")}</div>`:
     tradeLog.slice(0,10).map(tr=>`<div class="trade-row"><span class="trade-badge tb-${tr.type.toLowerCase()}">${tr.type}</span><span class="trade-sym">${tr.ticker}</span><span class="trade-detail">${tr.qty}× @ $${fmt(tr.price)}</span><span class="trade-time">${tr.time}</span></div>`).join("");
 }
+const AVATARS=["🦊","🐯","🦁","🐸","🐼","🦉","🐺","🦅","🐙","🦈","🐢","🦄"];
+function avatarFor(name){let x=0;for(const c of String(name))x=(x*31+c.charCodeAt(0))>>>0;return AVATARS[x%AVATARS.length];}
+function leaderRow(rank,name,val,ret,trades,isMe){
+  const q=trades>=5;
+  return `<div class="leader-card${isMe?" me":""}">
+    <div class="leader-rank${rank===1?" gold":""}">${rank}</div>
+    <div class="leader-avatar">${avatarFor(name)}</div>
+    <div class="leader-info">
+      <div class="leader-name">${esc(name)}${isMe?` <span class="leader-you">${t("you")}</span>`:""}</div>
+      <div class="leader-trades">${trades} ${t("trades")} · <span style="color:${q?"var(--green)":"var(--text3)"};font-weight:600">${q?"✓ "+t("qual"):trades+"/5 "+t("qualNeed")}</span></div>
+    </div>
+    <div class="leader-right">
+      <div class="leader-val">€${fmt(val)}</div>
+      <div class="leader-ret" style="color:${ret>=0?"var(--green)":"var(--red)"}">${ret>=0?"+":""}${Number(ret).toFixed(2)}%</div>
+    </div>
+  </div>`;
+}
 function renderLeaderboard(){
   const v=pval(),r=pret(v),tl=timeLeft();
   $("lb-sub").textContent=`${t("lbSub")} · ${tl.days} ${t("dLeft")}`;
-  $("lb-name").innerHTML=`${username} <span class="leader-you">${t("you")}</span>`;
-  const q=tradeLog.length>=5;
-  $("lb-trades").innerHTML=`${tradeLog.length} ${t("trades")} · <span style="color:${q?"var(--green)":"var(--text3)"};font-weight:600">${q?"✓ "+t("qual"):tradeLog.length+"/5 "+t("qualNeed")}</span>`;
-  $("lb-val").textContent="$"+fmt(v);
-  $("lb-ret").textContent=(r>=0?"+":"")+r.toFixed(2)+"%";$("lb-ret").style.color=r>=0?"var(--green)":"var(--red)";
   $("lb-invite").textContent=t("invite");
+  let rows="";
+  if(FB&&lbData.length>0){
+    let meIn=false;
+    rows=lbData.map((p,i)=>{
+      const isMe=FBuser&&p.id===FBuser.uid;
+      if(isMe)meIn=true;
+      return leaderRow(i+1,p.name||"Player",isMe?v:(p.value||0),isMe?r:(p.ret||0),isMe?tradeLog.length:(p.trades||0),isMe);
+    }).join("");
+    if(!meIn)rows+=leaderRow(lbData.length+1,username,v,r,tradeLog.length,true);
+  }else{
+    rows=leaderRow(1,username,v,r,tradeLog.length,true);
+  }
+  $("leader-list").innerHTML=rows;
 }
 function updateAll(){
   updateHeader();
@@ -908,8 +987,18 @@ function init(){
       if($("auth-signup").style.display!=="none")signupWithEmail();else loginWithEmail();
     }
   });
-  // Auto-resume saved session
-  if(loadState())startLoading();
+  // Auto-resume: Firebase session if enabled, otherwise local save
+  if(FB){
+    FB.auth.onAuthStateChanged(u=>{
+      FBuser=u;
+      if(u&&!appStarted){
+        appStarted=true;
+        loadState();
+        username=u.displayName||(u.email?u.email.split("@")[0]:"Player");
+        startLoading();
+      }
+    });
+  }else if(loadState()){appStarted=true;startLoading();}
 }
 init();
 </script>
