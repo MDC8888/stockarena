@@ -977,8 +977,8 @@ function renderMarket(){
       <div class="stock-price-wrap"><div class="stock-price">$${pStr}</div><div class="stock-chg ${up?"val-up":"val-down"}">${up?"▲":"▼"}${Math.abs(ch).toFixed(2)}%</div></div>
       <div class="stock-controls">
         <input type="number" class="qty-in" id="q-${s.t}" value="1" min="1">
-        <button class="btn-buy" onclick="buy('${s.t}')" ${pricesReady?"":"disabled"}>${t("buy")}</button>
-        <button class="btn-sell" onclick="sell('${s.t}')" ${held===0||!pricesReady?"disabled":""}>${t("sell")}</button>
+        <button class="btn-buy" onclick="buy('${s.t}')" ${live?"":"disabled"}>${t("buy")}</button>
+        <button class="btn-sell" onclick="sell('${s.t}')" ${held===0||!live?"disabled":""}>${t("sell")}</button>
       </div>
     </div>`;
   }).join("");
@@ -997,7 +997,7 @@ function showToast(msg,type="ok"){
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className="",2000);
 }
 function buy(ticker){
-  if(!pricesReady)return showToast("⏳ Loading live prices...","err");
+  if(!live)return showToast("⏳ Waiting for live prices...","err");
   const n=Math.max(1,parseInt(($("q-"+ticker)||{value:1}).value));
   const cost=(prices[ticker]||0)*n;
   if(cost>cash)return showToast(t("noCash"),"err");
@@ -1010,7 +1010,7 @@ function buy(ticker){
   saveState();syncMe();updateAll();
 }
 function sell(ticker){
-  if(!pricesReady)return showToast("⏳ Loading live prices...","err");
+  if(!live)return showToast("⏳ Waiting for live prices...","err");
   const inp=(tab==="portfolio"?$("pq-"+ticker):$("q-"+ticker))||{value:1};
   const n=Math.max(1,parseInt(inp.value)||1);
   if(n>(holdings[ticker]||0))return showToast(t("noShares"),"err");
@@ -1030,7 +1030,7 @@ function updateHeader(){
   $("h-cval").textContent="€"+fmt(cash);
   $("h-timer").textContent=`${tl.days}d ${tl.hours}h`;
   const db=$("data-badge");
-  db.textContent=!pricesReady?"⏳ LOADING":live?"LIVE":"SIM";
+  db.textContent=live?"LIVE":"⏳ LOADING";
   db.className="header-badge "+(live?"badge-live":"badge-sim");
   const mkt=mktStatus(),mb=$("mkt-badge");
   mb.textContent=mkt==="open"?"OPEN":mkt==="weekend"?"CLOSED":mkt==="pre"?"PRE":"AFTER";
