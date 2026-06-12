@@ -1,15 +1,19 @@
 {
+  "id": "net.stonkarena.app",
   "name": "Stonk Arena",
   "short_name": "Stonk Arena",
-  "description": "Trade virtual stocks. Win €100 every month.",
+  "description": "Trade 380+ real stocks & ETFs with virtual capital. Highest monthly return wins. Free to play.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#1a56db",
   "background_color": "#ffffff",
+  "lang": "en",
+  "categories": ["finance", "games", "education"],
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
