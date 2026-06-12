@@ -393,8 +393,36 @@ svg.mc{flex-shrink:0}
         <button class="btn-buy" style="flex:1;padding:11px;border-radius:10px" onclick="shareApp()">🔗 Invite friends</button>
       </div>
       <button class="btn-buy" style="width:100%;padding:12px;border-radius:10px;margin-top:8px" onclick="shareCard()">📸 Share my result</button>
-      <div class="signout-row">
-        <button class="signout-btn" onclick="changeName()" style="margin-right:16px">✏️ Change name</button><button class="signout-btn" onclick="resetAccount()">Sign out & reset portfolio</button>
+    </div>
+    <div class="panel" id="panel-profile">
+      <div class="card">
+        <div class="card-header">ACCOUNT</div>
+        <div style="padding:0 16px 16px">
+          <label class="form-label">Player name</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" class="form-input" id="prof-name" maxlength="20" style="flex:1">
+            <button class="btn-buy" style="padding:0 18px;border-radius:10px" onclick="profSaveName()">Save</button>
+          </div>
+          <div style="font-size:12px;color:var(--text3);margin-top:6px">Names are unique — if it's taken, pick another.</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:12px" id="prof-email"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">SECURITY</div>
+        <div style="padding:0 16px 16px">
+          <div class="rule-item" style="margin:0">
+            <div class="rule-icon">🔒</div>
+            <div><div class="rule-title">Two-factor authentication</div>
+            <div class="rule-why">Coming with the next security upgrade. You'll be able to enable and disable it here.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-color:#fecaca">
+        <div class="card-header" style="color:#991b1b">DANGER ZONE</div>
+        <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px">
+          <button class="btn-sell" style="padding:12px;border-radius:10px" onclick="resetAccount()">Sign out & reset portfolio</button>
+          <button class="btn-sell" style="padding:12px;border-radius:10px;color:#991b1b;border-color:#fecaca" onclick="deleteAccount()">🗑️ Delete account permanently</button>
+        </div>
       </div>
     </div>
   </div>
@@ -403,6 +431,7 @@ svg.mc{flex-shrink:0}
     <button class="nav-btn active" id="nav-market" onclick="switchTab('market')"><span class="nav-btn-icon">📈</span><span class="nav-btn-label" id="n-market">MARKET</span></button>
     <button class="nav-btn" id="nav-portfolio" onclick="switchTab('portfolio')"><span class="nav-btn-icon">💼</span><span class="nav-btn-label" id="n-portfolio">PORTFOLIO</span></button>
     <button class="nav-btn" id="nav-leaderboard" onclick="switchTab('leaderboard')"><span class="nav-btn-icon">🏆</span><span class="nav-btn-label" id="n-leaderboard">RANKING</span></button>
+    <button class="nav-btn" id="nav-profile" onclick="switchTab('profile')"><span class="nav-btn-icon">👤</span><span class="nav-btn-label" id="n-profile">PROFILE</span></button>
   </div>
 </div>
 
@@ -416,8 +445,8 @@ svg.mc{flex-shrink:0}
 <script>
 // ══ TRANSLATIONS ══
 const L={
-  en:{f:"🇬🇧",l:"English",hP:"PORTFOLIO",hR:"RETURN",hC:"CASH",hL:"LEFT",nM:"MARKET",nP:"PORTFOLIO",nLb:"RANKING",ptL1:"TOTAL",ptL2:"RETURN",ptL3:"CASH",ptPos:"OPEN POSITIONS",ptNoPos:"No positions yet. Go trade.",ptTr:"TRADE HISTORY",ptNoTr:"No trades yet.",lbLbl:"MONTHLY PRIZE",lbSub:"Highest return wins",dLeft:"days left",invite:"Share your link and build the leaderboard.",you:"YOU",trades:"trades",allSec:"All",noCash:"Insufficient cash",noShares:"Not enough shares",bought:"Bought",sold:"Sold",buy:"BUY",sell:"SELL",maxPos:"Max 30% per stock — diversify",qual:"Qualified",qualNeed:"trades to qualify",rHead:"The rules",rSub:"Six rules — designed to keep the game fair.",rAccept:"I accept the rules and will follow them",rCont:"Continue →",r1t:"€10,000 virtual capital",r1w:"Everyone starts equal. Skill decides, not budget.",r2t:"Max 30% per stock",r2w:"Forces diversification and prevents all-in gambling.",r3t:"Minimum 5 trades to qualify",r3w:"Active management wins — not one lucky bet.",r4t:"Highest return wins €100",r4w:"The competition resets every month.",r5t:"Real market prices",r5w:"Stocks & ETFs only, following the live market.",r6t:"Free to play",r6w:"No deposit, no stake, no risk.",nHead:"Choose your player name",nSub:"This name is shown on the leaderboard."},
-  nl:{f:"🇳🇱",l:"Nederlands",hP:"PORTFOLIO",hR:"RENDEMENT",hC:"CASH",hL:"NOG",nM:"MARKT",nP:"PORTFOLIO",nLb:"KLASSEMENT",ptL1:"TOTAAL",ptL2:"RENDEMENT",ptL3:"CASH",ptPos:"OPEN POSITIES",ptNoPos:"Nog geen posities.",ptTr:"TRADE HISTORY",ptNoTr:"Nog geen trades.",lbLbl:"MAANDPRIJS",lbSub:"Hoogste rendement wint",dLeft:"dagen resterend",invite:"Nodig vrienden uit om mee te doen.",you:"JIJ",trades:"trades",allSec:"Alle",noCash:"Onvoldoende cash",noShares:"Niet genoeg aandelen",bought:"Gekocht",sold:"Verkocht",buy:"KOOP",sell:"VERKOOP",maxPos:"Max 30% per aandeel — spreid je risico",qual:"Gekwalificeerd",qualNeed:"trades om te kwalificeren",rHead:"De regels",rSub:"Zes regels — voor een eerlijk spel.",rAccept:"Ik accepteer de regels en zal ze volgen",rCont:"Doorgaan →",r1t:"€10.000 virtueel kapitaal",r1w:"Iedereen start gelijk. Vaardigheid beslist, niet budget.",r2t:"Max 30% per aandeel",r2w:"Verplicht spreiden — geen alles-op-één gokken.",r3t:"Minimum 5 trades om te kwalificeren",r3w:"Actief beheer wint, geen geluksgok.",r4t:"Hoogste rendement wint €100",r4w:"De competitie herstart elke maand.",r5t:"Echte marktprijzen",r5w:"Enkel aandelen en ETF\u2019s, live markt.",r6t:"Gratis spelen",r6w:"Geen inleg, geen inzet, geen risico.",nHead:"Kies je spelersnaam",nSub:"Deze naam staat op het klassement."},
+  en:{f:"🇬🇧",l:"English",hP:"PORTFOLIO",hR:"RETURN",hC:"CASH",hL:"LEFT",nM:"MARKET",nP:"PORTFOLIO",nLb:"RANKING",ptL1:"TOTAL",ptL2:"RETURN",ptL3:"CASH",ptPos:"OPEN POSITIONS",ptNoPos:"No positions yet. Go trade.",ptTr:"TRADE HISTORY",ptNoTr:"No trades yet.",lbLbl:"MONTHLY PRIZE",lbSub:"Highest return wins",dLeft:"days left",invite:"Share your link and build the leaderboard.",you:"YOU",trades:"trades",allSec:"All",noCash:"Insufficient cash",noShares:"Not enough shares",bought:"Bought",sold:"Sold",buy:"BUY",sell:"SELL",maxPos:"Max 30% per stock — diversify",qual:"Qualified",qualNeed:"trades to qualify",rHead:"The rules",rSub:"Six rules — designed to keep the game fair.",rAccept:"I accept the rules and will follow them",rCont:"Continue →",r1t:"€10,000 virtual capital",r1w:"Everyone starts equal. Skill decides, not budget.",r2t:"Max 30% per stock",r2w:"Forces diversification and prevents all-in gambling.",r3t:"Minimum 5 trades to qualify",r3w:"Active management wins — not one lucky bet.",r4t:"Highest return wins €100",r4w:"The competition resets every month.",r5t:"Real market prices",r5w:"Stocks & ETFs only, following the live market.",r6t:"Free to play",r6w:"No deposit, no stake, no risk.",nHead:"Choose your player name",nSub:"This name is shown on the leaderboard.",nPr:"PROFILE"},
+  nl:{f:"🇳🇱",l:"Nederlands",hP:"PORTFOLIO",hR:"RENDEMENT",hC:"CASH",hL:"NOG",nM:"MARKT",nP:"PORTFOLIO",nLb:"KLASSEMENT",ptL1:"TOTAAL",ptL2:"RENDEMENT",ptL3:"CASH",ptPos:"OPEN POSITIES",ptNoPos:"Nog geen posities.",ptTr:"TRADE HISTORY",ptNoTr:"Nog geen trades.",lbLbl:"MAANDPRIJS",lbSub:"Hoogste rendement wint",dLeft:"dagen resterend",invite:"Nodig vrienden uit om mee te doen.",you:"JIJ",trades:"trades",allSec:"Alle",noCash:"Onvoldoende cash",noShares:"Niet genoeg aandelen",bought:"Gekocht",sold:"Verkocht",buy:"KOOP",sell:"VERKOOP",maxPos:"Max 30% per aandeel — spreid je risico",qual:"Gekwalificeerd",qualNeed:"trades om te kwalificeren",rHead:"De regels",rSub:"Zes regels — voor een eerlijk spel.",rAccept:"Ik accepteer de regels en zal ze volgen",rCont:"Doorgaan →",r1t:"€10.000 virtueel kapitaal",r1w:"Iedereen start gelijk. Vaardigheid beslist, niet budget.",r2t:"Max 30% per aandeel",r2w:"Verplicht spreiden — geen alles-op-één gokken.",r3t:"Minimum 5 trades om te kwalificeren",r3w:"Actief beheer wint, geen geluksgok.",r4t:"Hoogste rendement wint €100",r4w:"De competitie herstart elke maand.",r5t:"Echte marktprijzen",r5w:"Enkel aandelen en ETF\u2019s, live markt.",r6t:"Gratis spelen",r6w:"Geen inleg, geen inzet, geen risico.",nHead:"Kies je spelersnaam",nSub:"Deze naam staat op het klassement.",nPr:"PROFIEL"},
   de:{f:"🇩🇪",l:"Deutsch",hP:"PORTFOLIO",hR:"RENDITE",hC:"GUTHABEN",hL:"NOCH",nM:"MARKT",nP:"PORTFOLIO",nLb:"RANGLISTE",ptL1:"GESAMT",ptL2:"RENDITE",ptL3:"GUTHABEN",ptPos:"OFFENE POSITIONEN",ptNoPos:"Noch keine Positionen.",ptTr:"HANDELSHISTORIE",ptNoTr:"Noch keine Trades.",lbLbl:"MONATSPREIS",lbSub:"Höchste Rendite gewinnt",dLeft:"Tage verbleibend",invite:"Freunde einladen.",you:"DU",trades:"Trades",allSec:"Alle",noCash:"Nicht genug Guthaben",noShares:"Nicht genug Aktien",bought:"Gekauft",sold:"Verkauft",buy:"KAUFEN",sell:"VERKAUFEN",rHead:"Die Regeln",rSub:"Sechs Regeln — für ein faires Spiel.",rAccept:"Ich akzeptiere die Regeln und werde sie befolgen",rCont:"Weiter →",r1t:"€10.000 virtuelles Kapital",r1w:"Alle starten gleich. Können entscheidet, nicht Budget.",r2t:"Max. 30% pro Aktie",r2w:"Erzwingt Diversifikation, verhindert Zocken.",r3t:"Mindestens 5 Trades zur Qualifikation",r3w:"Aktives Management gewinnt, kein Glücksspiel.",r4t:"Höchste Rendite gewinnt €100",r4w:"Der Wettbewerb startet jeden Monat neu.",r5t:"Echte Marktpreise",r5w:"Nur Aktien & ETFs, Live-Markt.",r6t:"Kostenlos spielen",r6w:"Keine Einzahlung, kein Einsatz, kein Risiko.",nHead:"Wähle deinen Spielernamen",nSub:"Dieser Name erscheint in der Rangliste."},
   fr:{f:"🇫🇷",l:"Français",hP:"PORTEFEUILLE",hR:"RENDEMENT",hC:"LIQUIDITÉS",hL:"RESTE",nM:"MARCHÉ",nP:"PORTEFEUILLE",nLb:"CLASSEMENT",ptL1:"TOTAL",ptL2:"RENDEMENT",ptL3:"LIQUIDITÉS",ptPos:"POSITIONS OUVERTES",ptNoPos:"Aucune position.",ptTr:"HISTORIQUE",ptNoTr:"Aucune transaction.",lbLbl:"PRIX MENSUEL",lbSub:"Meilleur rendement gagne",dLeft:"jours restants",invite:"Invitez des amis.",you:"VOUS",trades:"trades",allSec:"Tous",noCash:"Liquidités insuffisantes",noShares:"Pas assez d'actions",bought:"Acheté",sold:"Vendu",buy:"ACHETER",sell:"VENDRE",rHead:"Les règles",rSub:"Six règles — pour un jeu équitable.",rAccept:"J\u2019accepte les règles et je les suivrai",rCont:"Continuer →",r1t:"10 000 € de capital virtuel",r1w:"Tout le monde part à égalité. Le talent décide.",r2t:"Max 30% par action",r2w:"Force la diversification, empêche le tout-ou-rien.",r3t:"Minimum 5 transactions pour se qualifier",r3w:"La gestion active gagne, pas un pari chanceux.",r4t:"Le meilleur rendement gagne 100 €",r4w:"La compétition recommence chaque mois.",r5t:"Prix de marché réels",r5w:"Actions et ETF uniquement, marché en direct.",r6t:"Gratuit",r6w:"Pas de dépôt, pas de mise, pas de risque.",nHead:"Choisis ton nom de joueur",nSub:"Ce nom apparaît au classement."},
   es:{f:"🇪🇸",l:"Español",hP:"CARTERA",hR:"RENTABILIDAD",hC:"EFECTIVO",hL:"QUEDAN",nM:"MERCADO",nP:"CARTERA",nLb:"CLASIFICACIÓN",ptL1:"TOTAL",ptL2:"RENTABILIDAD",ptL3:"EFECTIVO",ptPos:"POSICIONES ABIERTAS",ptNoPos:"Sin posiciones.",ptTr:"HISTORIAL",ptNoTr:"Sin operaciones.",lbLbl:"PREMIO MENSUAL",lbSub:"Mayor rentabilidad gana",dLeft:"días restantes",invite:"Invita amigos.",you:"TÚ",trades:"ops",allSec:"Todos",noCash:"Efectivo insuficiente",noShares:"No hay suficientes acciones",bought:"Comprado",sold:"Vendido",buy:"COMPRAR",sell:"VENDER",rHead:"Las reglas",rSub:"Seis reglas — para un juego justo.",rAccept:"Acepto las reglas y las seguiré",rCont:"Continuar →",r1t:"€10.000 de capital virtual",r1w:"Todos empiezan igual. La habilidad decide.",r2t:"Máx 30% por acción",r2w:"Obliga a diversificar, evita apostarlo todo.",r3t:"Mínimo 5 operaciones para calificar",r3w:"La gestión activa gana, no una apuesta.",r4t:"El mayor retorno gana €100",r4w:"La competición se reinicia cada mes.",r5t:"Precios de mercado reales",r5w:"Solo acciones y ETFs, mercado en vivo.",r6t:"Gratis",r6w:"Sin depósito, sin apuesta, sin riesgo.",nHead:"Elige tu nombre de jugador",nSub:"Este nombre aparece en la clasificación."},
@@ -815,16 +844,69 @@ function showNameScreen(){
   $("name-input").value=(username&&username!=="User")?username:"";
   show("name-screen");
 }
-function nameContinue(){
+async function nameContinue(){
   const n=$("name-input").value.trim();
   if(!n)return showToast(t("nHead"),"err");
+  const ok=await claimUsername(n);
+  if(!ok)return showToast("Name already taken — pick another","err");
   username=n.slice(0,20);saveState();
-  if(FB&&FBuser){try{FBuser.updateProfile({displayName:username});}catch(e){}}
+  if(FB&&FBuser){
+    try{FBuser.updateProfile({displayName:username});}catch(e){}
+    syncMe();
+  }
   showRules("onboard");
 }
-function changeName(){
-  const n=prompt("Player name:",username);
-  if(n&&n.trim()){username=n.trim().slice(0,20);saveState();syncMe();updateAll();showToast("✓ "+username);}
+const nameKey=n=>String(n).toLowerCase().trim().replace(/[^a-z0-9_-]/g,"_").slice(0,30);
+async function claimUsername(newName){
+  if(!FB||!FBuser)return true;
+  const ref=FB.db.collection("usernames").doc(nameKey(newName));
+  try{
+    const snap=await ref.get();
+    if(snap.exists)return snap.data().uid===FBuser.uid;
+    await ref.set({uid:FBuser.uid,name:newName});
+    return true;
+  }catch(e){console.warn("claim:",e.message);return false;}
+}
+async function releaseUsername(oldName){
+  if(!FB||!FBuser||!oldName)return;
+  try{
+    const ref=FB.db.collection("usernames").doc(nameKey(oldName));
+    const s=await ref.get();
+    if(s.exists&&s.data().uid===FBuser.uid)await ref.delete();
+  }catch(e){}
+}
+function renderProfile(){
+  $("prof-name").value=username;
+  $("prof-email").textContent=FB&&FBuser?("Signed in as: "+(FBuser.email||"Google account")):"Local demo account";
+}
+async function profSaveName(){
+  const n=$("prof-name").value.trim();
+  if(!n)return;
+  if(n===username)return showToast("✓ "+n);
+  const ok=await claimUsername(n);
+  if(!ok)return showToast("Name already taken","err");
+  const old=username;
+  username=n.slice(0,20);
+  releaseUsername(old);
+  saveState();syncMe();updateAll();
+  if(FB&&FBuser)try{FBuser.updateProfile({displayName:username});}catch(e){}
+  showToast("✓ "+username);
+}
+async function deleteAccount(){
+  if(!confirm("Permanently delete your account and all data? This cannot be undone."))return;
+  try{
+    if(FB&&FBuser){
+      try{await FB.db.collection(LBCOL).doc(FBuser.uid).delete();}catch(e){}
+      await releaseUsername(username);
+      await FBuser.delete();
+    }
+    store.del("sa_state");store.del("sa_onboarded");
+    showToast("Account deleted");
+    setTimeout(()=>location.reload(),700);
+  }catch(e){
+    if(e.code==="auth/requires-recent-login")showToast("Sign out, log in again, then delete","err");
+    else showToast("Delete failed — try again","err");
+  }
 }
 async function shareCard(){
   const c=document.createElement("canvas");c.width=1080;c.height=1080;
@@ -1108,12 +1190,13 @@ function updateAll(){
   if(tab==="market")renderMarket();
   if(tab==="portfolio")renderPortfolio();
   if(tab==="leaderboard")renderLeaderboard();
+  if(tab==="profile")renderProfile();
 }
 
 // ══ TABS ══
 function switchTab(id){
   tab=id;
-  ["market","portfolio","leaderboard"].forEach(x=>{
+  ["market","portfolio","leaderboard","profile"].forEach(x=>{
     $("panel-"+x).classList.toggle("active",x===id);
     $("nav-"+x).classList.toggle("active",x===id);
   });
@@ -1125,7 +1208,7 @@ function switchTab(id){
 function setLang(code){
   lang=code;const l=L[code];
   $("h-plbl").textContent=l.hP;$("h-rlbl").textContent=l.hR;$("h-clbl").textContent=l.hC;$("h-llbl").textContent=l.hL;
-  $("n-market").textContent=l.nM;$("n-portfolio").textContent=l.nP;$("n-leaderboard").textContent=l.nLb;
+  $("n-market").textContent=l.nM;$("n-portfolio").textContent=l.nP;$("n-leaderboard").textContent=l.nLb;$("n-profile").textContent=t("nPr");
   $("pt-l1").textContent=l.ptL1;$("pt-l2").textContent=l.ptL2;$("pt-l3").textContent=l.ptL3;
   $("pt-poslbl").textContent=l.ptPos;$("pt-trlbl").textContent=l.ptTr;
   $("lb-lbl").textContent=l.lbLbl;$("lb-you").textContent=l.you;
