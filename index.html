@@ -615,6 +615,7 @@ function startLB(){
 let lang="en", username="User", live=false;
 let prices={}, changes={}, hist={}, base={};
 let cash=CASH0, holdings={}, tradeLog=[];
+const liveSet=new Set();
 let tab="market", page=0, tick=0;
 STOCKS.forEach(s=>{prices[s.t]=s.b;base[s.t]=s.b;changes[s.t]=0;hist[s.t]=[s.b];});
 
@@ -719,8 +720,10 @@ function applyPrices(data,resetHist){
       prices[tk]=d.price;base[tk]=d.price;
       if(resetHist)hist[tk]=[d.price];
       changes[tk]=d.change||0;n++;
+      liveSet.add(tk);
     }
   }
+  if(n>0)saveSnapshot();
   return n;
 }
 
@@ -892,7 +895,7 @@ function beginPriceLoad(){
   if(pricePromise)return pricePromise;
   pricePromise=loadPrices().then(d=>{
     const n=applyPrices(d,!pricesApplied);
-    if(n>0){live=true;pricesApplied=true;saveSnapshot();updateAll();}
+    if(n>0){live=true;pricesApplied=true;updateAll();}
     return n;
   }).catch(e=>{console.warn("preload:",e.message);return 0;})
     .then(n=>{pricesReady=true;updateAll();return n;});
@@ -977,8 +980,8 @@ function renderMarket(){
       <div class="stock-price-wrap"><div class="stock-price">$${pStr}</div><div class="stock-chg ${up?"val-up":"val-down"}">${up?"▲":"▼"}${Math.abs(ch).toFixed(2)}%</div></div>
       <div class="stock-controls">
         <input type="number" class="qty-in" id="q-${s.t}" value="1" min="1">
-        <button class="btn-buy" onclick="buy('${s.t}')" ${live?"":"disabled"}>${t("buy")}</button>
-        <button class="btn-sell" onclick="sell('${s.t}')" ${held===0||!live?"disabled":""}>${t("sell")}</button>
+        <button class="btn-buy" onclick="buy('${s.t}')" ${liveSet.has(s.t)?"":"disabled"}>${t("buy")}</button>
+        <button class="btn-sell" onclick="sell('${s.t}')" ${held===0||!liveSet.has(s.t)?"disabled":""}>${t("sell")}</button>
       </div>
     </div>`;
   }).join("");
@@ -997,7 +1000,7 @@ function showToast(msg,type="ok"){
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className="",2000);
 }
 function buy(ticker){
-  if(!live)return showToast("⏳ Waiting for live prices...","err");
+  if(!liveSet.has(ticker))return showToast("⏳ Waiting for live price...","err");
   const n=Math.max(1,parseInt(($("q-"+ticker)||{value:1}).value));
   const cost=(prices[ticker]||0)*n;
   if(cost>cash)return showToast(t("noCash"),"err");
@@ -1010,7 +1013,7 @@ function buy(ticker){
   saveState();syncMe();updateAll();
 }
 function sell(ticker){
-  if(!live)return showToast("⏳ Waiting for live prices...","err");
+  if(!liveSet.has(ticker))return showToast("⏳ Waiting for live price...","err");
   const inp=(tab==="portfolio"?$("pq-"+ticker):$("q-"+ticker))||{value:1};
   const n=Math.max(1,parseInt(inp.value)||1);
   if(n>(holdings[ticker]||0))return showToast(t("noShares"),"err");
