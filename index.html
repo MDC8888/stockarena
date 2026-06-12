@@ -206,6 +206,24 @@ svg.mc{flex-shrink:0}
 .divmeter-fill{height:100%;border-radius:6px;transition:width .3s}
 .divmeter-limit{position:absolute;left:30%;top:0;bottom:0;width:2px;background:var(--text3);opacity:.5}
 .pos-controls{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:6px}
+.sheet-overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:600;display:none;align-items:flex-end;justify-content:center}
+.sheet-overlay.open{display:flex}
+.sheet{background:var(--white);width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:14px 20px calc(24px + var(--safe-bottom));animation:slideUp .18s ease;box-shadow:0 -8px 40px rgba(0,0,0,.15)}
+@keyframes slideUp{from{transform:translateY(50px);opacity:.5}to{transform:translateY(0);opacity:1}}
+.sheet-handle{width:36px;height:4px;border-radius:4px;background:var(--border);margin:0 auto 16px}
+.sheet-head{display:flex;justify-content:space-between;align-items:baseline}
+.sheet-sym{font-size:20px;font-weight:700;color:var(--text)}
+.sheet-price{font-size:20px;font-weight:700;color:var(--text)}
+.sheet-sub{display:flex;justify-content:space-between;font-size:13px;color:var(--text3);margin:2px 0 16px}
+.sheet-qty-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.qbtn{width:46px;height:46px;border-radius:12px;border:1px solid var(--border);background:var(--bg);font-size:22px;color:var(--text);cursor:pointer;font-family:var(--sans)}
+#sheet-qty{flex:1;text-align:center;font-size:18px;font-weight:600;padding:11px;border:1px solid var(--border);border-radius:12px;font-family:var(--sans);color:var(--text);outline:none;-webkit-appearance:none}
+.sheet-total{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:16px;font-weight:500}
+.sheet-actions{display:flex;gap:10px}
+.sheet-sellbtn{flex:1;padding:15px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--text);font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
+.sheet-buybtn{flex:1;padding:15px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
+.sheet-buybtn:disabled,.sheet-sellbtn:disabled{opacity:.35;cursor:not-allowed}
+.stock-item{cursor:pointer}
 #toast{position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:#fff;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:all .2s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.15)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.ok{background:#065f46}#toast.err{background:#991b1b}
@@ -405,6 +423,7 @@ svg.mc{flex-shrink:0}
           </div>
           <div style="font-size:12px;color:var(--text3);margin-top:6px">Names are unique — if it's taken, pick another.</div>
           <div style="font-size:12px;color:var(--text2);margin-top:12px" id="prof-email"></div>
+          <button class="btn-sell" style="margin-top:14px;width:100%;padding:12px;border-radius:10px" onclick="plainSignOut()">Sign out</button>
         </div>
       </div>
       <div class="card">
@@ -436,6 +455,23 @@ svg.mc{flex-shrink:0}
 </div>
 
 <div class="lang-overlay" id="lang-overlay" onclick="closeLangMenu()"><div class="lang-menu" id="lang-menu" onclick="event.stopPropagation()"></div></div>
+<div class="sheet-overlay" id="sheet-ov" onclick="closeSheet()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><span class="sheet-sym" id="sh-sym">—</span><span class="sheet-price" id="sh-price">—</span></div>
+    <div class="sheet-sub"><span id="sh-name">—</span><span id="sh-chg">—</span></div>
+    <div class="sheet-qty-row">
+      <button class="qbtn" onclick="sheetStep(-1)">−</button>
+      <input type="number" id="sheet-qty" value="1" min="1" inputmode="numeric" oninput="sheetUpdate()">
+      <button class="qbtn" onclick="sheetStep(1)">+</button>
+    </div>
+    <div class="sheet-total"><span id="sh-held">—</span><span id="sh-total">—</span></div>
+    <div class="sheet-actions">
+      <button class="sheet-sellbtn" id="sh-sellbtn" onclick="sheetSell()">SELL</button>
+      <button class="sheet-buybtn" id="sh-buybtn" onclick="sheetBuy()">BUY</button>
+    </div>
+  </div>
+</div>
 <div id="toast"></div>
 </div>
 
@@ -654,9 +690,14 @@ const store={
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
   del(k){try{localStorage.removeItem(k)}catch{}}
 };
-function saveState(){store.set("sa_state",{username,lang,cash,holdings,tradeLog:tradeLog.slice(0,50),month:MONTH_KEY});}
+function stateKey(){return (typeof FB!=="undefined"&&FB&&FBuser)?"sa_state_"+FBuser.uid:"sa_state";}
+function saveState(){store.set(stateKey(),{username,lang,cash,holdings,tradeLog:tradeLog.slice(0,50),month:MONTH_KEY});}
 function loadState(){
-  const s=store.get("sa_state");
+  let s=store.get(stateKey());
+  if(!s&&typeof FB!=="undefined"&&FB&&FBuser){
+    const legacy=store.get("sa_state");
+    if(legacy){s=legacy;store.set(stateKey(),legacy);store.del("sa_state");}
+  }
   if(!s||!s.username)return false;
   username=s.username; lang=s.lang||"en";
   if(s.month&&s.month!==MONTH_KEY){
@@ -892,6 +933,11 @@ async function profSaveName(){
   if(FB&&FBuser)try{FBuser.updateProfile({displayName:username});}catch(e){}
   showToast("✓ "+username);
 }
+function plainSignOut(){
+  saveState();
+  if(FB){try{FB.auth.signOut();}catch(e){}}
+  setTimeout(()=>location.reload(),300);
+}
 async function deleteAccount(){
   if(!confirm("Permanently delete your account and all data? This cannot be undone."))return;
   try{
@@ -900,7 +946,7 @@ async function deleteAccount(){
       await releaseUsername(username);
       await FBuser.delete();
     }
-    store.del("sa_state");store.del("sa_onboarded");
+    store.del(stateKey());store.del("sa_onboarded");
     showToast("Account deleted");
     setTimeout(()=>location.reload(),700);
   }catch(e){
@@ -948,7 +994,7 @@ function shareApp(){
 }
 function resetAccount(){
   if(!confirm("Sign out and reset your portfolio? This cannot be undone."))return;
-  store.del("sa_state");store.del("sa_onboarded");
+  store.del(stateKey());store.del("sa_onboarded");
   if(FB)try{FB.auth.signOut();}catch(e){}
   cash=CASH0;holdings={};tradeLog=[];username="User";
   setTimeout(()=>location.reload(),300);
@@ -1056,15 +1102,14 @@ function renderMarket(){
   $("stock-list").innerHTML=vis.slice(page*PG,(page+1)*PG).map(s=>{
     const p=prices[s.t]||s.b,ch=changes[s.t]||0,up=ch>=0,held=holdings[s.t]||0;
     const pStr=p>=1000?p.toLocaleString("en-US",{maximumFractionDigits:0}):fmt(p);
-    return`<div class="stock-item" id="sc-${s.t}">
+    return`<div class="stock-item" id="sc-${s.t}" onclick="openSheet('${s.t}')">
       <div class="stock-sym-wrap"><div class="stock-sym">${s.t}</div><div class="stock-sector">${s.s}</div></div>
       <div class="stock-name-wrap"><div class="stock-name">${s.n}</div>${held>0?`<div class="stock-held">${held}× held</div>`:""}</div>
       ${miniChart(s.t,up)}
       <div class="stock-price-wrap"><div class="stock-price">$${pStr}</div><div class="stock-chg ${up?"val-up":"val-down"}">${up?"▲":"▼"}${Math.abs(ch).toFixed(2)}%</div></div>
       <div class="stock-controls">
-        <input type="number" class="qty-in" id="q-${s.t}" value="1" min="1">
-        <button class="btn-buy" onclick="buy('${s.t}')" ${liveSet.has(s.t)&&!wknd?"":"disabled"}>${t("buy")}</button>
-        <button class="btn-sell" onclick="sell('${s.t}')" ${held===0||!liveSet.has(s.t)||wknd?"disabled":""}>${t("sell")}</button>
+        <button class="btn-buy" onclick="event.stopPropagation();openSheet('${s.t}','buy')" ${liveSet.has(s.t)&&!wknd?"":"disabled"}>${t("buy")}</button>
+        <button class="btn-sell" onclick="event.stopPropagation();openSheet('${s.t}','sell')" ${held===0||!liveSet.has(s.t)||wknd?"disabled":""}>${t("sell")}</button>
       </div>
     </div>`;
   }).join("");
@@ -1082,32 +1127,64 @@ function showToast(msg,type="ok"){
   const el=$("toast");el.textContent=msg;el.className="show "+type;
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className="",2000);
 }
-function buy(ticker){
-  if(mktStatus()==="weekend")return showToast("📅 Weekend — trading resumes Monday","err");
-  if(!liveSet.has(ticker))return showToast("⏳ Waiting for live price...","err");
-  const n=Math.max(1,parseInt(($("q-"+ticker)||{value:1}).value));
+function doBuy(ticker,n){
+  if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
+  if(!liveSet.has(ticker)){showToast("⏳ Waiting for live price...","err");return false;}
+  n=Math.max(1,parseInt(n)||1);
   const cost=(prices[ticker]||0)*n;
-  if(cost>cash)return showToast(t("noCash"),"err");
+  if(cost>cash){showToast(t("noCash"),"err");return false;}
   const posValAfter=((holdings[ticker]||0)*(prices[ticker]||0))+cost;
-  if(posValAfter>pval()*0.30)return showToast(t("maxPos"),"err");
+  if(posValAfter>pval()*0.30){showToast(t("maxPos"),"err");return false;}
   cash-=cost;holdings[ticker]=(holdings[ticker]||0)+n;
   tradeLog.unshift({type:"BUY",ticker,qty:n,price:prices[ticker],time:new Date().toLocaleTimeString()});
   showToast(`${t("bought")} ${n}× ${ticker}`);
   const el=$("sc-"+ticker);if(el){el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),400);}
   saveState();syncMe();updateAll();
+  return true;
 }
-function sell(ticker){
-  if(mktStatus()==="weekend")return showToast("📅 Weekend — trading resumes Monday","err");
-  if(!liveSet.has(ticker))return showToast("⏳ Waiting for live price...","err");
-  const inp=(tab==="portfolio"?$("pq-"+ticker):$("q-"+ticker))||{value:1};
-  const n=Math.max(1,parseInt(inp.value)||1);
-  if(n>(holdings[ticker]||0))return showToast(t("noShares"),"err");
+function doSell(ticker,n){
+  if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
+  if(!liveSet.has(ticker)){showToast("⏳ Waiting for live price...","err");return false;}
+  n=Math.max(1,parseInt(n)||1);
+  if(n>(holdings[ticker]||0)){showToast(t("noShares"),"err");return false;}
   cash+=(prices[ticker]||0)*n;holdings[ticker]-=n;
   if(!holdings[ticker])delete holdings[ticker];
   tradeLog.unshift({type:"SELL",ticker,qty:n,price:prices[ticker],time:new Date().toLocaleTimeString()});
   showToast(`${t("sold")} ${n}× ${ticker}`);
   saveState();syncMe();updateAll();
+  return true;
 }
+// ══ TRADE SHEET (confirmation) ══
+let sheetTk=null;
+function openSheet(tk,mode){
+  const s=STOCKS.find(x=>x.t===tk);if(!s)return;
+  sheetTk=tk;
+  $("sh-sym").textContent=tk;
+  $("sh-name").textContent=s.n;
+  const held=holdings[tk]||0;
+  $("sheet-qty").value=(mode==="sell"&&held>0)?held:1;
+  sheetUpdate();
+  $("sheet-ov").classList.add("open");
+}
+function closeSheet(){$("sheet-ov").classList.remove("open");sheetTk=null;}
+function sheetStep(d){const i=$("sheet-qty");i.value=Math.max(1,(parseInt(i.value)||1)+d);sheetUpdate();}
+function sheetUpdate(){
+  if(!sheetTk)return;
+  const p=prices[sheetTk]||0,ch=changes[sheetTk]||0,held=holdings[sheetTk]||0;
+  const n=Math.max(1,parseInt($("sheet-qty").value)||1);
+  $("sh-price").textContent="$"+fmt(p);
+  $("sh-chg").textContent=(ch>=0?"▲":"▼")+Math.abs(ch).toFixed(2)+"%";
+  $("sh-chg").style.color=ch>=0?"var(--green)":"var(--red)";
+  $("sh-held").textContent=held>0?`You own ${held}×`:"You own 0×";
+  $("sh-total").textContent=`Total: $${fmt(p*n)}`;
+  const tradable=liveSet.has(sheetTk)&&mktStatus()!=="weekend";
+  $("sh-buybtn").disabled=!tradable;
+  $("sh-sellbtn").disabled=!tradable||held===0;
+  $("sh-buybtn").textContent=tradable?`BUY ${n}×`:"🔒 LOCKED";
+  $("sh-sellbtn").textContent=`SELL ${Math.min(n,held)}×`;
+}
+function sheetBuy(){if(!sheetTk)return;const n=parseInt($("sheet-qty").value)||1;if(doBuy(sheetTk,n))closeSheet();}
+function sheetSell(){if(!sheetTk)return;const n=parseInt($("sheet-qty").value)||1;if(doSell(sheetTk,n))closeSheet();}
 
 // ══ UPDATE UI ══
 function updateHeader(){
@@ -1145,7 +1222,7 @@ function renderPortfolio(){
       const p=prices[tk]||0,val=sh*p,b2=base[tk]||1,r2=((p-b2)/b2)*100;
       const w=v>0?val/v*100:0;
       const stk=STOCKS.find(s=>s.t===tk);
-      return`<div class="pos-row"><div style="flex:1"><div class="pos-sym">${tk} <span style="font-weight:500;color:var(--text3);font-size:11px">${w.toFixed(0)}%</span></div><div class="pos-name">${stk?stk.n:""}</div></div><div class="pos-right"><div class="pos-shares">${sh}× @ $${fmt(p)}</div><div class="pos-val">$${fmt(val)} <span style="color:${r2>=0?"var(--green)":"var(--red)"};font-size:11px">${r2>=0?"+":""}${r2.toFixed(2)}%</span></div><div class="pos-controls"><input type="number" class="qty-in" id="pq-${tk}" value="${sh}" min="1" max="${sh}"><button class="btn-sell" onclick="sell('${tk}')">${t("sell")}</button></div></div></div>`;
+      return`<div class="pos-row"><div style="flex:1"><div class="pos-sym">${tk} <span style="font-weight:500;color:var(--text3);font-size:11px">${w.toFixed(0)}%</span></div><div class="pos-name">${stk?stk.n:""}</div></div><div class="pos-right"><div class="pos-shares">${sh}× @ $${fmt(p)}</div><div class="pos-val">$${fmt(val)} <span style="color:${r2>=0?"var(--green)":"var(--red)"};font-size:11px">${r2>=0?"+":""}${r2.toFixed(2)}%</span></div><div class="pos-controls"><button class="btn-sell" onclick="openSheet('${tk}','sell')">${t("sell")}</button></div></div></div>`;
     }).join("");
   $("trade-list").innerHTML=tradeLog.length===0?`<div class="empty-state">${t("ptNoTr")}</div>`:
     tradeLog.slice(0,10).map(tr=>`<div class="trade-row"><span class="trade-badge tb-${tr.type.toLowerCase()}">${tr.type}</span><span class="trade-sym">${tr.ticker}</span><span class="trade-detail">${tr.qty}× @ $${fmt(tr.price)}</span><span class="trade-time">${tr.time}</span></div>`).join("");
