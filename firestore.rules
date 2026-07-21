@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Leaderboards (current + archived months): public read, server-only write
+    match /{board}/{uid} {
+      allow read: if board.matches('players_.*');
+      allow write: if false;
+    }
+
+    // Live price cache: public read
+    match /market/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Your own portfolio state: read your own, never write (server does)
+    match /states/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Trade history: private to owner, until the month is released for everyone
+    match /trades/{uid}/log/{id} {
+      allow read: if request.auth != null && (
+        request.auth.uid == uid ||
+        get(/databases/$(database)/documents/releases/$(resource.data.month)).data.open == true
+      );
+      allow write: if false;
+    }
+
+    match /releases/{month} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Winners archive + Hall of Fame: public read
+    match /winners/{month} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /halloffame/{uid} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Unique player names: claim your own
+    match /usernames/{name} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.uid == request.auth.uid;
+    }
+  }
+}
