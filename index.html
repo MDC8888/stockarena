@@ -182,6 +182,7 @@ svg.mc{flex-shrink:0}
 .leader-info{flex:1}
 .leader-name{font-size:14px;font-weight:600;color:var(--text)}
 .leader-you{font-size:10px;color:var(--blue);font-weight:700;margin-left:6px;letter-spacing:.3px}
+.leader-title{font-size:10px;color:var(--gold);font-weight:700;margin-top:1px}
 .leader-trades{font-size:11px;color:var(--text3);margin-top:2px}
 .leader-right{text-align:right}
 .leader-val{font-size:15px;font-weight:700;color:var(--text)}
@@ -402,6 +403,8 @@ svg.mc{flex-shrink:0}
         <div class="prize-card-sub" id="lb-sub">Highest return wins</div>
       </div>
       <div id="leader-list"></div>
+      <div id="winners-card"></div>
+      <div id="hof-card"></div>
       <div class="invite-card">
         <div class="invite-title">Invite friends to compete</div>
         <div class="invite-sub" id="lb-invite">Share your link and build the leaderboard.</div>
@@ -439,7 +442,7 @@ svg.mc{flex-shrink:0}
       <div class="card" style="border-color:#fecaca">
         <div class="card-header" style="color:#991b1b">DANGER ZONE</div>
         <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px">
-          <button class="btn-sell" style="padding:12px;border-radius:10px" onclick="resetAccount()">Sign out & reset portfolio</button>
+          <button class="btn-sell" id="reset-btn" style="padding:12px;border-radius:10px" onclick="resetAccount()">Sign out & reset portfolio</button>
           <button class="btn-sell" style="padding:12px;border-radius:10px;color:#991b1b;border-color:#fecaca" onclick="deleteAccount()">🗑️ Delete account permanently</button>
         </div>
       </div>
@@ -478,6 +481,7 @@ svg.mc{flex-shrink:0}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
 <script>
 // ══ TRANSLATIONS ══
 const L={
@@ -658,16 +662,61 @@ try{
   if(FIREBASE_CONFIG.apiKey&&!FIREBASE_CONFIG.apiKey.startsWith("PASTE")&&typeof firebase!=="undefined"){
     firebase.initializeApp(FIREBASE_CONFIG);
     FB={auth:firebase.auth(),db:firebase.firestore()};
+    FB.fns=firebase.app().functions("europe-west1");
   }
 }catch(e){console.warn("Firebase init:",e.message);}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function syncMe(){
   if(!FB||!FBuser)return;
-  const v=pval();
-  FB.db.collection(LBCOL).doc(FBuser.uid).set({
-    name:username,value:Math.round(v*100)/100,ret:Math.round(pret(v)*100)/100,
-    trades:tradeLog.length,updated:firebase.firestore.FieldValue.serverTimestamp()
-  },{merge:true}).catch(e=>console.warn("sync:",e.message));
+  FB.fns.httpsCallable("hello")({name:username}).then(r=>{
+    const d=r.data||{};
+    if(typeof d.cash==="number"){cash=d.cash;holdings=d.holdings||{};saveState();updateAll();}
+  }).catch(e=>console.warn("hello:",e.message));
+}
+let priceStreamStarted=false;
+function startPriceStream(){
+  if(!FB||priceStreamStarted)return;
+  priceStreamStarted=true;
+  FB.db.doc("market/prices").onSnapshot(snap=>{
+    if(!snap.exists)return;
+    const d=snap.data(),out={};
+    for(const[tk,v]of Object.entries(d.p||{}))out[tk]={price:v.p,change:v.c||0};
+    const n=applyPrices(out,!pricesApplied);
+    if(n>0){live=true;pricesApplied=true;pricesReady=true;updateAll();}
+    if(Date.now()-d.t>15*60*1000&&FBuser&&mktStatus()==="open"){
+      try{FB.fns.httpsCallable("refreshNow")({});}catch(e){}
+    }
+  },e=>console.warn("prices:",e.message));
+}
+let hofMap={},hofList=[],winnersList=[];
+function startMeta(){
+  if(!FB)return;
+  try{
+    FB.db.collection("halloffame").orderBy("wins","desc").limit(20).onSnapshot(s=>{
+      hofMap={};hofList=[];
+      s.forEach(d=>{hofMap[d.id]=d.data();hofList.push({id:d.id,...d.data()});});
+      if(tab==="leaderboard")renderLeaderboard();
+    },()=>{});
+    FB.db.collection("winners").orderBy("month","desc").limit(6).onSnapshot(s=>{
+      winnersList=[];s.forEach(d=>winnersList.push(d.data()));
+      if(tab==="leaderboard")renderLeaderboard();
+    },()=>{});
+  }catch(e){}
+}
+async function loadServerHistory(){
+  if(!FB||!FBuser)return;
+  try{
+    const q=await FB.db.collection("trades").doc(FBuser.uid).collection("log")
+      .orderBy("ts","desc").limit(30).get();
+    if(!q.empty){
+      tradeLog=q.docs.map(d=>{
+        const x=d.data();
+        return{type:x.side,ticker:x.ticker,qty:x.qty,price:x.price,
+          time:x.ts&&x.ts.toDate?x.ts.toDate().toLocaleTimeString():""};
+      });
+      if(tab==="portfolio")renderPortfolio();
+    }
+  }catch(e){console.warn("history:",e.message);}
 }
 function startLB(){
   if(!FB||lbUnsub)return;
@@ -918,6 +967,7 @@ async function releaseUsername(oldName){
 }
 function renderProfile(){
   $("prof-name").value=username;
+  $("reset-btn").style.display=(FB&&FBuser)?"none":"block";
   $("prof-email").textContent=FB&&FBuser?("Signed in as: "+(FBuser.email||"Google account")):"Local demo account";
 }
 async function profSaveName(){
@@ -1021,6 +1071,26 @@ function loadSnapshot(){
 }
 function beginPriceLoad(){
   if(pricePromise)return pricePromise;
+  if(FB){
+    startPriceStream();
+    pricePromise=new Promise(res=>{
+      const t0=Date.now();
+      const iv=setInterval(()=>{
+        if(pricesApplied||Date.now()-t0>12000){
+          clearInterval(iv);
+          if(!pricesApplied){
+            // server cache unavailable → legacy loader
+            loadPrices().then(d=>{
+              const n=applyPrices(d,!pricesApplied);
+              if(n>0){live=true;pricesApplied=true;}
+              pricesReady=true;updateAll();res(n);
+            }).catch(()=>{pricesReady=true;res(0);});
+          }else{pricesReady=true;res(liveSet.size);}
+        }
+      },200);
+    });
+    return pricePromise;
+  }
   pricePromise=loadPrices().then(d=>{
     const n=applyPrices(d,!pricesApplied);
     if(n>0){live=true;pricesApplied=true;updateAll();}
@@ -1054,7 +1124,7 @@ async function startLoading(){
 }
 
 // ══ APP ══
-function enterApp(){show("app-screen");setLang(lang);updateAll();startSim();syncMe();startLB();}
+function enterApp(){show("app-screen");setLang(lang);updateAll();startSim();syncMe();startLB();startMeta();loadServerHistory();}
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");}
 
 let simStarted=false;
@@ -1127,7 +1197,7 @@ function showToast(msg,type="ok"){
   const el=$("toast");el.textContent=msg;el.className="show "+type;
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className="",2000);
 }
-function doBuy(ticker,n){
+function doBuyLocal(ticker,n){
   if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
   if(!liveSet.has(ticker)){showToast("⏳ Waiting for live price...","err");return false;}
   n=Math.max(1,parseInt(n)||1);
@@ -1142,7 +1212,7 @@ function doBuy(ticker,n){
   saveState();syncMe();updateAll();
   return true;
 }
-function doSell(ticker,n){
+function doSellLocal(ticker,n){
   if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
   if(!liveSet.has(ticker)){showToast("⏳ Waiting for live price...","err");return false;}
   n=Math.max(1,parseInt(n)||1);
@@ -1153,6 +1223,38 @@ function doSell(ticker,n){
   showToast(`${t("sold")} ${n}× ${ticker}`);
   saveState();syncMe();updateAll();
   return true;
+}
+function errMsg(e){
+  const m=(e&&e.message)||"Trade failed";
+  return m.includes("INTERNAL")?"Server error — try again":m;
+}
+async function doBuy(ticker,n){
+  n=Math.max(1,parseInt(n)||1);
+  if(!FB||!FBuser)return doBuyLocal(ticker,n);
+  if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
+  try{
+    const res=await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"BUY",name:username});
+    const d=res.data||{};
+    if(typeof d.cash==="number"){cash=d.cash;holdings=d.holdings||{};}
+    tradeLog.unshift({type:"BUY",ticker,qty:n,price:d.price||prices[ticker],time:new Date().toLocaleTimeString()});
+    showToast(`${t("bought")} ${n}× ${ticker}`);
+    saveState();updateAll();
+    return true;
+  }catch(e){showToast(errMsg(e),"err");return false;}
+}
+async function doSell(ticker,n){
+  n=Math.max(1,parseInt(n)||1);
+  if(!FB||!FBuser)return doSellLocal(ticker,n);
+  if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
+  try{
+    const res=await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"SELL",name:username});
+    const d=res.data||{};
+    if(typeof d.cash==="number"){cash=d.cash;holdings=d.holdings||{};}
+    tradeLog.unshift({type:"SELL",ticker,qty:n,price:d.price||prices[ticker],time:new Date().toLocaleTimeString()});
+    showToast(`${t("sold")} ${n}× ${ticker}`);
+    saveState();updateAll();
+    return true;
+  }catch(e){showToast(errMsg(e),"err");return false;}
 }
 // ══ TRADE SHEET (confirmation) ══
 let sheetTk=null;
@@ -1183,8 +1285,22 @@ function sheetUpdate(){
   $("sh-buybtn").textContent=tradable?`BUY ${n}×`:"🔒 LOCKED";
   $("sh-sellbtn").textContent=`SELL ${Math.min(n,held)}×`;
 }
-function sheetBuy(){if(!sheetTk)return;const n=parseInt($("sheet-qty").value)||1;if(doBuy(sheetTk,n))closeSheet();}
-function sheetSell(){if(!sheetTk)return;const n=parseInt($("sheet-qty").value)||1;if(doSell(sheetTk,n))closeSheet();}
+async function sheetBuy(){
+  if(!sheetTk)return;
+  const n=parseInt($("sheet-qty").value)||1;
+  $("sh-buybtn").disabled=true;$("sh-buybtn").textContent="...";
+  const ok=await doBuy(sheetTk,n);
+  sheetUpdate();
+  if(ok)closeSheet();
+}
+async function sheetSell(){
+  if(!sheetTk)return;
+  const n=parseInt($("sheet-qty").value)||1;
+  $("sh-sellbtn").disabled=true;$("sh-sellbtn").textContent="...";
+  const ok=await doSell(sheetTk,n);
+  sheetUpdate();
+  if(ok)closeSheet();
+}
 
 // ══ UPDATE UI ══
 function updateHeader(){
@@ -1229,13 +1345,15 @@ function renderPortfolio(){
 }
 const AVATARS=["🦊","🐯","🦁","🐸","🐼","🦉","🐺","🦅","🐙","🦈","🐢","🦄"];
 function avatarFor(name){let x=0;for(const c of String(name))x=(x*31+c.charCodeAt(0))>>>0;return AVATARS[x%AVATARS.length];}
-function leaderRow(rank,name,val,ret,trades,isMe){
+function leaderRow(rank,name,val,ret,trades,isMe,uid){
   const q=trades>=5;
+  const hof=uid&&hofMap[uid];
   return `<div class="leader-card${isMe?" me":""}">
     <div class="leader-rank${rank===1?" gold":""}">${rank}</div>
     <div class="leader-avatar">${avatarFor(name)}</div>
     <div class="leader-info">
       <div class="leader-name">${esc(name)}${isMe?` <span class="leader-you">${t("you")}</span>`:""}</div>
+      ${hof&&hof.wins>0?`<div class="leader-title">🏆 ${hof.wins}× winner</div>`:""}
       <div class="leader-trades">${trades} ${t("trades")} · <span style="color:${q?"var(--green)":"var(--text3)"};font-weight:600">${q?"✓ "+t("qual"):trades+"/5 "+t("qualNeed")}</span></div>
     </div>
     <div class="leader-right">
@@ -1254,13 +1372,29 @@ function renderLeaderboard(){
     rows=lbData.map((p,i)=>{
       const isMe=FBuser&&p.id===FBuser.uid;
       if(isMe)meIn=true;
-      return leaderRow(i+1,p.name||"Player",isMe?v:(p.value||0),isMe?r:(p.ret||0),isMe?tradeLog.length:(p.trades||0),isMe);
+      return leaderRow(i+1,p.name||"Player",isMe?v:(p.value||0),isMe?r:(p.ret||0),isMe?tradeLog.length:(p.trades||0),isMe,p.id);
     }).join("");
-    if(!meIn)rows+=leaderRow(lbData.length+1,username,v,r,tradeLog.length,true);
+    if(!meIn)rows+=leaderRow(lbData.length+1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null);
   }else{
-    rows=leaderRow(1,username,v,r,tradeLog.length,true);
+    rows=leaderRow(1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null);
   }
   $("leader-list").innerHTML=rows;
+  // Previous winners
+  $("winners-card").innerHTML=winnersList.length===0?"":`<div class="card" style="margin-top:16px">
+    <div class="card-header">🏆 PREVIOUS WINNERS</div>
+    ${winnersList.map(w=>`<div class="pos-row">
+      <div><div class="pos-sym">${esc(w.name||"Player")}</div><div class="pos-name">${String(w.month||"").replace("_","/")}</div></div>
+      <div class="pos-right"><div class="pos-val" style="color:var(--gold)">€100</div><div class="pos-shares" style="color:var(--green)">+${Number(w.ret||0).toFixed(2)}%</div></div>
+    </div>`).join("")}
+  </div>`;
+  // Hall of Fame
+  $("hof-card").innerHTML=hofList.length===0?"":`<div class="card" style="margin-top:12px">
+    <div class="card-header">👑 HALL OF FAME — MOST WINS</div>
+    ${hofList.map((p,i)=>`<div class="pos-row">
+      <div style="display:flex;align-items:center;gap:10px"><span class="leader-rank${i===0?" gold":""}" style="font-size:18px;min-width:22px">${i+1}</span><div><div class="pos-sym">${esc(p.name||"Player")}</div></div></div>
+      <div class="pos-right"><div class="pos-val">🏆 ${p.wins||0}</div></div>
+    </div>`).join("")}
+  </div>`;
 }
 function updateAll(){
   updateHeader();
@@ -1278,6 +1412,7 @@ function switchTab(id){
     $("nav-"+x).classList.toggle("active",x===id);
   });
   $("app-content").scrollTo({top:0,behavior:"instant"});
+  if(id==="portfolio")loadServerHistory();
   updateAll();
 }
 
