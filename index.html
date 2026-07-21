@@ -432,10 +432,10 @@ svg.mc{flex-shrink:0}
       <div class="card">
         <div class="card-header">SECURITY</div>
         <div style="padding:0 16px 16px">
-          <div class="rule-item" style="margin:0">
+          <div class="rule-item" style="margin:0;align-items:flex-start">
             <div class="rule-icon">🔒</div>
-            <div><div class="rule-title">Two-factor authentication</div>
-            <div class="rule-why">Coming with the next security upgrade. You'll be able to enable and disable it here.</div></div>
+            <div style="flex:1"><div class="rule-title">Two-factor authentication</div>
+            <div id="tfa-area"></div></div>
           </div>
         </div>
       </div>
@@ -861,7 +861,10 @@ function authWith(provider){
     FB.auth.signInWithPopup(gp).then(cred=>{
       username=cred.user.displayName||"Player";saveState();
       // Routing is handled by onAuthStateChanged: no accepted rules on this device -> full onboarding
-    }).catch(()=>showToast("Google sign-in failed","err"));
+    }).catch(err=>{
+      if(err.code==="auth/multi-factor-auth-required"){mfaChallenge(err,null);return;}
+      showToast("Google sign-in failed","err");
+    });
     return;
   }
   username=provider==="google"?"Google User":"Apple User";saveState();
@@ -875,7 +878,10 @@ async function loginWithEmail(){
     try{
       const cred=await FB.auth.signInWithEmailAndPassword(e,p);
       appStarted=true;username=cred.user.displayName||e.split("@")[0];saveState();store.set("sa_onboarded",true);startLoading();
-    }catch(err){showToast("Wrong email or password","err");}
+    }catch(err){
+      if(err.code==="auth/multi-factor-auth-required"){await mfaChallenge(err,e);return;}
+      showToast("Wrong email or password","err");
+    }
     return;
   }
   username=e.split("@")[0];saveState();startLoading();
@@ -968,6 +974,7 @@ async function releaseUsername(oldName){
 function renderProfile(){
   $("prof-name").value=username;
   $("reset-btn").style.display=(FB&&FBuser)?"none":"block";
+  renderTFA();
   $("prof-email").textContent=FB&&FBuser?("Signed in as: "+(FBuser.email||"Google account")):"Local demo account";
 }
 async function profSaveName(){
@@ -987,6 +994,74 @@ function plainSignOut(){
   saveState();
   if(FB){try{FB.auth.signOut();}catch(e){}}
   setTimeout(()=>location.reload(),300);
+}
+let tfaSecret=null;
+function renderTFA(){
+  const area=$("tfa-area");if(!area)return;
+  if(!FB||!FBuser){area.innerHTML='<div class="rule-why">Sign in to manage 2FA.</div>';return;}
+  const f=(FBuser.multiFactor&&FBuser.multiFactor.enrolledFactors)||[];
+  if(f.length>0){
+    area.innerHTML=`<div class="rule-why" style="color:var(--green);font-weight:600">✅ Enabled — authenticator app</div>
+    <button class="btn-sell" style="margin-top:10px;padding:10px 14px;border-radius:10px" onclick="tfaDisable()">Remove 2FA</button>`;
+  }else{
+    area.innerHTML=`<div class="rule-why">Protect your account with an authenticator app (Google Authenticator, 1Password, Authy...).</div>
+    <button class="btn-buy" style="margin-top:10px;padding:10px 14px;border-radius:10px" onclick="tfaStart()">Enable 2FA</button>
+    <div id="tfa-setup"></div>`;
+  }
+}
+async function tfaStart(){
+  if(!firebase.auth.TotpMultiFactorGenerator)return showToast("2FA not enabled in Firebase yet","err");
+  try{
+    const session=await FBuser.multiFactor.getSession();
+    tfaSecret=await firebase.auth.TotpMultiFactorGenerator.generateSecret(session);
+    const uri=tfaSecret.generateQrCodeUrl(FBuser.email||"player","Stonk Arena");
+    $("tfa-setup").innerHTML=`
+      <div style="margin-top:12px;font-size:12px;color:var(--text2)">1. Add Stonk Arena to your authenticator app:</div>
+      <a href="${uri}" class="btn-sell" style="display:block;text-align:center;margin-top:8px;padding:11px;border-radius:10px;text-decoration:none">📲 Open in authenticator app</a>
+      <div style="margin-top:8px;font-size:11px;color:var(--text3);word-break:break-all">Or enter this key manually: <b>${tfaSecret.secretKey}</b></div>
+      <div style="margin-top:12px;font-size:12px;color:var(--text2)">2. Enter the 6-digit code it shows:</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input type="text" class="form-input" id="tfa-code" inputmode="numeric" maxlength="6" placeholder="123456" style="flex:1">
+        <button class="btn-buy" style="padding:0 16px;border-radius:10px" onclick="tfaVerify()">Verify</button>
+      </div>`;
+  }catch(e){
+    showToast(e.code==="auth/requires-recent-login"?"Sign out, log in again, then enable 2FA":"2FA setup failed — enable TOTP in Firebase first","err");
+  }
+}
+async function tfaVerify(){
+  const code=$("tfa-code").value.trim();
+  if(code.length!==6||!tfaSecret)return showToast("Enter the 6-digit code","err");
+  try{
+    const assertion=firebase.auth.TotpMultiFactorGenerator.assertionForEnrollment(tfaSecret,code);
+    await FBuser.multiFactor.enroll(assertion,"Authenticator");
+    tfaSecret=null;
+    showToast("✅ 2FA enabled");
+    renderTFA();
+  }catch(e){showToast("Wrong code — try again","err");}
+}
+async function tfaDisable(){
+  if(!confirm("Remove two-factor authentication from your account?"))return;
+  try{
+    const f=FBuser.multiFactor.enrolledFactors[0];
+    await FBuser.multiFactor.unenroll(f);
+    showToast("2FA removed");
+    renderTFA();
+  }catch(e){
+    showToast(e.code==="auth/requires-recent-login"?"Log in again first, then remove 2FA":"Failed — try again","err");
+  }
+}
+async function mfaChallenge(err,emailFallback){
+  try{
+    const code=prompt("🔒 Enter your 6-digit 2FA code:");
+    if(!code)return false;
+    const resolver=err.resolver;
+    const assertion=firebase.auth.TotpMultiFactorGenerator.assertionForSignIn(resolver.hints[0].uid,code.trim());
+    const cred=await resolver.resolveSignIn(assertion);
+    appStarted=true;
+    username=cred.user.displayName||(emailFallback?emailFallback.split("@")[0]:"Player");
+    saveState();store.set("sa_onboarded",true);startLoading();
+    return true;
+  }catch(e2){showToast("Wrong 2FA code","err");return false;}
 }
 async function deleteAccount(){
   if(!confirm("Permanently delete your account and all data? This cannot be undone."))return;
