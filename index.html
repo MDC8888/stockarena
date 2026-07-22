@@ -496,7 +496,7 @@ svg.mc{flex-shrink:0}
         <input type="search" class="search-input" id="search-input" placeholder="Search..." oninput="onFilter()">
         <select class="filter-select" id="sector-sel" onchange="onFilter()"></select>
         <select class="filter-select" id="sort-sel" onchange="onFilter()">
-          <option value="ticker">A–Z</option><option value="change">% Chg</option><option value="price">Price</option>
+          <option value="pop" selected>🔥 Popular</option><option value="ticker">A–Z</option><option value="change">% Chg</option><option value="price">Price</option>
         </select>
       </div>
       <div class="stock-list" id="stock-list"></div>
@@ -1666,13 +1666,15 @@ function miniChart(ticker,up){
   const pts=h.map((v,i)=>`${(i/(h.length-1))*W},${H-((v-mn)/rng)*H}`).join(" ");
   return `<svg class="mc" width="${W}" height="${H}"><polyline points="${pts}" fill="none" stroke="${up?"#059669":"#dc2626"}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
 }
+const POPULAR=["AAPL","TSLA","NVDA","MSFT","AMZN","GOOGL","META","NFLX","SPY","QQQ","AMD","COIN","HOOD","DIS","NKE","MCD","SBUX","KO","PEP","V","MA","PYPL","UBER","ABNB","SPOT","SHOP","PLTR","VOO","BRK-B","JPM","RACE","F","GM","BA","ADBE","INTC","BABA","LULU","CMG","DKNG","RBLX","EA","TTWO","SNAP","PINS","CRM","ORCL","MU","TSM","ASML","ARM","SMCI","MSTR","MARA","RIOT","AFRM","SOFI","DASH","LYFT","MELI","PDD","JD","CELH","MNST","CROX","ONON","DECK","WMT","COST","TGT","HD","XOM","CVX","PG","JNJ","PFE","LLY","NVO","UNH","GS","MS","AXP","BLK","TM","HMC","SONY","STLA","GLD","IWM","VTI","DIA","ARKK","SMH","TLT","SCHD","JEPI","O","AMT","PLD","RKLB","IONQ","U","DUOL","NET","CRWD","PANW","SQ"];
+const popRank={};POPULAR.forEach((t,i)=>popRank[t]=i);
 function getFiltered(){
   const q=($("search-input")||{value:""}).value.toLowerCase();
   const sec=($("sector-sel")||{value:"All"}).value;
   const srt=($("sort-sel")||{value:"ticker"}).value;
   return STOCKS
     .filter(s=>(sec==="All"||sec===t("allSec")||s.s===sec)&&(s.t.toLowerCase().includes(q)||s.n.toLowerCase().includes(q)))
-    .sort((a,b)=>srt==="change"?(changes[b.t]||0)-(changes[a.t]||0):srt==="price"?(prices[b.t]||0)-(prices[a.t]||0):a.t.localeCompare(b.t));
+    .sort((a,b)=>srt==="change"?(changes[b.t]||0)-(changes[a.t]||0):srt==="price"?(prices[b.t]||0)-(prices[a.t]||0):srt==="pop"?((popRank[a.t]??999)-(popRank[b.t]??999)||a.t.localeCompare(b.t)):a.t.localeCompare(b.t));
 }
 function renderMarket(){
   const vis=getFiltered(),total=Math.ceil(vis.length/PG)||1;
@@ -2163,7 +2165,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-I";
+const APP_VERSION="v22.07-J";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
