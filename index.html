@@ -481,7 +481,7 @@ svg.mc{flex-shrink:0}
         <span class="header-badge badge-sim" id="data-badge">SIM</span>
         <span class="header-badge badge-closed" id="mkt-badge">—</span>
         <button class="lang-toggle" onclick="tutStart()" title="Tutorial">🎓</button>
-        <button class="lang-toggle" id="lang-toggle-btn" onclick="openLangMenu()">🇬🇧</button>
+        <button class="lang-toggle" id="lang-toggle-btn" onclick="openLangMenu()" style="display:none">🇬🇧</button>
       </div>
     </div>
     <div class="portfolio-strip">
@@ -1012,7 +1012,7 @@ function loadState(){
     if(legacy){s=legacy;store.set(stateKey(),legacy);store.del("sa_state");}
   }
   if(!s||!s.username)return false;
-  username=s.username; lang=s.lang||"en";
+  username=s.username; lang="en";
   if(s.month&&s.month!==MONTH_KEY){
     cash=CASH0;holdings={};tradeLog=[];
     setTimeout(()=>showToast(t("toMonth")),1500);
@@ -1155,7 +1155,7 @@ function authWith(provider){
     return;
   }
   username=provider==="google"?"Google User":"Apple User";saveState();
-  if(isSignup)show("lang-screen");else startLoading();
+  if(isSignup)showNameScreen();else startLoading();
 }
 async function loginWithEmail(){
   const e=$("login-email").value.trim(),p=$("login-pass").value;
@@ -1183,11 +1183,11 @@ async function signupWithEmail(){
     try{
       const cred=await FB.auth.createUserWithEmailAndPassword(e,p);
       await cred.user.updateProfile({displayName:n});
-      appStarted=true;username=n;saveState();show("lang-screen");
+      appStarted=true;username=n;saveState();showNameScreen();
     }catch(err){onboarding=false;showToast(err.code==="auth/email-already-in-use"?"Email already in use":"Signup failed","err");}
     return;
   }
-  username=n;saveState();show("lang-screen");
+  username=n;saveState();showNameScreen();
 }
 let rulesMode="onboard";
 function applyRulesText(){
@@ -2326,7 +2326,7 @@ function switchTab(id){
 
 // ══ LANGUAGE ══
 function setLang(code){
-  lang=(L[code])?code:"en";code=lang;
+  lang="en";code="en"; // app is English-only for now
   const st=(id,v)=>{const e=$(id);if(e&&v!=null)e.textContent=v;};
   st("lang-toggle-btn",t("f"));
   st("h-plbl",t("hP"));st("h-rlbl",t("hR"));st("h-clbl",t("hC"));st("h-llbl",t("hL"));
@@ -2348,7 +2348,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AC";
+const APP_VERSION="v22.07-AD";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
@@ -2389,7 +2389,7 @@ function init(){
         // saved state (incl. a changed name) wins over the auth displayName
         if(!loadState())username=u.displayName||(u.email?u.email.split("@")[0]:"Player");
         if(store.get("sa_onboarded")){appStarted=true;startLoading();}
-        else{appStarted=true;show("lang-screen");}
+        else{appStarted=true;showNameScreen();}
       }
     });
   }else if(loadState()){appStarted=true;startLoading();}
