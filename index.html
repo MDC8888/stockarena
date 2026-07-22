@@ -1372,7 +1372,7 @@ async function doSell(ticker,n){
 let sheetTk=null,sheetMode='buy';
 function openSheet(tk,mode){
   const s=STOCKS.find(x=>x.t===tk);if(!s)return;
-  sheetTk=tk;sheetMode=(mode==="sell")?"sell":"buy";
+  sheetTk=tk;sheetMode=(mode==="sell")?"sell":(mode==="buy")?"buy":"both";
   $("sh-sym").textContent=tk;
   $("sh-name").textContent=s.n;
   const held=holdings[tk]||0;
@@ -1396,13 +1396,12 @@ function sheetUpdate(){
   $("sh-sellbtn").disabled=!tradable||held===0;
   $("sh-buybtn").textContent=tradable?`BUY ${n}×`:"🔒 LOCKED";
   $("sh-sellbtn").textContent=`SELL ${Math.min(n,held)}×`;
+  $("sh-buybtn").style.display=(sheetMode==="sell")?"none":"block";
+  $("sh-sellbtn").style.display=(sheetMode==="buy")?"none":"block";
   const sp=sheetMode==="sell";
   $("sh-sellbtn").style.background=sp?"var(--red)":"var(--white)";
   $("sh-sellbtn").style.color=sp?"#fff":"var(--text)";
   $("sh-sellbtn").style.border=sp?"none":"1px solid var(--border)";
-  $("sh-buybtn").style.background=sp?"var(--white)":"var(--blue)";
-  $("sh-buybtn").style.color=sp?"var(--text)":"#fff";
-  $("sh-buybtn").style.border=sp?"1px solid var(--border)":"none";
 }
 async function sheetBuy(){
   if(!sheetTk)return;
