@@ -200,6 +200,7 @@ exports.retire = onCall(async (req) => {
     });
   }
   try { await db.doc(`states/${uid}`).delete(); } catch (e) {}
+  try { await db.doc(`players_${mk}/${uid}`).delete(); } catch (e) {}
   return { ok: true };
 });
 
