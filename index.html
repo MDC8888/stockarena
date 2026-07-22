@@ -1460,6 +1460,14 @@ function openStockPage(tk){
   $("sp-stats").innerHTML="";$("sp-about").textContent="";$("sp-perf").textContent="";
   updateSP();
   $("stock-page").classList.add("open");
+  loadDescs().then(d=>{
+    if(spTk!==tk)return;
+    const story=d&&d[tk];
+    if(story&&!$("sp-about").dataset.full){
+      $("sp-about").innerHTML=`<b style="color:var(--text)">${esc(s.n)}</b><br><span style="color:var(--text3)">Loading full company profile…</span><div class="card-header" style="padding:18px 0 8px">📈 WHY IT MOVED — RECENT YEARS</div>${esc(story)}`;
+    }
+  });
+  delete $("sp-about").dataset.full;
   loadHist(tk);
 }
 function closeStockPage(){$("stock-page").classList.remove("open");spTk=null;}
@@ -1497,6 +1505,7 @@ async function loadHist(tk){
     about+=`<div class="card-header" style="padding:18px 0 8px">📈 WHY IT MOVED — RECENT YEARS</div>${esc(story)}`;
   }
   $("sp-about").innerHTML=about;
+  $("sp-about").dataset.full="1";
 }
 function spRange(y){spYears=y;if(spTk&&histCache[spTk])drawSP(histCache[spTk].series);}
 function fmtRet(r){
@@ -1775,6 +1784,7 @@ function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 // ══ INIT ══
 function init(){
   beginPriceLoad();
+  loadDescs();
   const ll=$("lang-list");
   Object.entries(L).forEach(([code,l])=>{
     const b=document.createElement("button");
