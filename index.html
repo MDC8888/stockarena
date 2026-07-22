@@ -1431,6 +1431,13 @@ let sheetTk=null,sheetMode='buy';
 // ══ STOCK DETAIL PAGE ══
 let spTk=null,spYears=10;
 const histCache={};
+let descMap=null,descLoading=null;
+function loadDescs(){
+  if(descMap)return Promise.resolve(descMap);
+  if(descLoading)return descLoading;
+  descLoading=fetch("/descriptions.json").then(r=>r.json()).then(d=>{descMap=d;return d;}).catch(()=>({}));
+  return descLoading;
+}
 function openStockPage(tk){
   const s=STOCKS.find(x=>x.t===tk);if(!s)return;
   spTk=tk;spYears=10;
@@ -1465,7 +1472,9 @@ async function loadHist(tk){
   drawSP(data.series);
   buildStats(data.series,data.meta||{});
   const m=data.meta||{};
-  $("sp-about").innerHTML=`<b style="color:var(--text)">${esc(m.name||tk)}</b><br>${esc(m.description||"No description available.")}`;
+  const descs=await loadDescs();
+  const custom=descs&&descs[tk];
+  $("sp-about").innerHTML=`<b style="color:var(--text)">${esc(m.name||tk)}</b><br>${esc(custom||m.description||"No description available.")}`;
 }
 function spRange(y){spYears=y;if(spTk&&histCache[spTk])drawSP(histCache[spTk].series);}
 function fmtRet(r){
