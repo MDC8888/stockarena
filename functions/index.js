@@ -228,6 +228,12 @@ exports.retire = onCall(async (req) => {
   }
   try { await db.doc(`states/${uid}`).delete(); } catch (e) {}
   try { await db.doc(`players_${mk}/${uid}`).delete(); } catch (e) {}
+  try {
+    const un = await db.collection("usernames").where("uid", "==", uid).get();
+    const b = db.batch();
+    un.forEach((u) => b.delete(u.ref));
+    await b.commit();
+  } catch (e) {}
   return { ok: true };
 });
 

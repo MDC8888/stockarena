@@ -297,9 +297,10 @@ svg.mc{flex-shrink:0}
 .stock-item{cursor:pointer}
 .stock-chev{color:var(--text3);font-size:20px;margin-left:4px;flex-shrink:0;line-height:1}
 .coach-ov{position:fixed;inset:0;z-index:720;display:none;pointer-events:none}
-.coach-ov.open{display:block}
-.coach-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 4px rgba(37,99,235,.6),0 0 0 9999px rgba(17,24,39,.6);transition:all .25s ease}
+.coach-ov.open{display:block;pointer-events:auto}
+.coach-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 4px rgba(37,99,235,.6),0 0 0 9999px rgba(17,24,39,.6);transition:all .25s ease;cursor:pointer}
 .coach-tip{position:fixed;background:var(--white);border-radius:16px;padding:16px 18px;max-width:320px;width:calc(100vw - 24px);box-shadow:0 16px 48px rgba(0,0,0,.3);pointer-events:auto}
+.coach-x{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text3);font-size:16px;line-height:1;padding:6px;cursor:pointer;font-family:var(--sans)}
 .coach-title{font-weight:700;font-size:15px;color:var(--text);margin-bottom:6px}
 .coach-text{font-size:13px;color:var(--text2);line-height:1.55}
 .coach-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
@@ -307,7 +308,8 @@ svg.mc{flex-shrink:0}
 .coach-nextbtn{padding:9px 18px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:13px;font-family:var(--sans);cursor:pointer}
 .tut-ov{position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:700;display:none;align-items:center;justify-content:center;padding:24px}
 .tut-ov.open{display:flex}
-.tut-card{background:var(--white);border-radius:20px;padding:28px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.tut-card{position:relative;background:var(--white);border-radius:20px;padding:28px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.tut-x{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text3);font-size:16px;line-height:1;padding:6px;cursor:pointer;font-family:var(--sans)}
 .tut-emoji{font-size:44px;margin-bottom:14px}
 .tut-title{font-family:var(--serif);font-size:21px;color:var(--text);margin-bottom:8px}
 .tut-text{font-size:14px;color:var(--text2);line-height:1.55;min-height:66px}
@@ -680,14 +682,14 @@ svg.mc{flex-shrink:0}
   </div>
 </div>
 <div class="coach-ov" id="coach-ov">
-  <div class="coach-hole" id="coach-hole"></div>
+  <div class="coach-hole" id="coach-hole" onclick="coachNext()"></div>
   <div class="coach-tip" id="coach-tip">
+    <button class="coach-x" onclick="coachEnd()" title="Close tour">✕</button>
     <div class="coach-title" id="coach-title">—</div>
     <div class="coach-text" id="coach-text">—</div>
     <div class="coach-row">
       <span class="coach-step" id="coach-step">1/5</span>
       <div>
-        <button class="tut-skip" style="margin:0 10px 0 0" onclick="coachEnd()">End tour</button>
         <button class="coach-nextbtn" id="coach-next" onclick="coachNext()">Next →</button>
       </div>
     </div>
@@ -695,6 +697,7 @@ svg.mc{flex-shrink:0}
 </div>
 <div class="tut-ov" id="tut-ov">
   <div class="tut-card">
+    <button class="tut-x" onclick="tutClose()" title="Close">✕</button>
     <div class="tut-emoji" id="tut-emoji">👋</div>
     <div class="tut-title" id="tut-title">—</div>
     <div class="tut-text" id="tut-text">—</div>
@@ -1378,8 +1381,11 @@ async function deleteAccount(){
   if(!confirm("Permanently delete your account and all data? This cannot be undone."))return;
   const run=async()=>{
     if(FB&&FBuser){
-      try{await FB.fns.httpsCallable("retire")({});}catch(e){}
+      // retire removes the leaderboard row + state server-side; retry once so a blip can't leave a ghost
+      try{await FB.fns.httpsCallable("retire")({});}
+      catch(e){try{await FB.fns.httpsCallable("retire")({});}catch(e2){}}
       await releaseUsername(username);
+      store.del("sa_tut_"+FBuser.uid);
       await FBuser.delete();
     }
     store.del(stateKey());store.del("sa_onboarded");
@@ -1521,7 +1527,7 @@ function enterApp(){
   const safe=f=>{try{f();}catch(e){console.warn("startup:",e);}};
   safe(()=>setLang(lang));safe(updateAll);safe(startSim);
   safe(syncMe);safe(startLB);safe(startMeta);safe(loadServerHistory);
-  if(!store.get("sa_tut"))setTimeout(()=>{try{tutStart();}catch(e){}},600);
+  if(!tutSeen())setTimeout(()=>{try{tutStart();}catch(e){}},600);
 }
 const SVGS={
 comp:`<svg viewBox="0 0 320 150"><line x1="30" y1="125" x2="300" y2="125" stroke="#d3d9e0"/><line x1="30" y1="15" x2="30" y2="125" stroke="#d3d9e0"/><polyline points="30,120 90,112 150,104 210,96 270,88 300,84" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,3"/><path d="M30,120 Q150,115 210,90 T300,25" fill="none" stroke="#2563eb" stroke-width="2.5"/><text x="235" y="40" font-size="10" fill="#2563eb" font-weight="600">compounding</text><text x="230" y="80" font-size="10" fill="#9ca3af">saving only</text><text x="150" y="143" font-size="9" fill="#6b7280">years →</text></svg>`,
@@ -1620,6 +1626,16 @@ const TOUR=[
   {sel:"#nav-learn",title:"Learn & track progress 👆",text:"Short courses with progress bars — from the absolute basics to value investing.",pos:"above"},
 ];
 let tutI=0,coachI=0;
+// Tutorial "seen" flag is per account, so every new account gets the tour
+function tutKey(){return FBuser?"sa_tut_"+FBuser.uid:"sa_tut";}
+function tutSeen(){
+  if(FBuser&&!store.get("sa_tut_"+FBuser.uid)&&store.get("sa_tut")){
+    // one-time migration of the old device-wide flag to this existing account
+    store.set("sa_tut_"+FBuser.uid,true);store.del("sa_tut");
+  }
+  return !!store.get(tutKey());
+}
+function tutMark(){store.set(tutKey(),true);}
 function tutStart(){
   $("tut-dots").innerHTML="";
   tutRender();
@@ -1671,11 +1687,11 @@ function coachShow(){
 function coachNext(){coachI++;coachShow();}
 function coachEnd(){
   $("coach-ov").classList.remove("open");
-  store.set("sa_tut",true);
+  tutMark();
 }
 function tutClose(){
   $("tut-ov").classList.remove("open");
-  store.set("sa_tut",true);
+  tutMark();
 }
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");}
 
@@ -1722,7 +1738,6 @@ function renderMarket(){
   if(page>=total)page=0;
   $("p-info").textContent=`${page+1}/${total}`;
   $("p-prev").disabled=page===0;$("p-next").disabled=page>=total-1;
-  const wknd=mktStatus()!=="open";
   $("stock-list").innerHTML=vis.slice(page*PG,(page+1)*PG).map(s=>{
     const p=prices[s.t]||s.b,ch=changes[s.t]||0,up=ch>=0,held=holdings[s.t]||0;
     const pStr=p>=1000?p.toLocaleString("en-US",{maximumFractionDigits:0}):fmt(p);
@@ -1732,8 +1747,8 @@ function renderMarket(){
       ${miniChart(s.t,up)}
       <div class="stock-price-wrap"><div class="stock-price">$${pStr}</div><div class="stock-chg ${up?"val-up":"val-down"}">${up?"▲":"▼"}${Math.abs(ch).toFixed(2)}%</div></div>
       <div class="stock-controls">
-        <button class="btn-buy" onclick="event.stopPropagation();quickTrade('${s.t}','buy')" ${(prices[s.t]>0)&&!wknd?"":"disabled"}>${t("buy")}</button>
-        <button class="btn-sell" onclick="event.stopPropagation();quickTrade('${s.t}','sell')" ${held===0||!(prices[s.t]>0)||wknd?"disabled":""}>${t("sell")}</button>
+        <button class="btn-buy" onclick="event.stopPropagation();quickTrade('${s.t}','buy')">${t("buy")}</button>
+        <button class="btn-sell" onclick="event.stopPropagation();quickTrade('${s.t}','sell')">${t("sell")}</button>
       </div>
       <div class="stock-chev">›</div>
     </div>`;
@@ -2055,7 +2070,7 @@ function sheetUpdate(){
   const sellN=Math.min(n,held)||0;
   let btns="";
   if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:lockLabel}</button>`;
-  else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):"Nothing to sell"}</button>`;
+  else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):"You own 0 shares — nothing to sell"}</button>`;
   $("sheet-actions").innerHTML=btns;
 }
 async function sheetBuy(){
@@ -2222,7 +2237,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-X";
+const APP_VERSION="v22.07-Y";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
