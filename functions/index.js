@@ -76,14 +76,14 @@ function portfolioValue(state, prices) {
   }
   return v;
 }
-async function upsertPlayer(uid, name, state, prices, tradeIncrement) {
+async function upsertPlayer(uid, approvedName, state, prices, tradeIncrement) {
   const v = portfolioValue(state, prices);
   const doc = {
-    name: String(name || "Player").slice(0, 20),
     value: Math.round(v * 100) / 100,
     ret: Math.round(((v - CASH0) / CASH0) * 10000) / 100,
     updated: admin.firestore.FieldValue.serverTimestamp(),
   };
+  if (approvedName) doc.name = approvedName;
   if (tradeIncrement) doc.trades = admin.firestore.FieldValue.increment(1);
   else doc.trades = admin.firestore.FieldValue.increment(0);
   await db.doc(`players_${monthKey()}/${uid}`).set(doc, { merge: true });
@@ -97,6 +97,21 @@ function emailKey(email) {
   if (d === "googlemail.com") d = "gmail.com";
   if (d === "gmail.com") l = l.replace(/\./g, "");
   return crypto.createHash("sha256").update(l + "@" + d).digest("hex").slice(0, 40);
+}
+function nameKeyOf(n) {
+  return String(n).toLowerCase().trim().replace(/[^a-z0-9_-]/g, "_").slice(0, 30);
+}
+// Resolve a requested display name to a guaranteed-unique one (or null = keep existing)
+async function resolveName(uid, wanted) {
+  let name = String(wanted || "").trim().slice(0, 20);
+  if (!name) return null;
+  const ref = db.doc(`usernames/${nameKeyOf(name)}`);
+  try {
+    const snap = await ref.get();
+    if (!snap.exists) { await ref.set({ uid, name }); return name; } // auto-claim (covers legacy accounts)
+    if (snap.data().uid === uid) return name;
+    return null; // taken by someone else — refuse
+  } catch (e) { return null; }
 }
 async function restoredState(email, mk) {
   const k = emailKey(email);
@@ -156,7 +171,8 @@ exports.trade = onCall(async (req) => {
     return s;
   });
 
-  await upsertPlayer(uid, name, result, prices, true);
+  const rn = await resolveName(uid, name);
+  await upsertPlayer(uid, rn, result, prices, true);
   return { ok: true, cash: result.cash, holdings: result.holdings, price };
 });
 
@@ -176,11 +192,14 @@ exports.hello = onCall(async (req) => {
     else s = { cash: CASH0, holdings: {}, month: mk };
     await stateRef.set(s);
   }
-  if (prices) await upsertPlayer(uid, req.data && req.data.name, s, prices, false);
-  if (restoredTrades > 0) {
-    await db.doc(`players_${mk}/${uid}`).set({ trades: restoredTrades }, { merge: true });
-  }
-  return { cash: s.cash, holdings: s.holdings, month: mk };
+  let rn = await resolveName(uid, req.data && req.data.name);
+  const pRef = db.doc(`players_${mk}/${uid}`);
+  const pSnap = await pRef.get();
+  if (!rn && (!pSnap.exists || !pSnap.data().name)) rn = "Player-" + uid.slice(0, 5);
+  if (prices) await upsertPlayer(uid, rn, s, prices, false);
+  if (restoredTrades > 0) await pRef.set({ trades: restoredTrades }, { merge: true });
+  const finalName = rn || (pSnap.exists ? pSnap.data().name : null);
+  return { cash: s.cash, holdings: s.holdings, month: mk, name: finalName };
 });
 
 // ── callable: bind this month's result to the email before account deletion ──

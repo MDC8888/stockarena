@@ -911,7 +911,9 @@ function syncMe(){
   if(!FB||!FB.fns||!FBuser)return;
   FB.fns.httpsCallable("hello")({name:username}).then(r=>{
     const d=r.data||{};
-    if(typeof d.cash==="number"){cash=d.cash;holdings=d.holdings||{};saveState();updateAll();}
+    if(typeof d.cash==="number"){cash=d.cash;holdings=d.holdings||{};}
+    if(d.name&&d.name!==username){username=d.name;showToast("Name in use — you are "+d.name,"err");}
+    saveState();updateAll();
   }).catch(e=>console.warn("hello:",e.message));
 }
 let priceStreamStarted=false;
@@ -2191,7 +2193,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-K";
+const APP_VERSION="v22.07-L";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
