@@ -10,7 +10,7 @@ exports.handler = async function (event) {
   const hdr = { headers: { Authorization: `Token ${TOKEN}` } };
   try {
     const [pr, mr] = await Promise.all([
-      fetch(`https://api.tiingo.com/tiingo/daily/${t}/prices?startDate=${s}&resampleFreq=monthly&token=${TOKEN}`, hdr),
+      fetch(`https://api.tiingo.com/tiingo/daily/${t}/prices?startDate=${s}&resampleFreq=weekly&token=${TOKEN}`, hdr),
       fetch(`https://api.tiingo.com/tiingo/daily/${t}?token=${TOKEN}`, hdr),
     ]);
     const prices = pr.ok ? await pr.json() : [];

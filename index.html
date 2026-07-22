@@ -207,6 +207,33 @@ svg.mc{flex-shrink:0}
 .divmeter-fill{height:100%;border-radius:6px;transition:width .3s}
 .divmeter-limit{position:absolute;left:30%;top:0;bottom:0;width:2px;background:var(--text3);opacity:.5}
 .pos-controls{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:6px}
+#stock-page{position:fixed;inset:0;background:var(--white);z-index:550;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#stock-page.open{display:flex}
+.sp-top{position:sticky;top:0;background:var(--white);border-bottom:1px solid var(--border);padding:calc(var(--safe-top) + 10px) 16px 10px;display:flex;align-items:center;gap:12px;z-index:2;flex-shrink:0}
+.sp-back{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--white);font-size:17px;cursor:pointer;color:var(--text);flex-shrink:0}
+.sp-title{flex:1;min-width:0}
+.sp-sym{font-size:16px;font-weight:700;color:var(--text)}
+.sp-nm{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-price{text-align:right}
+.sp-p{font-size:18px;font-weight:700;color:var(--text)}
+.sp-c{font-size:12px;font-weight:600}
+.sp-wrap{max-width:1000px;margin:0 auto;width:100%;padding:16px 16px calc(28px + var(--safe-bottom))}
+.sp-chartbox{position:relative}
+#sp-chart{width:100%;height:230px;display:block}
+.sp-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.sp-stat{background:var(--bg);border:1px solid var(--border2);border-radius:12px;padding:10px 12px}
+.sp-stat-l{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.4px}
+.sp-stat-v{font-size:14px;font-weight:700;margin-top:2px;color:var(--text)}
+.sp-actions{display:flex;gap:10px;margin:4px 0 20px}
+.sp-buy{flex:1;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
+.sp-sell{flex:1;padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--text);font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
+.sp-about{font-size:13px;color:var(--text2);line-height:1.65}
+@media(min-width:900px){
+  .sp-wrap{display:grid;grid-template-columns:1.55fr 1fr;gap:32px;padding-top:28px}
+  #sp-chart{height:360px}
+  .sp-stats{grid-template-columns:repeat(3,1fr)}
+  .sp-actions{margin-top:0}
+}
 .sheet-overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:600;display:none;align-items:flex-end;justify-content:center}
 .sheet-overlay.open{display:flex}
 .sheet{background:var(--white);width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:14px 20px calc(24px + var(--safe-bottom));animation:slideUp .18s ease;box-shadow:0 -8px 40px rgba(0,0,0,.15)}
@@ -458,23 +485,41 @@ svg.mc{flex-shrink:0}
 </div>
 
 <div class="lang-overlay" id="lang-overlay" onclick="closeLangMenu()"><div class="lang-menu" id="lang-menu" onclick="event.stopPropagation()"></div></div>
+<div id="stock-page">
+  <div class="sp-top">
+    <button class="sp-back" onclick="closeStockPage()">←</button>
+    <div class="sp-title"><div class="sp-sym" id="sp-sym">—</div><div class="sp-nm" id="sp-nm">—</div></div>
+    <div class="sp-price"><div class="sp-p" id="sp-p">—</div><div class="sp-c" id="sp-c">—</div></div>
+  </div>
+  <div class="sp-wrap">
+    <div class="sp-main">
+      <div class="sp-chartbox">
+        <canvas id="sp-chart"></canvas>
+        <div id="sp-chart-load" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text3)">Loading chart…</div>
+      </div>
+      <div style="display:flex;gap:6px;margin:12px 0 4px" id="sp-ranges">
+        <button class="btn-sell" style="flex:1;padding:8px;border-radius:8px" onclick="spRange(1)">1Y</button>
+        <button class="btn-sell" style="flex:1;padding:8px;border-radius:8px" onclick="spRange(5)">5Y</button>
+        <button class="btn-sell" style="flex:1;padding:8px;border-radius:8px" onclick="spRange(10)">10Y</button>
+      </div>
+      <div id="sp-perf" style="font-size:13px;font-weight:600;margin:8px 0"></div>
+      <div class="sp-stats" id="sp-stats"></div>
+    </div>
+    <div class="sp-side">
+      <div class="sp-actions">
+        <button class="sp-sell" onclick="openSheet(spTk,'sell')">SELL</button>
+        <button class="sp-buy" onclick="openSheet(spTk,'buy')">BUY</button>
+      </div>
+      <div class="card-header" style="padding-left:0">ABOUT</div>
+      <div class="sp-about" id="sp-about"></div>
+    </div>
+  </div>
+</div>
 <div class="sheet-overlay" id="sheet-ov" onclick="closeSheet()">
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-handle"></div>
     <div class="sheet-head"><span class="sheet-sym" id="sh-sym">—</span><span class="sheet-price" id="sh-price">—</span></div>
     <div class="sheet-sub"><span id="sh-name">—</span><span id="sh-chg">—</span></div>
-    <div id="sheet-detail" style="display:none">
-      <div style="position:relative">
-        <canvas id="sh-chart" style="width:100%;height:150px;display:block"></canvas>
-        <div id="sh-chart-load" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text3)">Loading chart…</div>
-      </div>
-      <div style="display:flex;gap:6px;margin:10px 0 4px" id="sh-ranges">
-        <button class="btn-sell" style="flex:1;padding:7px;border-radius:8px" onclick="sheetRange(1)">1Y</button>
-        <button class="btn-sell" style="flex:1;padding:7px;border-radius:8px" onclick="sheetRange(5)">5Y</button>
-        <button class="btn-sell" style="flex:1;padding:7px;border-radius:8px" onclick="sheetRange(10)">10Y</button>
-      </div>
-      <div id="sh-perf" style="font-size:12px;font-weight:600;margin:6px 0"></div>
-      <div id="sh-meta" style="font-size:12px;color:var(--text2);line-height:1.5;max-height:110px;overflow-y:auto;margin-bottom:12px"></div>
     </div>
     <div class="sheet-qty-row">
       <button class="qbtn" onclick="sheetStep(-1)">−</button>
@@ -1297,7 +1342,7 @@ function renderMarket(){
   $("stock-list").innerHTML=vis.slice(page*PG,(page+1)*PG).map(s=>{
     const p=prices[s.t]||s.b,ch=changes[s.t]||0,up=ch>=0,held=holdings[s.t]||0;
     const pStr=p>=1000?p.toLocaleString("en-US",{maximumFractionDigits:0}):fmt(p);
-    return`<div class="stock-item" id="sc-${s.t}" onclick="openSheet('${s.t}')">
+    return`<div class="stock-item" id="sc-${s.t}" onclick="openStockPage('${s.t}')">
       <div class="stock-sym-wrap"><div class="stock-sym">${s.t}</div><div class="stock-sector">${s.s}</div></div>
       <div class="stock-name-wrap"><div class="stock-name">${s.n}</div>${held>0?`<div class="stock-held">${held}× held</div>`:""}</div>
       ${miniChart(s.t,up)}
@@ -1382,44 +1427,92 @@ async function doSell(ticker,n){
   }catch(e){showToast(errMsg(e),"err");return false;}
 }
 // ══ TRADE SHEET (confirmation) ══
-let sheetTk=null,sheetMode='buy',sheetYears=10;
+let sheetTk=null,sheetMode='buy';
+// ══ STOCK DETAIL PAGE ══
+let spTk=null,spYears=10;
 const histCache={};
+function openStockPage(tk){
+  const s=STOCKS.find(x=>x.t===tk);if(!s)return;
+  spTk=tk;spYears=10;
+  $("sp-sym").textContent=tk;
+  $("sp-nm").textContent=s.n;
+  $("sp-stats").innerHTML="";$("sp-about").textContent="";$("sp-perf").textContent="";
+  updateSP();
+  $("stock-page").classList.add("open");
+  loadHist(tk);
+}
+function closeStockPage(){$("stock-page").classList.remove("open");spTk=null;}
+function updateSP(){
+  if(!spTk)return;
+  const p=prices[spTk]||0,ch=changes[spTk]||0;
+  $("sp-p").textContent="$"+fmt(p);
+  $("sp-c").textContent=(ch>=0?"▲":"▼")+Math.abs(ch).toFixed(2)+"%";
+  $("sp-c").style.color=ch>=0?"var(--green)":"var(--red)";
+}
 async function loadHist(tk){
-  $("sh-chart-load").style.display="flex";
-  $("sh-meta").textContent="";$("sh-perf").textContent="";
+  $("sp-chart-load").style.display="flex";
   let data=histCache[tk];
   if(!data){
     try{
-      const res=await fetch(`/.netlify/functions/history?ticker=${tk}`);
+      const res=await fetch(`/.netlify/functions/history?ticker=${tk}&v=2`);
       if(res.ok)data=await res.json();
       if(data&&data.series&&data.series.length>1)histCache[tk]=data;else data=null;
     }catch(e){data=null;}
   }
-  if(sheetTk!==tk)return; // user moved on
-  $("sh-chart-load").style.display="none";
-  if(!data){$("sh-meta").textContent="Chart unavailable for this instrument.";drawChart([]);return;}
-  drawChart(data.series);
+  if(spTk!==tk)return;
+  $("sp-chart-load").style.display="none";
+  if(!data){$("sp-about").textContent="Chart & profile unavailable for this instrument.";drawSP([]);return;}
+  drawSP(data.series);
+  buildStats(data.series,data.meta||{});
   const m=data.meta||{};
-  const stk=STOCKS.find(x=>x.t===tk);
-  const bits=[stk?stk.s:"",m.exchange,m.since?("since "+m.since):""].filter(Boolean).join(" · ");
-  $("sh-meta").innerHTML=`<b style="color:var(--text)">${esc(m.name||tk)}</b>${bits?" — "+esc(bits):""}<br>${esc(m.description||"")}`;
+  $("sp-about").innerHTML=`<b style="color:var(--text)">${esc(m.name||tk)}</b><br>${esc(m.description||"No description available.")}`;
 }
-function sheetRange(y){sheetYears=y;if(histCache[sheetTk])drawChart(histCache[sheetTk].series);}
-function drawChart(series){
-  const c=$("sh-chart");if(!c)return;
+function spRange(y){spYears=y;if(spTk&&histCache[spTk])drawSP(histCache[spTk].series);}
+function fmtRet(r){
+  if(r===null||!isFinite(r))return "—";
+  const c=r>=0?"var(--green)":"var(--red)";
+  return `<span style="color:${c}">${r>=0?"+":""}${r.toFixed(1)}%</span>`;
+}
+function buildStats(series,meta){
+  const now=prices[spTk]||series[series.length-1][1];
+  const ya=new Date();ya.setFullYear(ya.getFullYear()-1);
+  const yaS=ya.toISOString().slice(0,10);
+  const last52=series.filter(p=>p[0]>=yaS).map(p=>p[1]);
+  const hi52=last52.length?Math.max(...last52,now):null;
+  const lo52=last52.length?Math.min(...last52,now):null;
+  const retOver=(years)=>{
+    const c=new Date();c.setFullYear(c.getFullYear()-years);
+    const cs=c.toISOString().slice(0,10);
+    const pt=series.find(p=>p[0]>=cs);
+    return pt&&pt[1]>0?((now-pt[1])/pt[1])*100:null;
+  };
+  const stk=STOCKS.find(x=>x.t===spTk);
+  const items=[
+    ["52W HIGH",hi52?"$"+fmt(hi52):"—"],
+    ["52W LOW",lo52?"$"+fmt(lo52):"—"],
+    ["1Y RETURN",fmtRet(retOver(1))],
+    ["5Y RETURN",fmtRet(retOver(5))],
+    ["10Y RETURN",fmtRet(retOver(10))],
+    ["SECTOR",stk?esc(stk.s):"—"],
+    ["EXCHANGE",esc(meta.exchange||"—")],
+    ["LISTED SINCE",esc(meta.since||"—")],
+  ];
+  $("sp-stats").innerHTML=items.map(([l,v])=>`<div class="sp-stat"><div class="sp-stat-l">${l}</div><div class="sp-stat-v">${v}</div></div>`).join("");
+}
+function drawSP(series){
+  const c=$("sp-chart");if(!c)return;
   const dpr=window.devicePixelRatio||1;
-  const W=c.clientWidth||300,H=150;
+  const W=c.clientWidth||320,H=c.clientHeight||230;
   c.width=W*dpr;c.height=H*dpr;
   const x=c.getContext("2d");x.scale(dpr,dpr);x.clearRect(0,0,W,H);
-  // range buttons state
-  const btns=$("sh-ranges").children;
+  const btns=$("sp-ranges").children;
   [1,5,10].forEach((y,i)=>{
-    btns[i].style.background=y===sheetYears?"var(--blue)":"var(--white)";
-    btns[i].style.color=y===sheetYears?"#fff":"var(--text2)";
-    btns[i].style.borderColor=y===sheetYears?"var(--blue)":"var(--border)";
+    btns[i].style.background=y===spYears?"var(--blue)":"var(--white)";
+    btns[i].style.color=y===spYears?"#fff":"var(--text2)";
+    btns[i].style.borderColor=y===spYears?"var(--blue)":"var(--border)";
   });
-  if(!series||series.length<2)return;
-  const cutoff=new Date();cutoff.setFullYear(cutoff.getFullYear()-sheetYears);
+  if(!series||series.length<2){$("sp-perf").textContent="";return;}
+  const cutoff=new Date();cutoff.setFullYear(cutoff.getFullYear()-spYears);
   const cs=cutoff.toISOString().slice(0,10);
   let pts=series.filter(p=>p[0]>=cs);
   if(pts.length<2)pts=series;
@@ -1427,26 +1520,23 @@ function drawChart(series){
   const mn=Math.min(...vals),mx=Math.max(...vals),rng=(mx-mn)||1;
   const up=vals[vals.length-1]>=vals[0];
   const col=up?"#059669":"#dc2626";
-  const px=i=>8+(i/(pts.length-1))*(W-16);
-  const py=v=>10+(1-(v-mn)/rng)*(H-30);
-  // fill
+  const px=i=>10+(i/(vals.length-1))*(W-20);
+  const py=v=>12+(1-(v-mn)/rng)*(H-36);
   x.beginPath();x.moveTo(px(0),py(vals[0]));
   vals.forEach((v,i)=>x.lineTo(px(i),py(v)));
-  x.lineTo(px(vals.length-1),H-8);x.lineTo(px(0),H-8);x.closePath();
+  x.lineTo(px(vals.length-1),H-10);x.lineTo(px(0),H-10);x.closePath();
   const g=x.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,up?"rgba(5,150,105,.18)":"rgba(220,38,38,.18)");g.addColorStop(1,"rgba(255,255,255,0)");
+  g.addColorStop(0,up?"rgba(5,150,105,.16)":"rgba(220,38,38,.16)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
   x.fillStyle=g;x.fill();
-  // line
   x.beginPath();x.moveTo(px(0),py(vals[0]));
   vals.forEach((v,i)=>x.lineTo(px(i),py(v)));
   x.strokeStyle=col;x.lineWidth=2;x.lineJoin="round";x.stroke();
-  // min/max labels
   x.fillStyle="#9ca3af";x.font="10px -apple-system,sans-serif";
-  x.fillText("$"+mx.toLocaleString("en-US",{maximumFractionDigits:0}),8,10);
-  x.fillText("$"+mn.toLocaleString("en-US",{maximumFractionDigits:0}),8,H-2);
-  // perf
+  x.fillText("$"+mx.toLocaleString("en-US",{maximumFractionDigits:0}),10,11);
+  x.fillText("$"+mn.toLocaleString("en-US",{maximumFractionDigits:0}),10,H-2);
   const perf=((vals[vals.length-1]-vals[0])/vals[0])*100;
-  $("sh-perf").innerHTML=`<span style="color:${col}">${perf>=0?"+":""}${perf.toFixed(1)}% </span><span style="color:var(--text3);font-weight:500">over ${sheetYears===10?"10 years":sheetYears+" year"+(sheetYears>1?"s":"")}</span>`;
+  $("sp-perf").innerHTML=`<span style="color:${col}">${perf>=0?"+":""}${perf.toFixed(1)}%</span> <span style="color:var(--text3);font-weight:500">over ${spYears===10?"10 years":spYears+" year"+(spYears>1?"s":"")} · ${vals.length} weekly data points</span>`;
 }
 function openSheet(tk,mode){
   const s=STOCKS.find(x=>x.t===tk);if(!s)return;
@@ -1455,11 +1545,8 @@ function openSheet(tk,mode){
   $("sh-name").textContent=s.n;
   const held=holdings[tk]||0;
   $("sheet-qty").value=(mode==="sell"&&held>0)?held:1;
-  const detail=sheetMode==="both";
-  $("sheet-detail").style.display=detail?"block":"none";
   sheetUpdate();
   $("sheet-ov").classList.add("open");
-  if(detail){sheetYears=10;loadHist(tk);}
 }
 function closeSheet(){$("sheet-ov").classList.remove("open");sheetTk=null;}
 function sheetStep(d){const i=$("sheet-qty");i.value=Math.max(1,(parseInt(i.value)||1)+d);sheetUpdate();}
@@ -1597,6 +1684,7 @@ function renderLeaderboard(){
 }
 function updateAll(){
   updateHeader();
+  if(spTk)updateSP();
   if(tab==="market")renderMarket();
   if(tab==="portfolio")renderPortfolio();
   if(tab==="leaderboard")renderLeaderboard();
