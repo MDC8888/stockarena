@@ -17,7 +17,8 @@ exports.handler = async function (event) {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "public, max-age=60"
+        "Cache-Control": "public, max-age=60",
+        "Netlify-CDN-Cache-Control": "public, durable, max-age=120"
       },
       body: data
     };

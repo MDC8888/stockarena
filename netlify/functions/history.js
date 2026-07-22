@@ -25,6 +25,7 @@ exports.handler = async function (event) {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Cache-Control": "public, max-age=86400",
+        "Netlify-CDN-Cache-Control": "public, durable, max-age=86400",
       },
       body: JSON.stringify({
         meta: {
