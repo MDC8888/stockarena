@@ -83,7 +83,7 @@ function portfolioValue(state, prices) {
   }
   return v;
 }
-async function upsertPlayer(uid, approvedName, state, prices, tradeIncrement) {
+async function upsertPlayer(uid, approvedName, state, prices, tradeIncrement, nat) {
   const v = portfolioValue(state, prices);
   const doc = {
     value: Math.round(v * 100) / 100,
@@ -91,6 +91,7 @@ async function upsertPlayer(uid, approvedName, state, prices, tradeIncrement) {
     updated: admin.firestore.FieldValue.serverTimestamp(),
   };
   if (approvedName) doc.name = approvedName;
+  if (nat) doc.nat = nat;
   if (tradeIncrement) doc.trades = admin.firestore.FieldValue.increment(1);
   else doc.trades = admin.firestore.FieldValue.increment(0);
   await db.doc(`players_${monthKey()}/${uid}`).set(doc, { merge: true });
@@ -235,7 +236,9 @@ exports.hello = onCall(async (req) => {
     rn = await resolveName(uid, wanted);
   }
   if (!rn && !curName) rn = "Player-" + uid.slice(0, 5);
-  if (prices) await upsertPlayer(uid, rn, s, prices, false);
+  const natRaw = String((req.data && req.data.nat) || "").toUpperCase();
+  const nat = /^[A-Z]{2}$/.test(natRaw) ? natRaw : null;
+  if (prices) await upsertPlayer(uid, rn, s, prices, false, nat);
   if (restoredTrades > 0) await pRef.set({ trades: restoredTrades }, { merge: true });
   const finalName = rn || curName;
   // opportunistic ghost/dupe cleanup on app open (same 5-min throttle as cleanupNow)

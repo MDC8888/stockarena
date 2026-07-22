@@ -387,6 +387,19 @@ svg.mc{flex-shrink:0}
   </div>
 </div>
 
+<!-- NATIONALITY -->
+<div id="nat-screen" class="screen">
+  <div class="auth-wrap" style="justify-content:center">
+    <div class="auth-logo" style="margin-bottom:24px">
+      <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+      <span class="auth-logo-name">Stonk Arena</span>
+    </div>
+    <h1 class="auth-heading" style="margin-bottom:4px">Where are you from?</h1>
+    <p class="auth-sub">Your flag is shown next to your name in the ranking.</p>
+    <div class="rules-list" id="nat-list" style="max-height:52vh;overflow-y:auto;flex-wrap:nowrap"></div>
+  </div>
+</div>
+
 <!-- AUTH -->
 <div id="auth-screen" class="screen active">
   <div class="auth-wrap">
@@ -565,6 +578,8 @@ svg.mc{flex-shrink:0}
             <button class="btn-buy" style="padding:0 18px;border-radius:10px" onclick="profSaveName()" data-i18n="prSave">Save</button>
           </div>
           <div style="font-size:12px;color:var(--text3);margin-top:6px" data-i18n="prUniq">Names are unique — if it's taken, pick another.</div>
+          <label class="form-label" style="margin-top:12px;display:block">Nationality</label>
+          <select class="form-input" id="prof-nat" onchange="profSetNat()" style="width:100%"></select>
           <div style="font-size:12px;color:var(--text2);margin-top:12px" id="prof-email"></div>
           <div style="font-size:10px;color:var(--text3);margin-top:6px" id="prof-ver"></div>
           <button class="btn-sell" style="margin-top:14px;width:100%;padding:12px;border-radius:10px" onclick="tutStart()" data-i18n="prTut">🎓 View tutorial again</button>
@@ -930,7 +945,7 @@ try{
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function syncMe(){
   if(!FB||!FB.fns||!FBuser)return;
-  FB.fns.httpsCallable("hello")({name:username}).then(r=>{
+  FB.fns.httpsCallable("hello")({name:username,nat:nat||null}).then(r=>{
     const d=r.data||{};
     if(typeof d.cash==="number"){cash=d.cash;holdings=d.holdings||{};}
     if(d.name&&d.name!==username){username=d.name;showToast(t("toNameUse")+" "+d.name,"err");}
@@ -990,7 +1005,7 @@ function startLB(){
       if(tab==="leaderboard")renderLeaderboard();
     },e=>console.warn("lb:",e.message));
 }
-let lang="en", username="User", live=false;
+let lang="en", username="User", nat="", live=false;
 let prices={}, changes={}, hist={}, base={};
 let cash=CASH0, holdings={}, tradeLog=[];
 const liveSet=new Set();
@@ -1004,7 +1019,7 @@ const store={
   del(k){try{localStorage.removeItem(k)}catch{}}
 };
 function stateKey(){return (typeof FB!=="undefined"&&FB&&FBuser)?"sa_state_"+FBuser.uid:"sa_state";}
-function saveState(){store.set(stateKey(),{username,lang,cash,holdings,tradeLog:tradeLog.slice(0,50),month:MONTH_KEY});}
+function saveState(){store.set(stateKey(),{username,lang,nat,cash,holdings,tradeLog:tradeLog.slice(0,50),month:MONTH_KEY});}
 function loadState(){
   let s=store.get(stateKey());
   if(!s&&typeof FB!=="undefined"&&FB&&FBuser){
@@ -1012,7 +1027,7 @@ function loadState(){
     if(legacy){s=legacy;store.set(stateKey(),legacy);store.del("sa_state");}
   }
   if(!s||!s.username)return false;
-  username=s.username; lang="en";
+  username=s.username; lang="en"; nat=s.nat||"";
   if(s.month&&s.month!==MONTH_KEY){
     cash=CASH0;holdings={};tradeLog=[];
     setTimeout(()=>showToast(t("toMonth")),1500);
@@ -1155,7 +1170,7 @@ function authWith(provider){
     return;
   }
   username=provider==="google"?"Google User":"Apple User";saveState();
-  if(isSignup)showNameScreen();else startLoading();
+  if(isSignup)showNatScreen();else startLoading();
 }
 async function loginWithEmail(){
   const e=$("login-email").value.trim(),p=$("login-pass").value;
@@ -1183,11 +1198,11 @@ async function signupWithEmail(){
     try{
       const cred=await FB.auth.createUserWithEmailAndPassword(e,p);
       await cred.user.updateProfile({displayName:n});
-      appStarted=true;username=n;saveState();showNameScreen();
+      appStarted=true;username=n;saveState();showNatScreen();
     }catch(err){onboarding=false;showToast(err.code==="auth/email-already-in-use"?"Email already in use":"Signup failed","err");}
     return;
   }
-  username=n;saveState();showNameScreen();
+  username=n;saveState();showNatScreen();
 }
 let rulesMode="onboard";
 function applyRulesText(){
@@ -1218,6 +1233,33 @@ function rulesContinue(){
 }
 function pickLang(code){
   try{setLang(code);}catch(e){lang=code;saveState();}
+  showNameScreen();
+}
+const NATIONS=[["BE","Belgium"],["NL","Netherlands"],["FR","France"],["DE","Germany"],["LU","Luxembourg"],["GB","United Kingdom"],["IE","Ireland"],["ES","Spain"],["PT","Portugal"],["IT","Italy"],["CH","Switzerland"],["AT","Austria"],["PL","Poland"],["CZ","Czechia"],["SK","Slovakia"],["HU","Hungary"],["RO","Romania"],["BG","Bulgaria"],["GR","Greece"],["HR","Croatia"],["SI","Slovenia"],["RS","Serbia"],["SE","Sweden"],["NO","Norway"],["DK","Denmark"],["FI","Finland"],["IS","Iceland"],["EE","Estonia"],["LV","Latvia"],["LT","Lithuania"],["UA","Ukraine"],["TR","Türkiye"],["US","United States"],["CA","Canada"],["BR","Brazil"],["MX","Mexico"],["AR","Argentina"],["MA","Morocco"],["DZ","Algeria"],["TN","Tunisia"],["EG","Egypt"],["ZA","South Africa"],["NG","Nigeria"],["IN","India"],["CN","China"],["JP","Japan"],["KR","South Korea"],["ID","Indonesia"],["PH","Philippines"],["AU","Australia"],["NZ","New Zealand"],["IL","Israel"],["AE","United Arab Emirates"],["SA","Saudi Arabia"],["WW","Other / rather not say"]];
+function flagOf(c){
+  if(!c)return"";
+  if(c==="WW")return"🌍";
+  if(!/^[A-Z]{2}$/.test(c))return"";
+  return String.fromCodePoint(...[...c].map(ch=>127397+ch.charCodeAt(0)));
+}
+let natListBuilt=false;
+function showNatScreen(){
+  if(!natListBuilt){
+    natListBuilt=true;
+    const ll=$("nat-list");
+    NATIONS.forEach(([code,label])=>{
+      const b=document.createElement("button");
+      b.className="rule-item";b.style.cursor="pointer";b.style.width="100%";b.style.border="1px solid var(--border)";b.style.background="var(--white)";b.style.fontFamily="var(--sans)";
+      b.innerHTML=`<div class="rule-icon">${flagOf(code)}</div><div class="rule-title" style="align-self:center">${label}</div>`;
+      b.onclick=()=>pickNat(code);
+      ll.appendChild(b);
+    });
+  }
+  show("nat-screen");
+}
+function pickNat(code){
+  nat=code;saveState();
+  if(FB&&FBuser)syncMe();
   showNameScreen();
 }
 function showNameScreen(){
@@ -1261,6 +1303,14 @@ async function releaseUsername(oldName){
 function renderProfile(){
   const pn=$("prof-name");
   if(document.activeElement!==pn)pn.value=username;
+  const ns=$("prof-nat");
+  if(ns){
+    if(!ns.options.length){
+      const o0=document.createElement("option");o0.value="";o0.textContent="— pick your flag —";ns.appendChild(o0);
+      NATIONS.forEach(([code,label])=>{const o=document.createElement("option");o.value=code;o.textContent=`${flagOf(code)} ${label}`;ns.appendChild(o);});
+    }
+    ns.value=nat||"";
+  }
   $("reset-btn").style.display=(FB&&FBuser)?"none":"block";
   renderTFA();
   $("prof-ver").textContent="Stonk Arena "+APP_VERSION;
@@ -1286,6 +1336,12 @@ async function profSaveName(){
     try{await FBuser.updateProfile({displayName:username});}catch(e){}
     showToast("✓ "+username);
   }catch(e){showToast(t("toNameFail"),"err");}
+}
+function profSetNat(){
+  nat=$("prof-nat").value;
+  saveState();syncMe();
+  showToast("✓ "+(flagOf(nat)||"—"));
+  if(tab==="leaderboard")renderLeaderboard();
 }
 function plainSignOut(){
   saveState();
@@ -2245,14 +2301,14 @@ function renderPortfolio(){
 }
 const AVATARS=["🦊","🐯","🦁","🐸","🐼","🦉","🐺","🦅","🐙","🦈","🐢","🦄"];
 function avatarFor(name){let x=0;for(const c of String(name))x=(x*31+c.charCodeAt(0))>>>0;return AVATARS[x%AVATARS.length];}
-function leaderRow(rank,name,val,ret,trades,isMe,uid){
+function leaderRow(rank,name,val,ret,trades,isMe,uid,natC){
   const q=trades>=5;
   const hof=uid&&hofMap[uid];
   return `<div class="leader-card${isMe?" me":""}">
     <div class="leader-rank${rank===1?" gold":""}">${rank}</div>
     <div class="leader-avatar">${avatarFor(name)}</div>
     <div class="leader-info">
-      <div class="leader-name">${esc(name)}${isMe?` <span class="leader-you">${t("you")}</span>`:""}</div>
+      <div class="leader-name">${flagOf(natC)?flagOf(natC)+" ":""}${esc(name)}${isMe?` <span class="leader-you">${t("you")}</span>`:""}</div>
       ${hof&&hof.wins>0?`<div class="leader-title">🏆 ${hof.wins}× ${t("wWin")}</div>`:""}
       <div class="leader-trades">${trades} ${t("trades")} · <span style="color:${q?"var(--green)":"var(--text3)"};font-weight:600">${q?"✓ "+t("qual"):trades+"/5 "+t("qualNeed")}</span></div>
     </div>
@@ -2272,11 +2328,11 @@ function renderLeaderboard(){
     rows=lbData.map((p,i)=>{
       const isMe=FBuser&&p.id===FBuser.uid;
       if(isMe)meIn=true;
-      return leaderRow(i+1,p.name||"Player",isMe?v:(p.value||0),isMe?r:(p.ret||0),isMe?tradeLog.length:(p.trades||0),isMe,p.id);
+      return leaderRow(i+1,p.name||"Player",isMe?v:(p.value||0),isMe?r:(p.ret||0),isMe?tradeLog.length:(p.trades||0),isMe,p.id,isMe?(nat||p.nat):p.nat);
     }).join("");
-    if(!meIn)rows+=leaderRow(lbData.length+1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null);
+    if(!meIn)rows+=leaderRow(lbData.length+1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null,nat);
   }else{
-    rows=leaderRow(1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null);
+    rows=leaderRow(1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null,nat);
   }
   $("leader-list").innerHTML=rows;
   // Previous winners
@@ -2348,7 +2404,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AE";
+const APP_VERSION="v22.07-AF";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
@@ -2389,7 +2445,7 @@ function init(){
         // saved state (incl. a changed name) wins over the auth displayName
         if(!loadState())username=u.displayName||(u.email?u.email.split("@")[0]:"Player");
         if(store.get("sa_onboarded")){appStarted=true;startLoading();}
-        else{appStarted=true;showNameScreen();}
+        else{appStarted=true;showNatScreen();}
       }
     });
   }else if(loadState()){appStarted=true;startLoading();}
