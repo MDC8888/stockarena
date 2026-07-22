@@ -2,7 +2,7 @@
   "id": "net.stonkarena.app",
   "name": "Stonk Arena",
   "short_name": "Stonk Arena",
-  "description": "Trade 380+ real stocks & ETFs with virtual capital. Highest monthly return wins. Free to play.",
+  "description": "Trade 380+ real stocks and ETFs with virtual capital. Highest monthly return wins. Free to play.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
