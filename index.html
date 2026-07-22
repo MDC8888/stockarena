@@ -1009,8 +1009,21 @@ const t=k=>(L[lang]&&L[lang][k])||L.en[k]||k;
 function pval(){let v=cash;for(const[tk,sh]of Object.entries(holdings))v+=sh*(prices[tk]||0);return v;}
 function pret(v){return((v-CASH0)/CASH0)*100;}
 function timeLeft(){const d=END-new Date();return{days:Math.max(0,Math.floor(d/86400000)),hours:Math.max(0,Math.floor((d%86400000)/3600000))};}
-function isOpen(tk){if(tk.includes("-USD"))return true;const now=new Date(),off=-4*60,em=((now.getUTCHours()*60+now.getUTCMinutes()+off)%1440+1440)%1440,day=new Date(now.getTime()+off*60000).getUTCDay();return day>0&&day<6&&em>=570&&em<960;}
-function mktStatus(){const now=new Date(),off=-4*60,day=new Date(now.getTime()+off*60000).getUTCDay();if(day===0||day===6)return"weekend";const em=((now.getUTCHours()*60+now.getUTCMinutes()+off)%1440+1440)%1440;return em<570?"pre":em>=960?"after":"open";}
+// NYSE hours computed in real America/New_York time (DST-safe; no hardcoded UTC offset)
+function etNow(){
+  try{
+    const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(new Date());
+    const g=t=>{const x=parts.find(p=>p.type===t);return x?x.value:"";};
+    const day=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(g("weekday"));
+    const m=(parseInt(g("hour"),10)%24)*60+parseInt(g("minute"),10);
+    if(day>=0&&!isNaN(m))return{day,m};
+  }catch(e){}
+  // fallback for very old browsers: fixed EDT offset
+  const now=new Date(),off=-4*60,d=new Date(now.getTime()+off*60000);
+  return{day:d.getUTCDay(),m:((now.getUTCHours()*60+now.getUTCMinutes()+off)%1440+1440)%1440};
+}
+function mktStatus(){const e=etNow();if(e.day===0||e.day===6)return"weekend";return e.m<570?"pre":e.m>=960?"after":"open";}
+function isOpen(tk){if(tk.includes("-USD"))return true;return mktStatus()==="open";}
 function simTick(p,seed){return Math.max(0.01,p*(1+Math.sin(seed*9301+49297)*0.002));}
 
 // ══ PRICE LOADING — layered strategy ══
@@ -1719,8 +1732,8 @@ function renderMarket(){
       ${miniChart(s.t,up)}
       <div class="stock-price-wrap"><div class="stock-price">$${pStr}</div><div class="stock-chg ${up?"val-up":"val-down"}">${up?"▲":"▼"}${Math.abs(ch).toFixed(2)}%</div></div>
       <div class="stock-controls">
-        <button class="btn-buy" onclick="event.stopPropagation();quickTrade('${s.t}','buy')" ${liveSet.has(s.t)&&!wknd?"":"disabled"}>${t("buy")}</button>
-        <button class="btn-sell" onclick="event.stopPropagation();quickTrade('${s.t}','sell')" ${held===0||!liveSet.has(s.t)||wknd?"disabled":""}>${t("sell")}</button>
+        <button class="btn-buy" onclick="event.stopPropagation();quickTrade('${s.t}','buy')" ${(prices[s.t]>0)&&!wknd?"":"disabled"}>${t("buy")}</button>
+        <button class="btn-sell" onclick="event.stopPropagation();quickTrade('${s.t}','sell')" ${held===0||!(prices[s.t]>0)||wknd?"disabled":""}>${t("sell")}</button>
       </div>
       <div class="stock-chev">›</div>
     </div>`;
@@ -1742,7 +1755,7 @@ function showToast(msg,type="ok"){
 function doBuyLocal(ticker,n){
   const _ms=mktStatus();
   if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
-  if(!liveSet.has(ticker)){showToast("⏳ Waiting for live price...","err");return false;}
+  if(!(prices[ticker]>0)){showToast("⏳ Waiting for live price...","err");return false;}
   n=Math.max(1,parseInt(n)||1);
   const cost=(prices[ticker]||0)*n;
   if(cost>cash){showToast(t("noCash"),"err");return false;}
@@ -1758,7 +1771,7 @@ function doBuyLocal(ticker,n){
 function doSellLocal(ticker,n){
   const _ms=mktStatus();
   if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
-  if(!liveSet.has(ticker)){showToast("⏳ Waiting for live price...","err");return false;}
+  if(!(prices[ticker]>0)){showToast("⏳ Waiting for live price...","err");return false;}
   n=Math.max(1,parseInt(n)||1);
   if(n>(holdings[ticker]||0)){showToast(t("noShares"),"err");return false;}
   cash+=(prices[ticker]||0)*n;holdings[ticker]-=n;
@@ -2035,11 +2048,14 @@ function sheetUpdate(){
   $("seg-sell").className=sheetMode==="sell"?"on-sell":"";
   $("sh-held").textContent=`You own ${held}×`;
   $("sh-total").textContent="$"+fmt(p*n);
-  const tradable=liveSet.has(sheetTk)&&mktStatus()==="open";
+  const mktOpen=mktStatus()==="open";
+  const hasPrice=p>0;
+  const tradable=mktOpen&&hasPrice;
+  const lockLabel=mktOpen?"⏳ Loading live price...":"🔒 Market closed";
   const sellN=Math.min(n,held)||0;
   let btns="";
-  if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:"🔒 Market closed"}</button>`;
-  else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:"Nothing to sell"}</button>`;
+  if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:lockLabel}</button>`;
+  else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):"Nothing to sell"}</button>`;
   $("sheet-actions").innerHTML=btns;
 }
 async function sheetBuy(){
@@ -2206,7 +2222,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-W";
+const APP_VERSION="v22.07-X";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
