@@ -1709,7 +1709,7 @@ function renderMarket(){
   if(page>=total)page=0;
   $("p-info").textContent=`${page+1}/${total}`;
   $("p-prev").disabled=page===0;$("p-next").disabled=page>=total-1;
-  const wknd=mktStatus()==="weekend";
+  const wknd=mktStatus()!=="open";
   $("stock-list").innerHTML=vis.slice(page*PG,(page+1)*PG).map(s=>{
     const p=prices[s.t]||s.b,ch=changes[s.t]||0,up=ch>=0,held=holdings[s.t]||0;
     const pStr=p>=1000?p.toLocaleString("en-US",{maximumFractionDigits:0}):fmt(p);
@@ -1740,7 +1740,8 @@ function showToast(msg,type="ok"){
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className="",2000);
 }
 function doBuyLocal(ticker,n){
-  if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
+  const _ms=mktStatus();
+  if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
   if(!liveSet.has(ticker)){showToast("⏳ Waiting for live price...","err");return false;}
   n=Math.max(1,parseInt(n)||1);
   const cost=(prices[ticker]||0)*n;
@@ -1755,7 +1756,8 @@ function doBuyLocal(ticker,n){
   return true;
 }
 function doSellLocal(ticker,n){
-  if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
+  const _ms=mktStatus();
+  if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
   if(!liveSet.has(ticker)){showToast("⏳ Waiting for live price...","err");return false;}
   n=Math.max(1,parseInt(n)||1);
   if(n>(holdings[ticker]||0)){showToast(t("noShares"),"err");return false;}
@@ -1773,7 +1775,8 @@ function errMsg(e){
 async function doBuy(ticker,n){
   n=Math.max(1,parseInt(n)||1);
   if(!FB||!FB.fns||!FBuser)return doBuyLocal(ticker,n);
-  if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
+  const _ms=mktStatus();
+  if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
   try{
     const res=await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"BUY",name:username});
     const d=res.data||{};
@@ -1787,7 +1790,8 @@ async function doBuy(ticker,n){
 async function doSell(ticker,n){
   n=Math.max(1,parseInt(n)||1);
   if(!FB||!FB.fns||!FBuser)return doSellLocal(ticker,n);
-  if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
+  const _ms=mktStatus();
+  if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
   try{
     const res=await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"SELL",name:username});
     const d=res.data||{};
@@ -2031,7 +2035,7 @@ function sheetUpdate(){
   $("seg-sell").className=sheetMode==="sell"?"on-sell":"";
   $("sh-held").textContent=`You own ${held}×`;
   $("sh-total").textContent="$"+fmt(p*n);
-  const tradable=liveSet.has(sheetTk)&&mktStatus()!=="weekend";
+  const tradable=liveSet.has(sheetTk)&&mktStatus()==="open";
   const sellN=Math.min(n,held)||0;
   let btns="";
   if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:"🔒 Market closed"}</button>`;
@@ -2067,11 +2071,13 @@ function updateHeader(){
   $("h-rval").className="pstat-val "+(r>=0?"val-up":"val-down");
   $("h-cval").textContent="€"+fmt(cash);
   $("h-timer").textContent=`${tl.days}d ${tl.hours}h`;
+  const mkt=mktStatus();
   const db=$("data-badge");
-  db.textContent=live?"LIVE":"⏳ LOADING";
-  db.className="header-badge "+(live?"badge-live":"badge-sim");
-  const mkt=mktStatus(),mb=$("mkt-badge");
-  mb.textContent=mkt==="open"?"OPEN":mkt==="weekend"?"CLOSED":mkt==="pre"?"PRE":"AFTER";
+  if(!live){db.textContent="⏳ LOADING";db.className="header-badge badge-sim";}
+  else if(mkt==="open"){db.textContent="LIVE";db.className="header-badge badge-live";}
+  else{db.textContent="CLOSED";db.className="header-badge badge-closed";}
+  const mb=$("mkt-badge");
+  mb.textContent=mkt==="open"?"OPEN":mkt==="weekend"?"WEEKEND":mkt==="pre"?"PRE":"AFTER";
   mb.className="header-badge "+(mkt==="open"?"badge-open":"badge-closed");
 }
 function renderPortfolio(){
@@ -2172,11 +2178,18 @@ function switchTab(id){
   });
   $("app-content").scrollTo({top:0,behavior:"instant"});
   if(id==="portfolio")loadServerHistory();
+  if(id==="leaderboard"&&FB&&FB.fns&&FBuser){
+    if(!window.__lc||Date.now()-window.__lc>5*60*1000){
+      window.__lc=Date.now();
+      FB.fns.httpsCallable("cleanupNow")({}).catch(()=>{});
+    }
+  }
   updateAll();
 }
 
 // ══ LANGUAGE ══
 function setLang(code){
+  try{const lf=L[code]||L.en;$("lang-toggle-btn").textContent=lf.f;}catch(e){}
   lang=code;const l=L[code];
   $("h-plbl").textContent=l.hP;$("h-rlbl").textContent=l.hR;$("h-clbl").textContent=l.hC;$("h-llbl").textContent=l.hL;
   $("n-market").textContent=l.nM;$("n-portfolio").textContent=l.nP;$("n-leaderboard").textContent=l.nLb;$("n-profile").textContent=t("nPr");$("n-learn").textContent=t("nLn");
@@ -2193,7 +2206,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-V";
+const APP_VERSION="v22.07-W";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();

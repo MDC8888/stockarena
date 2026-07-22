@@ -27,6 +27,13 @@ function prevMonthKey() {
   d.setUTCDate(1); d.setUTCDate(0); // last day of previous month
   return monthKey(d);
 }
+function marketStatusET() {
+  const et = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const d = et.getDay();
+  if (d === 0 || d === 6) return "weekend";
+  const m = et.getHours() * 60 + et.getMinutes();
+  return m >= 570 && m < 960 ? "open" : "closed";
+}
 function isWeekendET() {
   const et = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
   const day = et.getDay();
@@ -130,7 +137,8 @@ exports.trade = onCall(async (req) => {
   if (!STOCKS[ticker]) throw new HttpsError("invalid-argument", "Unknown ticker");
   if (!Number.isFinite(n) || n < 1 || n > 100000) throw new HttpsError("invalid-argument", "Bad quantity");
   if (side !== "BUY" && side !== "SELL") throw new HttpsError("invalid-argument", "Bad side");
-  if (isWeekendET()) throw new HttpsError("failed-precondition", "Market closed — weekend");
+  const ms = marketStatusET();
+  if (ms !== "open") throw new HttpsError("failed-precondition", ms === "weekend" ? "Market closed — weekend" : "Market closed — outside trading hours (15:30–22:00 CET)");
 
   const prices = await getPrices();
   if (!prices || !prices.p[ticker]) throw new HttpsError("unavailable", "No live price for " + ticker);
@@ -237,63 +245,54 @@ exports.refreshPrices = onSchedule(
 );
 
 // ── schedule: recompute everyone's value every 15 min (market hours) ──
-exports.revalue = onSchedule(
-  { schedule: "*/15 9-16 * * 1-5", timeZone: "America/New_York" },
-  async () => {
-    const prices = await getPrices();
-    if (!prices) return;
-    const mk = monthKey();
-    const [statesSnap, playersSnap] = await Promise.all([
-      db.collection("states").get(),
-      db.collection(`players_${mk}`).get(),
-    ]);
-    const stateMap = {};
-    statesSnap.forEach((d) => (stateMap[d.id] = d.data()));
-
-    // 1. Purge ghosts: leaderboard rows whose auth account no longer exists
-    const ids = playersSnap.docs.map((d) => ({ uid: d.id }));
-    const notFound = new Set();
-    for (let i = 0; i < ids.length; i += 100) {
+async function janitorSweep(prices) {
+  const mk = monthKey();
+  const [statesSnap, playersSnap] = await Promise.all([
+    db.collection("states").get(),
+    db.collection(`players_${mk}`).get(),
+  ]);
+  const stateMap = {};
+  statesSnap.forEach((d) => (stateMap[d.id] = d.data()));
+  const ids = playersSnap.docs.map((d) => ({ uid: d.id }));
+  const notFound = new Set();
+  for (let i = 0; i < ids.length; i += 100) {
+    try {
+      const res = await admin.auth().getUsers(ids.slice(i, i + 100));
+      res.notFound.forEach((u) => notFound.add(u.uid));
+    } catch (e) {}
+  }
+  const batch = db.batch();
+  const alive = [];
+  for (const doc of playersSnap.docs) {
+    if (notFound.has(doc.id)) {
+      batch.delete(doc.ref);
+      batch.delete(db.doc(`states/${doc.id}`));
       try {
-        const res = await admin.auth().getUsers(ids.slice(i, i + 100));
-        res.notFound.forEach((u) => notFound.add(u.uid));
+        const un = await db.collection("usernames").where("uid", "==", doc.id).get();
+        un.forEach((u) => batch.delete(u.ref));
       } catch (e) {}
+    } else alive.push(doc);
+  }
+  const byKey = {};
+  for (const doc of alive) {
+    const nm = doc.data().name;
+    if (!nm) continue;
+    const k = nameKeyOf(nm);
+    (byKey[k] = byKey[k] || []).push(doc);
+  }
+  for (const [k, docs] of Object.entries(byKey)) {
+    if (docs.length < 2) continue;
+    let owner = docs[0].id;
+    try {
+      const claim = await db.doc(`usernames/${k}`).get();
+      if (claim.exists) owner = claim.data().uid;
+      else batch.set(db.doc(`usernames/${k}`), { uid: owner, name: docs[0].data().name });
+    } catch (e) {}
+    for (const d of docs) {
+      if (d.id !== owner) batch.set(d.ref, { name: "Player-" + d.id.slice(0, 5) }, { merge: true });
     }
-    const batch = db.batch();
-    const alive = [];
-    for (const doc of playersSnap.docs) {
-      if (notFound.has(doc.id)) {
-        batch.delete(doc.ref);
-        batch.delete(db.doc(`states/${doc.id}`));
-        try {
-          const un = await db.collection("usernames").where("uid", "==", doc.id).get();
-          un.forEach((u) => batch.delete(u.ref));
-        } catch (e) {}
-      } else alive.push(doc);
-    }
-
-    // 2. De-duplicate names: only the registered owner keeps a contested name
-    const byKey = {};
-    for (const doc of alive) {
-      const nm = doc.data().name;
-      if (!nm) continue;
-      const k = nameKeyOf(nm);
-      (byKey[k] = byKey[k] || []).push(doc);
-    }
-    for (const [k, docs] of Object.entries(byKey)) {
-      if (docs.length < 2) continue;
-      let owner = docs[0].id;
-      try {
-        const claim = await db.doc(`usernames/${k}`).get();
-        if (claim.exists) owner = claim.data().uid;
-        else batch.set(db.doc(`usernames/${k}`), { uid: owner, name: docs[0].data().name });
-      } catch (e) {}
-      for (const d of docs) {
-        if (d.id !== owner) batch.set(d.ref, { name: "Player-" + d.id.slice(0, 5) }, { merge: true });
-      }
-    }
-
-    // 3. Refresh everyone's value
+  }
+  if (prices) {
     for (const doc of alive) {
       const s = stateMap[doc.id];
       if (!s || s.month !== mk) continue;
@@ -304,9 +303,30 @@ exports.revalue = onSchedule(
         updated: admin.firestore.FieldValue.serverTimestamp(),
       }, { merge: true });
     }
-    await batch.commit();
+  }
+  await batch.commit();
+}
+
+exports.revalue = onSchedule(
+  { schedule: "*/15 9-16 * * 1-5", timeZone: "America/New_York" },
+  async () => {
+    const prices = await getPrices();
+    await janitorSweep(prices);
   }
 );
+
+// ── callable: on-demand cleanup (throttled to once per 5 min) ──
+exports.cleanupNow = onCall(async (req) => {
+  if (!req.auth) throw new HttpsError("unauthenticated", "Login required");
+  const meta = db.doc("system/janitor");
+  const snap = await meta.get();
+  if (snap.exists && Date.now() - (snap.data().t || 0) < 5 * 60 * 1000) return { ok: true, skipped: true };
+  await meta.set({ t: Date.now() });
+  let prices = null;
+  try { prices = await getPrices(); } catch (e) {}
+  await janitorSweep(prices);
+  return { ok: true };
+});
 
 // ── schedule: month rollover — crown winner, hall of fame, release history ──
 exports.monthly = onSchedule(
