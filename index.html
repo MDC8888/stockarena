@@ -307,6 +307,24 @@ svg.mc{flex-shrink:0}
 .tut-dot.on{background:var(--blue)}
 .tut-next{width:100%;padding:13px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
 .tut-skip{background:none;border:none;color:var(--text3);font-size:12px;margin-top:10px;cursor:pointer;font-family:var(--sans)}
+#learn-page{position:fixed;inset:0;background:var(--white);z-index:560;display:none;flex-direction:column}
+#learn-page.open{display:flex}
+.lp-top{position:sticky;top:0;background:var(--white);border-bottom:1px solid var(--border);padding:calc(var(--safe-top) + 10px) 16px 10px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.lp-mod{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lp-count{font-size:12px;font-weight:700;color:var(--blue);flex-shrink:0}
+.lp-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.lp-body{max-width:640px;margin:0 auto;padding:24px 20px 40px}
+.lp-title{font-family:var(--serif);font-size:26px;color:var(--text);margin-bottom:14px;line-height:1.25}
+.lp-body p{font-size:14.5px;color:var(--text2);line-height:1.7;margin-bottom:14px}
+.lp-body svg{width:100%;height:auto;margin:6px 0 16px;background:var(--bg);border:1px solid var(--border2);border-radius:14px}
+.lp-tip{background:var(--blue3);border:1px solid #dbeafe;border-radius:14px;padding:14px 16px;font-size:13.5px;color:var(--text);line-height:1.6;margin:4px 0 16px}
+.lp-books{background:var(--bg);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin:4px 0 16px}
+.lp-books div{font-size:13.5px;color:var(--text2);line-height:1.7;padding:4px 0}
+.lp-nav{display:flex;gap:10px;padding:12px 16px calc(14px + var(--safe-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0}
+.lp-back{flex:1;padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--text);font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
+.lp-next{flex:2;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
+.lesson-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--bg);border:1px solid var(--border2);border-radius:12px;padding:13px 14px;margin-bottom:8px;font-size:13.5px;font-weight:600;color:var(--text);font-family:var(--sans);cursor:pointer}
+.lesson-row .lr-chev{margin-left:auto;color:var(--text3);font-size:17px}
 .learn-mod{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;padding:14px 16px}
 .learn-mod-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
 .learn-mod-title{font-size:14px;font-weight:700;color:var(--text)}
@@ -629,6 +647,23 @@ svg.mc{flex-shrink:0}
       <button class="sheet-sellbtn" id="sh-sellbtn" onclick="sheetSell()">SELL</button>
       <button class="sheet-buybtn" id="sh-buybtn" onclick="sheetBuy()">BUY</button>
     </div>
+  </div>
+</div>
+<div id="learn-page">
+  <div class="lp-top">
+    <button class="sp-back" onclick="closeLesson()">←</button>
+    <div class="lp-mod" id="lp-mod">—</div>
+    <div class="lp-count" id="lp-count">1/5</div>
+  </div>
+  <div class="lp-scroll" id="lp-scroll">
+    <div class="lp-body">
+      <h1 class="lp-title" id="lp-title">—</h1>
+      <div id="lp-content"></div>
+    </div>
+  </div>
+  <div class="lp-nav">
+    <button class="lp-back" id="lp-backbtn" onclick="lessonNav(-1)">← Back</button>
+    <button class="lp-next" id="lp-nextbtn" onclick="lessonNav(1)">Next →</button>
   </div>
 </div>
 <div class="coach-ov" id="coach-ov">
@@ -1424,71 +1459,93 @@ function enterApp(){
   safe(syncMe);safe(startLB);safe(startMeta);safe(loadServerHistory);
   if(!store.get("sa_tut"))setTimeout(()=>{try{tutStart();}catch(e){}},600);
 }
+const SVGS={
+comp:`<svg viewBox="0 0 320 150"><line x1="30" y1="125" x2="300" y2="125" stroke="#d3d9e0"/><line x1="30" y1="15" x2="30" y2="125" stroke="#d3d9e0"/><polyline points="30,120 90,112 150,104 210,96 270,88 300,84" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,3"/><path d="M30,120 Q150,115 210,90 T300,25" fill="none" stroke="#2563eb" stroke-width="2.5"/><text x="235" y="40" font-size="10" fill="#2563eb" font-weight="600">compounding</text><text x="230" y="80" font-size="10" fill="#9ca3af">saving only</text><text x="150" y="143" font-size="9" fill="#6b7280">years →</text></svg>`,
+pv:`<svg viewBox="0 0 320 150"><line x1="20" y1="75" x2="305" y2="60" stroke="#059669" stroke-width="2"/><path d="M20,85 Q45,30 70,70 T120,95 T170,40 T220,90 T270,55 T305,75" fill="none" stroke="#2563eb" stroke-width="2"/><text x="230" y="45" font-size="10" fill="#059669" font-weight="600">value (slow, steady)</text><text x="30" y="120" font-size="10" fill="#2563eb" font-weight="600">price (moody Mr. Market)</text><circle cx="120" cy="95" r="4" fill="#059669"/><text x="98" y="135" font-size="9" fill="#059669" font-weight="600">buy here ↑</text></svg>`,
+div:`<svg viewBox="0 0 320 150"><path d="M20,40 L80,55 L120,30 L180,110 L240,120 L305,125" fill="none" stroke="#dc2626" stroke-width="2"/><path d="M20,60 Q100,55 180,68 T305,62" fill="none" stroke="#059669" stroke-width="2.5"/><text x="180" y="135" font-size="10" fill="#dc2626" font-weight="600">1 stock</text><text x="240" y="50" font-size="10" fill="#059669" font-weight="600">20-stock basket</text></svg>`,
+fg:`<svg viewBox="0 0 320 150"><path d="M15,110 Q60,105 95,60 T175,30 Q210,35 235,75 T305,115" fill="none" stroke="#2563eb" stroke-width="2.5"/><text x="130" y="22" font-size="10" fill="#dc2626" font-weight="700">EUPHORIA — most buy here</text><text x="10" y="140" font-size="10" fill="#059669" font-weight="700">FEAR — bargains live here</text><text x="238" y="140" font-size="10" fill="#6b7280">panic selling</text></svg>`,
+pe:`<svg viewBox="0 0 320 150"><rect x="55" y="45" width="70" height="80" rx="8" fill="#dbeafe"/><rect x="195" y="85" width="70" height="40" rx="8" fill="#dcfce7"/><text x="66" y="35" font-size="11" fill="#2563eb" font-weight="700">P/E 30</text><text x="204" y="75" font-size="11" fill="#059669" font-weight="700">P/E 12</text><text x="43" y="142" font-size="9.5" fill="#6b7280">€30 per €1 profit</text><text x="188" y="142" font-size="9.5" fill="#6b7280">€12 per €1 profit</text></svg>`,
+vol:`<svg viewBox="0 0 320 150"><path d="M15,75 Q35,15 55,90 T95,35 T135,110 T175,25 T215,95 T255,45 T305,80" fill="none" stroke="#dc2626" stroke-width="2"/><path d="M15,85 Q90,78 165,72 T305,65" fill="none" stroke="#059669" stroke-width="2.5"/><text x="20" y="20" font-size="10" fill="#dc2626" font-weight="600">high volatility</text><text x="230" y="55" font-size="10" fill="#059669" font-weight="600">low volatility</text></svg>`};
 const COURSE=[
-{id:"m1",title:"Module 1 · The basics",lessons:[
-["b1","📈 What is a stock?","A stock (or share) is a small ownership piece of a company. Owning one Apple share means a tiny slice of Apple's profits and future belongs to the holder. Prices move constantly because buyers and sellers keep renegotiating what that slice is worth."],
-["b2","🧺 What is an ETF?","An ETF is a basket of many stocks traded as one instrument. Buying SPY means buying a little of all 500 biggest US companies at once — the easiest way to spread risk, because one crashing company is cushioned by the other 499."],
-["b3","💹 Why do prices move?","A price is simply the last deal between a buyer and a seller. News, profits, interest rates, hype and fear shift what people will pay. Short term, prices follow emotions; over years, they follow the company's real earnings."],
-["b4","🏦 Market cap","Market capitalisation = share price × number of shares: what the whole company costs. A €5 stock isn't 'cheaper' than a €500 one — what matters is the total value behind it and what the buyer gets for it."],
-["b5","💰 Dividends","Some companies pay part of their profit to shareholders in cash — a dividend. Mature firms (Coca-Cola, banks) pay steadily; fast growers reinvest everything instead. Total return = price change + dividends."]]},
-{id:"m2",title:"Module 2 · Value investing",lessons:[
-["v1","🎯 Price vs value","Value investing, made famous by Benjamin Graham and Warren Buffett, starts from one idea: price is what is paid, value is what is received. The market sometimes offers great companies below their real worth — the value investor waits for exactly those moments."],
-["v2","🔢 The P/E ratio","Price-to-earnings divides the share price by yearly profit per share. A P/E of 15 means paying €15 for €1 of annual profit. Low P/E can signal a bargain — or a business in decline. It's a starting point for questions, never the answer."],
-["v3","🏰 Moats","A moat is a durable advantage competitors can't easily copy: a brand (Coca-Cola), a network (Visa), switching costs (Microsoft) or scale (Costco). Companies with wide moats defend their profits for decades — that's what makes them worth more."],
-["v4","🛡️ Margin of safety","Buying below estimated value creates a buffer for being wrong — the margin of safety. If a business seems worth €100 per share, the disciplined value investor wants to pay €70, because every estimate contains errors."],
-["v5","⏳ Time in the market","The value approach needs patience: cheap stocks can stay cheap for years. Historically, time in the market beat timing the market — missing just the 10 best days of a decade roughly halves total returns."]]},
-{id:"m3",title:"Module 3 · Risk & portfolio",lessons:[
-["r1","🎢 Volatility","Volatility measures how wildly a price swings. Meme stocks can move double digits in a day; ETFs and staples move gently. Higher volatility means bigger possible gains AND losses — never just one of the two."],
-["r2","🧩 Diversification","Spreading money across companies and sectors is the only 'free lunch' in investing: it removes company-specific disasters without lowering expected return. It's exactly why Stonk Arena caps each position at 30% of the portfolio."],
-["r3","⚖️ Position sizing","How much to put in one idea matters more than most picks. Professionals risk small, survivable amounts per position, so no single mistake is fatal. Going all-in isn't conviction — it's handing the outcome to luck."],
-["r4","🐂 Bull & bear markets","A bull market is a long rise with optimism in charge; a bear market is a 20%+ fall driven by fear. Both are normal weather. Every bear market so far has eventually been followed by new highs — but nobody rings a bell at the bottom."],
-["r5","🐢 Compounding","Money growing 8% a year doubles roughly every 9 years — growth on top of growth. It's the strongest force in investing and the reason starting young beats starting rich."]]},
-{id:"m4",title:"Module 4 · Psychology & practice",lessons:[
-["p1","😱 Fear, greed & FOMO","Most investing mistakes are emotional: buying after everyone got rich (greed), selling after a crash (fear), chasing what already rocketed (FOMO). Recognizing these reflexes in yourself is worth more than any formula."],
-["p2","📊 Reading the charts here","The stock pages show 10 years of weekly closing prices, adjusted for splits. Switching between 1Y, 5Y and 10Y separates noise from trend — most 'crashes' look small on a long chart of a strong company."],
-["p3","🏃 Trading vs investing","A one-month contest rewards bold, fast moves. Real wealth-building is the opposite: boring, diversified, decades long. Enjoy the game's aggression — and know the index-fund tortoise usually beats the trading hare in real life."],
-["p4","⚠️ Game vs reality","Stonk Arena uses real prices but virtual money. Nothing here is investment advice — it's a sandbox to learn how markets feel before a single real euro is at stake."]]}
+{title:"Module 1 · The basics",lessons:[
+{id:"b1",t:"📈 What is a stock?",h:`<p>A stock (share) is a small ownership piece of a real company. Owning one Apple share means a sliver of every iPhone sold, every dollar of profit and every future product belongs to the holder. Shareholders are not lending money — they own the business, with all its upside and risk.</p><p>Companies sell shares to raise money for growth; afterwards those shares trade between investors on exchanges like the NYSE and Nasdaq, all day long, at whatever price buyer and seller agree on.</p><div class="lp-tip">💡 <b>In practice:</b> before buying, complete this sentence: "I want to own a piece of this business because…". If the only answer is "the price went up lately", that's speculation, not ownership.</div>`},
+{id:"b2",t:"🧺 What is an ETF?",h:`<p>An ETF (exchange-traded fund) is a basket of many stocks wrapped into one tradable instrument. Buying SPY means instantly owning all 500 largest US companies; QQQ packs the 100 biggest Nasdaq names.</p><p>ETFs solved investing's oldest problem: how to diversify without needing a fortune or a hundred transactions. That's why they became the default building block for savers worldwide — cheap, transparent and brutally hard to beat.</p><div class="lp-tip">💡 <b>In practice:</b> in this game, an ETF position is a stabilizer — it will rarely win the month, but it teaches how the whole market breathes while individual picks swing.</div>`},
+{id:"b3",t:"💹 Why do prices move?",h:`<p>A price is nothing more than the last deal between a buyer and a seller. When news breaks — profits beat expectations, a CEO resigns, interest rates change — thousands of participants instantly renegotiate what they'll pay.</p><p>In the short run, prices follow emotions and headlines. Over years, they follow one thing with remarkable loyalty: the company's actual earnings. Day-to-day wiggles are mostly noise; the long trend is signal.</p><div class="lp-tip">💡 <b>In practice:</b> when a stock drops on news, ask "does this change what the business earns in five years?". Usually the honest answer is no — and that's information about the seller, not the company.</div>`},
+{id:"b4",t:"🏦 Market cap — what a company really costs",h:`<p>Market capitalisation = share price × number of shares. It's the price tag on the entire company. Apple at $200 per share with 15 billion shares costs ~$3 trillion; a $5 stock with billions of shares can be "more expensive" than a $500 one.</p><p>This is why judging stocks by their per-share price is a beginner's trap — the share count decides how big each slice is. Always think in whole-company terms.</p><div class="lp-tip">💡 <b>In practice:</b> the stock pages here show real prices; a "cheap-looking" $12 stock like a penny-priced media firm may carry heavy debt and shrinking profits. Price tells nothing without context.</div>`},
+{id:"b5",t:"💰 Dividends — getting paid to wait",h:`<p>Some companies pay part of their profit to shareholders in cash, typically every quarter — a dividend. Mature cash machines (Coca-Cola, banks, utilities) pay reliably; fast growers like Amazon reinvest everything into expansion instead.</p><p>Neither approach is 'better': total return = price change + dividends. A boring 3%-yielder that grows slowly can quietly outperform a glamour stock that goes nowhere.</p><div class="lp-tip">💡 <b>In practice:</b> in the one-month contest dividends barely matter — but in real life, reinvested dividends historically supplied a huge share of the stock market's total return.</div>`},
+{id:"bk1",t:"📖 Books to go deeper",h:`<p>Two beloved starting points, readable without any finance background:</p><div class="lp-books"><div>📕 <b>The Little Book of Common Sense Investing</b> — John Bogle. The founder of Vanguard explains in plain words why low-cost index funds beat almost everyone.</div><div>📗 <b>One Up on Wall Street</b> — Peter Lynch. A legendary fund manager on spotting great companies in everyday life.</div></div><p>Both are available at any bookshop or online for the price of two cinema tickets — likely the highest-return purchase in all of investing.</p>`}]},
+{title:"Module 2 · Value investing",lessons:[
+{id:"v1",t:"🎯 Price is what you pay, value is what you get",h:`<p>Value investing, founded by Benjamin Graham and perfected by Warren Buffett, rests on one insight: the market is a moody business partner. Graham called him <i>Mr. Market</i> — some days euphoric and overpaying, some days depressed and dumping quality at a discount.</p>${SVGS.pv}<p>The value investor estimates what a business is truly worth (its future earnings), then acts only when the moody price falls meaningfully below that steady value line.</p><div class="lp-tip">💡 <b>How to think:</b> treat every quote as an offer, not a verdict. The question is never "what is the price doing?" but "what would I pay for the whole business?"</div>`},
+{id:"v2",t:"🔢 The P/E ratio — the price of profit",h:`<p>Price-to-earnings divides share price by yearly profit per share: how many euros are paid for €1 of annual earnings.</p>${SVGS.pe}<p>A P/E of 12 can be a bargain (steady bank) or a trap (dying retailer); a P/E of 30 can be expensive hype or fair for a fast grower. The ratio starts the conversation — growth, debt and moat finish it.</p><div class="lp-tip">💡 <b>How to think:</b> flip it around. A P/E of 20 = a 5% "earnings yield". Would lending this company money at 5% feel safe? That instinct is often sharper than the ratio itself.</div>`},
+{id:"v3",t:"🏰 Moats — why some profits survive",h:`<p>High profits attract competitors like blood attracts sharks. A <b>moat</b> is whatever keeps them out: a brand people pay extra for (Coca-Cola), a network everyone must join (Visa), painful switching costs (Microsoft Office), or unbeatable scale (Costco's prices).</p><p>Buffett's core question isn't "will this company grow?" but "can anything destroy it in ten years?". Wide-moat businesses compound quietly for decades — and deserve higher prices.</p><div class="lp-tip">💡 <b>How to think:</b> for any stock in this app, try the "unlimited money test": with €10 billion, could a rival take its customers? If honestly no — that's a moat.</div>`},
+{id:"v4",t:"🛡️ Margin of safety",h:`<p>Every estimate of a company's value is wrong — the only question is by how much. Graham's answer: buy so far below the estimate that being wrong still doesn't hurt. Value a business at €100 per share? The disciplined investor waits for €70.</p><p>The margin of safety is engineering thinking applied to money: bridges are built to carry more than the expected load, portfolios should be too.</p><div class="lp-tip">💡 <b>How to think:</b> before any buy, write down what could break the thesis and how much could be lost if it does. If the downside is unbearable, the price isn't low enough — walk away.</div>`},
+{id:"v5",t:"⏳ Time in the market beats timing",h:`<p>Cheap stocks can stay cheap for years, and the market's biggest up-days cluster right next to its scariest crashes. Missing just the 10 best days of a decade roughly halves total returns — and nobody knows in advance which days those are.</p>${SVGS.comp}<p>That's why value investors marry patience to their bargains: buy quality below value, then let compounding — growth on top of growth — do the heavy lifting for years.</p><div class="lp-tip">💡 <b>How to think:</b> Buffett's holding period is "forever". Before buying, ask: happy to own this if the market closed for five years? If not, it's a trade, not an investment.</div>`},
+{id:"bk2",t:"📖 Books to go deeper",h:`<div class="lp-books"><div>📘 <b>The Intelligent Investor</b> — Benjamin Graham. The value-investing bible; chapters 8 (Mr. Market) and 20 (margin of safety) alone are worth the price.</div><div>📙 <b>The Little Book That Still Beats the Market</b> — Joel Greenblatt. A funny, 2-hour read explaining value with a simple 'magic formula'.</div><div>📄 <b>Warren Buffett's shareholder letters</b> — free at berkshirehathaway.com. Fifty years of the best investing education ever written, at no cost.</div></div>`}]},
+{title:"Module 3 · Risk & portfolio",lessons:[
+{id:"r1",t:"🎢 Volatility — the price of admission",h:`<p>Volatility measures how wildly a price swings around its path. Meme stocks and crypto move double digits in a day; Coca-Cola drifts.</p>${SVGS.vol}<p>Volatility isn't the same as risk — a wild ride that ends higher beat a smooth one that ends lower. But volatility is what shakes people out at the worst moment, which makes it a psychological risk even when it isn't a financial one.</p><div class="lp-tip">💡 <b>Fix:</b> decide the maximum drop you can watch without panicking (be honest: seeing -30%?). Size positions so that number can happen without forcing a sale.</div>`},
+{id:"r2",t:"🧩 Diversification — the only free lunch",h:`<p>Any single company can be destroyed by fraud, disruption or bad luck — but not all of them at once. Spreading across companies and sectors removes those individual disasters without lowering expected returns, which is why economists call it the only free lunch in finance.</p>${SVGS.div}<p>It's exactly why Stonk Arena caps every position at 30%: all-in on one ticker isn't a strategy, it's a coin flip with extra steps.</p><div class="lp-tip">💡 <b>Fix:</b> a simple check — if the worst holding went to zero tomorrow, would the portfolio survive? If not, it's concentration, not conviction.</div>`},
+{id:"r3",t:"⚖️ Position sizing — the decision before the decision",h:`<p>How much goes into an idea matters more than most picks. Professionals think in survivable bets: small enough that no single mistake is fatal, large enough that being right matters.</p><p>The math is cruel and asymmetric: a 50% loss needs a 100% gain just to break even. Protecting the downside isn't cowardice — it's what keeps compounding alive.</p><div class="lp-tip">💡 <b>Fix:</b> use a rule, not a feeling. For example: maximum 20-30% per position (this game enforces it), and never add to a loser just to 'average down' without re-checking the thesis.</div>`},
+{id:"r4",t:"🐂 Bull & bear markets — the weather, not the climate",h:`<p>A bull market is a long rise with optimism in charge; a bear market is a 20%+ fall with fear at the wheel. The US market has survived world wars, oil shocks, dot-com mania, 2008 and a pandemic — and made new highs after every single one.</p><p>Bears are painful but historically temporary; the mistake that turns temporary into permanent is selling at the bottom.</p><div class="lp-tip">💡 <b>Fix:</b> write an 'if-then' plan in calm times: "if the market falls 30%, then I will…". Decisions made before the storm beat decisions made in it.</div>`},
+{id:"r5",t:"🐢 Compounding — the eighth wonder",h:`<p>Money growing 8% a year doubles roughly every 9 years. That sounds modest until the doubles stack: €1,000 becomes €2,000, then €4,000, then €8,000 — growth earning growth.</p>${SVGS.comp}<p>The brutal implication: time is the most valuable asset an investor owns, and a 17-year-old with €50 a month holds an advantage no 40-year-old salary can buy back.</p><div class="lp-tip">💡 <b>Fix:</b> automate it. A standing order into a broad ETF every month removes emotion, timing and forgetfulness — the three great compounding killers.</div>`},
+{id:"bk3",t:"📖 Books to go deeper",h:`<div class="lp-books"><div>📕 <b>A Random Walk Down Wall Street</b> — Burton Malkiel. Why markets are hard to beat and what actually works, updated for fifty years straight.</div><div>📗 <b>The Psychology of Money</b> — Morgan Housel. Twenty short stories about wealth, greed and happiness; the most gifted finance book of the decade for a reason.</div></div>`}]},
+{title:"Module 4 · Psychology & practice",lessons:[
+{id:"p1",t:"😱 Fear, greed & the cycle",h:`<p>Markets are machines for transferring money from the impatient to the patient — because most investors buy euphoria and sell panic, the exact opposite of profitable.</p>${SVGS.fg}<p>The cycle repeats every few years with new costumes: tulips, dot-coms, meme stocks, AI. The names change; the emotions never do.</p><div class="lp-tip">💡 <b>Fixes that work:</b> ① the 48-hour rule — never buy the same day the urge appears; ② write the reason for every trade in one sentence <i>before</i> executing (this game's history keeps receipts); ③ when everyone at school talks about a stock, assume the easy money is gone.</div>`},
+{id:"p2",t:"📉 Loss aversion — why selling losers hurts",h:`<p>Psychologists Kahneman and Tversky proved losses hurt about twice as much as equal gains feel good. The result: investors cling to losers ("it'll come back!") and sell winners too early ("lock it in!") — systematically backwards.</p><p>The stock doesn't know its buy price. Every day of holding is an implicit decision to buy at today's price.</p><div class="lp-tip">💡 <b>Fixes that work:</b> ① judge decisions by the process, not the outcome — a good bet can lose; ② ask "would I buy this today at this price?" — if no, why keep it?; ③ review the month's trades on the 1st like a coach watching match replays, without self-punishment.</div>`},
+{id:"p3",t:"🏃 Trading vs investing — know which game is on",h:`<p>A one-month contest rewards concentrated, aggressive moves — volatility is the friend of whoever needs to finish first. Real wealth-building is the opposite sport: diversified, automatic, measured in decades, where the tortoise reliably beats the hare.</p><p>Confusing the two games is how people lose real money with contest tactics.</p><div class="lp-tip">💡 <b>Fixes that work:</b> enjoy maximum aggression here — it's the whole point of a sandbox. With real money, run the boring playbook: broad ETF, monthly automatic buy, ignore the news. Two games, two strategies.</div>`},
+{id:"p4",t:"⚠️ This game vs reality",h:`<p>Stonk Arena uses real market prices but virtual money. No spreads, no taxes, no sweaty palms — the emotional weight of real euros simply cannot be simulated, and that weight is half of investing.</p><p>Treat every result here as tuition: patterns learned, mistakes made free of charge, instincts trained before a single real euro is at risk. Nothing in this app is investment advice.</p><div class="lp-tip">💡 <b>Final fix:</b> keep a one-line journal per month: "what did the market teach me?". Twelve honest lines a year outperform most finance degrees.</div>`},
+{id:"bk4",t:"📖 Books to go deeper",h:`<div class="lp-books"><div>📘 <b>Thinking, Fast and Slow</b> — Daniel Kahneman. The Nobel-winning map of the brain's two systems and every bias that costs investors money.</div><div>📙 <b>Misbehaving</b> — Richard Thaler. The funny origin story of behavioural economics, by its other Nobel laureate.</div><div>📗 <b>The Psychology of Money</b> — Morgan Housel. If only one book gets read from this entire course, make it this one.</div></div>`}]}
 ];
 function learnDone(){return store.get("sa_learn")||{};}
 function renderLearn(){
   const done=learnDone();
   let total=0,got=0;
-  $("learn-list").innerHTML=COURSE.map(m=>{
-    const n=m.lessons.length,d=m.lessons.filter(l=>done[l[0]]).length;
+  $("learn-list").innerHTML=COURSE.map((m,mi)=>{
+    const n=m.lessons.length,d=m.lessons.filter(l=>done[l.id]).length;
     total+=n;got+=d;
     const pct=Math.round(d/n*100);
     return `<div class="learn-mod">
       <div class="learn-mod-head"><span class="learn-mod-title">${m.title}</span><span class="learn-mod-pct">${pct}%</span></div>
       <div class="learn-bar"><div class="learn-bar-fill" style="width:${pct}%"></div></div>
-      ${m.lessons.map(l=>`<details class="learn-item" ${done[l[0]]?'data-done="1"':''} ontoggle="if(this.open)learnMark('${l[0]}')">
-        <summary>${done[l[0]]?"✅ ":""}${l[1]}</summary>
-        <div class="learn-body">${l[2]}</div>
-      </details>`).join("")}
+      ${m.lessons.map((l,li)=>`<button class="lesson-row" onclick="openLesson(${mi},${li})">
+        <span>${done[l.id]?"✅":"○"}</span><span>${l.t}</span><span class="lr-chev">›</span>
+      </button>`).join("")}
     </div>`;
   }).join("");
   const opct=total?Math.round(got/total*100):0;
   $("learn-overall").innerHTML=`<div class="learn-mod-head"><span style="font-size:12px;font-weight:600;color:var(--text2)">Overall progress · ${got}/${total} lessons</span><span class="learn-mod-pct">${opct}%</span></div>
   <div class="learn-bar" style="margin-bottom:0"><div class="learn-bar-fill" style="width:${opct}%"></div></div>`;
 }
-function learnMark(id){
+let lpM=0,lpL=0;
+function openLesson(mi,li){
+  lpM=mi;lpL=li;
+  renderLesson();
+  $("learn-page").classList.add("open");
+}
+function renderLesson(){
+  const m=COURSE[lpM],l=m.lessons[lpL];
+  $("lp-mod").textContent=m.title;
+  $("lp-count").textContent=(lpL+1)+"/"+m.lessons.length;
+  $("lp-title").textContent=l.t;
+  $("lp-content").innerHTML=l.h;
+  $("lp-scroll").scrollTop=0;
+  $("lp-backbtn").textContent=lpL===0?"← Overview":"← Back";
+  $("lp-nextbtn").textContent=lpL===m.lessons.length-1?"Finish module ✓":"Next →";
   const d=learnDone();
-  if(d[id])return;
-  d[id]=1;
-  store.set("sa_learn",d);
-  const done=learnDone();
-  let total=0,got=0;
-  COURSE.forEach(m=>{total+=m.lessons.length;got+=m.lessons.filter(l=>done[l[0]]).length;});
-  // update bars without collapsing open lessons
-  COURSE.forEach((m,i)=>{
-    const d2=m.lessons.filter(l=>done[l[0]]).length;
-    const pct=Math.round(d2/m.lessons.length*100);
-    const mod=$("learn-list").children[i];
-    if(mod){mod.querySelector(".learn-mod-pct").textContent=pct+"%";mod.querySelector(".learn-bar-fill").style.width=pct+"%";}
-  });
-  const opct=Math.round(got/total*100);
-  $("learn-overall").querySelector(".learn-mod-pct").textContent=opct+"%";
-  $("learn-overall").querySelector(".learn-bar-fill").style.width=opct+"%";
-  $("learn-overall").querySelector("span").textContent=`Overall progress · ${got}/${total} lessons`;
+  if(!d[l.id]){d[l.id]=1;store.set("sa_learn",d);}
+}
+function lessonNav(dir){
+  const m=COURSE[lpM];
+  const nx=lpL+dir;
+  if(nx<0||nx>=m.lessons.length){
+    closeLesson();
+    if(dir>0)showToast("🎉 "+m.title.split("·")[1].trim()+" complete!");
+    return;
+  }
+  lpL=nx;renderLesson();
+}
+function closeLesson(){
+  $("learn-page").classList.remove("open");
+  renderLearn();
 }
 const TUT=[["👋","Welcome to Stonk Arena","Everyone starts with €10,000 virtual capital at real market prices. Highest return this month wins €100 — for real. Let me show you around the app itself."]];
 const TOUR=[
@@ -2071,7 +2128,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-D";
+const APP_VERSION="v22.07-E";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
