@@ -482,6 +482,11 @@ svg.mc{flex-shrink:0}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
+<script type="module">
+import { getAuth, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver }
+  from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+window.__mfa = { getAuth, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver };
+</script>
 <script>
 // ══ TRANSLATIONS ══
 const L={
@@ -996,11 +1001,15 @@ function plainSignOut(){
   setTimeout(()=>location.reload(),300);
 }
 let tfaSecret=null;
+function mfaApi(){return window.__mfa&&window.__mfa.TotpMultiFactorGenerator?window.__mfa:null;}
+function mfaUser(){const m=mfaApi();if(!m)return null;try{return m.getAuth().currentUser;}catch(e){return null;}}
 function renderTFA(){
   const area=$("tfa-area");if(!area)return;
   if(!FB||!FBuser){area.innerHTML='<div class="rule-why">Sign in to manage 2FA.</div>';return;}
-  const f=(FBuser.multiFactor&&FBuser.multiFactor.enrolledFactors)||[];
-  if(f.length>0){
+  const m=mfaApi(),u=mfaUser();
+  let enrolled=[];
+  try{if(m&&u)enrolled=m.multiFactor(u).enrolledFactors||[];}catch(e){}
+  if(enrolled.length>0){
     area.innerHTML=`<div class="rule-why" style="color:var(--green);font-weight:600">✅ Enabled — authenticator app</div>
     <button class="btn-sell" style="margin-top:10px;padding:10px 14px;border-radius:10px" onclick="tfaDisable()">Remove 2FA</button>`;
   }else{
@@ -1010,11 +1019,12 @@ function renderTFA(){
   }
 }
 async function tfaStart(){
-  if(!firebase.auth.TotpMultiFactorGenerator)return showToast("2FA not enabled in Firebase yet","err");
+  const m=mfaApi(),u=mfaUser();
+  if(!m||!u)return showToast("2FA not available — refresh the page","err");
   try{
-    const session=await FBuser.multiFactor.getSession();
-    tfaSecret=await firebase.auth.TotpMultiFactorGenerator.generateSecret(session);
-    const uri=tfaSecret.generateQrCodeUrl(FBuser.email||"player","Stonk Arena");
+    const session=await m.multiFactor(u).getSession();
+    tfaSecret=await m.TotpMultiFactorGenerator.generateSecret(session);
+    const uri=tfaSecret.generateQrCodeUrl(u.email||"player","Stonk Arena");
     $("tfa-setup").innerHTML=`
       <div style="margin-top:12px;font-size:12px;color:var(--text2)">1. Add Stonk Arena to your authenticator app:</div>
       <a href="${uri}" class="btn-sell" style="display:block;text-align:center;margin-top:8px;padding:11px;border-radius:10px;text-decoration:none">📲 Open in authenticator app</a>
@@ -1025,25 +1035,28 @@ async function tfaStart(){
         <button class="btn-buy" style="padding:0 16px;border-radius:10px" onclick="tfaVerify()">Verify</button>
       </div>`;
   }catch(e){
-    showToast(e.code==="auth/requires-recent-login"?"Sign out, log in again, then enable 2FA":"2FA setup failed — enable TOTP in Firebase first","err");
+    console.warn("tfa:",e);
+    showToast(e.code==="auth/requires-recent-login"?"Sign out, log in again, then enable 2FA":"2FA setup failed — try re-login","err");
   }
 }
 async function tfaVerify(){
+  const m=mfaApi(),u=mfaUser();
   const code=$("tfa-code").value.trim();
-  if(code.length!==6||!tfaSecret)return showToast("Enter the 6-digit code","err");
+  if(code.length!==6||!tfaSecret||!m||!u)return showToast("Enter the 6-digit code","err");
   try{
-    const assertion=firebase.auth.TotpMultiFactorGenerator.assertionForEnrollment(tfaSecret,code);
-    await FBuser.multiFactor.enroll(assertion,"Authenticator");
+    const assertion=m.TotpMultiFactorGenerator.assertionForEnrollment(tfaSecret,code);
+    await m.multiFactor(u).enroll(assertion,"Authenticator");
     tfaSecret=null;
     showToast("✅ 2FA enabled");
     renderTFA();
-  }catch(e){showToast("Wrong code — try again","err");}
+  }catch(e){console.warn("tfa verify:",e);showToast("Wrong code — try again","err");}
 }
 async function tfaDisable(){
   if(!confirm("Remove two-factor authentication from your account?"))return;
+  const m=mfaApi(),u=mfaUser();
   try{
-    const f=FBuser.multiFactor.enrolledFactors[0];
-    await FBuser.multiFactor.unenroll(f);
+    const f=m.multiFactor(u).enrolledFactors[0];
+    await m.multiFactor(u).unenroll(f);
     showToast("2FA removed");
     renderTFA();
   }catch(e){
@@ -1051,17 +1064,22 @@ async function tfaDisable(){
   }
 }
 async function mfaChallenge(err,emailFallback){
+  const m=mfaApi();
+  if(!m)return false;
   try{
+    let resolver=null;
+    try{resolver=err.resolver||null;}catch(e){}
+    if(!resolver){try{resolver=m.getMultiFactorResolver(m.getAuth(),err);}catch(e){}}
+    if(!resolver)return false;
     const code=prompt("🔒 Enter your 6-digit 2FA code:");
     if(!code)return false;
-    const resolver=err.resolver;
-    const assertion=firebase.auth.TotpMultiFactorGenerator.assertionForSignIn(resolver.hints[0].uid,code.trim());
+    const assertion=m.TotpMultiFactorGenerator.assertionForSignIn(resolver.hints[0].uid,code.trim());
     const cred=await resolver.resolveSignIn(assertion);
     appStarted=true;
-    username=cred.user.displayName||(emailFallback?emailFallback.split("@")[0]:"Player");
+    username=(cred.user&&cred.user.displayName)||(emailFallback?emailFallback.split("@")[0]:"Player");
     saveState();store.set("sa_onboarded",true);startLoading();
     return true;
-  }catch(e2){showToast("Wrong 2FA code","err");return false;}
+  }catch(e2){console.warn("mfa signin:",e2);showToast("Wrong 2FA code","err");return false;}
 }
 async function deleteAccount(){
   if(!confirm("Permanently delete your account and all data? This cannot be undone."))return;
