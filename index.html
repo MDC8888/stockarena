@@ -1339,9 +1339,29 @@ async function mfaChallenge(err,emailFallback){
     return true;
   }catch(e2){console.warn("mfa signin:",e2);showToast("Wrong 2FA code","err");return false;}
 }
+async function reauthFlow(){
+  const u=FBuser;
+  const provs=(u.providerData||[]).map(p=>p.providerId);
+  if(provs.includes("google.com")){
+    const gp=new firebase.auth.GoogleAuthProvider();
+    const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(mobile){
+      showToast("Confirm with Google, then press Delete again");
+      await u.reauthenticateWithRedirect(gp);
+      return false;
+    }
+    await u.reauthenticateWithPopup(gp);
+    return true;
+  }
+  const pw=prompt("🔒 Confirm your password to delete your account:");
+  if(!pw)return false;
+  const cred=firebase.auth.EmailAuthProvider.credential(u.email,pw);
+  await u.reauthenticateWithCredential(cred);
+  return true;
+}
 async function deleteAccount(){
   if(!confirm("Permanently delete your account and all data? This cannot be undone."))return;
-  try{
+  const run=async()=>{
     if(FB&&FBuser){
       try{await FB.fns.httpsCallable("retire")({});}catch(e){}
       await releaseUsername(username);
@@ -1350,9 +1370,15 @@ async function deleteAccount(){
     store.del(stateKey());store.del("sa_onboarded");
     showToast("Account deleted");
     setTimeout(()=>location.reload(),700);
-  }catch(e){
-    if(e.code==="auth/requires-recent-login")showToast("Sign out, log in again, then delete","err");
-    else showToast("Delete failed — try again","err");
+  };
+  try{await run();}
+  catch(e){
+    if(e.code==="auth/requires-recent-login"){
+      try{
+        const ok=await reauthFlow();
+        if(ok)await run();
+      }catch(e2){showToast("Confirmation failed — wrong password?","err");}
+    }else showToast("Delete failed — try again","err");
   }
 }
 async function shareCard(){
@@ -2165,7 +2191,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-J";
+const APP_VERSION="v22.07-K";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
