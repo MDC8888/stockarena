@@ -268,11 +268,11 @@ svg.mc{flex-shrink:0}
   .sp-stats{grid-template-columns:repeat(3,1fr)}
   .sp-actions{margin-top:0}
 }
-.sheet-overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:600;display:none;align-items:flex-end;justify-content:center}
+.sheet-overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .sheet-overlay.open{display:flex}
-.sheet{background:var(--white);width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:14px 20px calc(24px + var(--safe-bottom));animation:slideUp .18s ease;box-shadow:0 -8px 40px rgba(0,0,0,.15)}
+.sheet{background:var(--white);width:100%;max-width:400px;border-radius:20px;padding:14px 20px 24px;animation:slideUp .18s ease;box-shadow:0 16px 48px rgba(0,0,0,.28)}
 @keyframes slideUp{from{transform:translateY(50px);opacity:.5}to{transform:translateY(0);opacity:1}}
-.sheet-handle{width:36px;height:4px;border-radius:4px;background:var(--border);margin:0 auto 16px}
+.sheet-handle{display:none}
 .sheet-head{display:flex;justify-content:space-between;align-items:baseline}
 .sheet-sym{font-size:20px;font-weight:700;color:var(--text)}
 .sheet-price{font-size:20px;font-weight:700;color:var(--text)}
@@ -320,9 +320,9 @@ svg.mc{flex-shrink:0}
 .lp-tip{background:var(--blue3);border:1px solid #dbeafe;border-radius:14px;padding:14px 16px;font-size:13.5px;color:var(--text);line-height:1.6;margin:4px 0 16px}
 .lp-books{background:var(--bg);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin:4px 0 16px}
 .lp-books div{font-size:13.5px;color:var(--text2);line-height:1.7;padding:4px 0}
-.lp-nav{display:flex;gap:10px;padding:12px 16px calc(14px + var(--safe-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0}
-.lp-back{flex:1;padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--text);font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
-.lp-next{flex:2;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
+.lp-nav{display:flex;gap:8px;justify-content:flex-end;padding:10px 16px calc(12px + var(--safe-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0}
+.lp-back{padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--white);color:var(--text);font-weight:600;font-size:13px;font-family:var(--sans);cursor:pointer}
+.lp-next{padding:10px 20px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:13px;font-family:var(--sans);cursor:pointer}
 .lesson-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--bg);border:1px solid var(--border2);border-radius:12px;padding:13px 14px;margin-bottom:8px;font-size:13.5px;font-weight:600;color:var(--text);font-family:var(--sans);cursor:pointer}
 .lesson-row .lr-chev{margin-left:auto;color:var(--text3);font-size:17px}
 .learn-mod{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;padding:14px 16px}
@@ -1666,8 +1666,8 @@ function renderMarket(){
       ${miniChart(s.t,up)}
       <div class="stock-price-wrap"><div class="stock-price">$${pStr}</div><div class="stock-chg ${up?"val-up":"val-down"}">${up?"▲":"▼"}${Math.abs(ch).toFixed(2)}%</div></div>
       <div class="stock-controls">
-        <button class="btn-buy" onclick="event.stopPropagation();openSheet('${s.t}','buy')" ${liveSet.has(s.t)&&!wknd?"":"disabled"}>${t("buy")}</button>
-        <button class="btn-sell" onclick="event.stopPropagation();openSheet('${s.t}','sell')" ${held===0||!liveSet.has(s.t)||wknd?"disabled":""}>${t("sell")}</button>
+        <button class="btn-buy" onclick="event.stopPropagation();quickTrade('${s.t}','buy')" ${liveSet.has(s.t)&&!wknd?"":"disabled"}>${t("buy")}</button>
+        <button class="btn-sell" onclick="event.stopPropagation();quickTrade('${s.t}','sell')" ${held===0||!liveSet.has(s.t)||wknd?"disabled":""}>${t("sell")}</button>
       </div>
       <div class="stock-chev">›</div>
     </div>`;
@@ -1756,6 +1756,10 @@ function loadDescs(){
   if(descLoading)return descLoading;
   descLoading=fetch("/descriptions.json").then(r=>r.json()).then(d=>{descMap=d;return d;}).catch(()=>({}));
   return descLoading;
+}
+function quickTrade(tk,mode){
+  openStockPage(tk);
+  setTimeout(()=>openSheet(tk,mode),280);
 }
 function openStockPage(tk){
   const s=STOCKS.find(x=>x.t===tk);if(!s)return;
@@ -2128,7 +2132,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-E";
+const APP_VERSION="v22.07-F";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
