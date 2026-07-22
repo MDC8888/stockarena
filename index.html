@@ -211,6 +211,9 @@ svg.mc{flex-shrink:0}
 #stock-page.open{display:flex}
 .sp-top{position:sticky;top:0;background:var(--white);border-bottom:1px solid var(--border);padding:calc(var(--safe-top) + 10px) 16px 10px;display:flex;align-items:center;gap:12px;z-index:2;flex-shrink:0}
 .sp-back{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--white);font-size:17px;cursor:pointer;color:var(--text);flex-shrink:0}
+.sp-brand{flex:1;display:flex;align-items:center;justify-content:center;gap:8px}
+.sp-head2{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.sp-pricebox{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .sp-title{flex:1;min-width:0}
 .sp-sym{font-size:16px;font-weight:700;color:var(--text)}
 .sp-nm{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -488,11 +491,18 @@ svg.mc{flex-shrink:0}
 <div id="stock-page">
   <div class="sp-top">
     <button class="sp-back" onclick="closeStockPage()">←</button>
-    <div class="sp-title"><div class="sp-sym" id="sp-sym">—</div><div class="sp-nm" id="sp-nm">—</div></div>
-    <div class="sp-price"><div class="sp-p" id="sp-p">—</div><div class="sp-c" id="sp-c">—</div></div>
+    <div class="sp-brand">
+      <div class="app-header-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+      <span class="auth-logo-name">Stonk Arena</span>
+    </div>
+    <div style="width:38px;flex-shrink:0"></div>
   </div>
   <div class="sp-wrap">
     <div class="sp-main">
+      <div class="sp-head2">
+        <div><div class="sp-sym" id="sp-sym" style="font-size:22px">—</div><div class="sp-nm" id="sp-nm" style="font-size:12px">—</div></div>
+        <div style="text-align:right"><div class="sp-p" id="sp-p" style="font-size:22px">—</div><div class="sp-c" id="sp-c">—</div></div>
+      </div>
       <div class="sp-chartbox">
         <canvas id="sp-chart"></canvas>
         <div id="sp-chart-load" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text3)">Loading chart…</div>
@@ -506,6 +516,10 @@ svg.mc{flex-shrink:0}
       <div class="sp-stats" id="sp-stats"></div>
     </div>
     <div class="sp-side">
+      <div class="sp-pricebox">
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.4px" id="sp-tk2">—</div><div id="sp-p2" style="font-size:22px;font-weight:700;color:var(--text)">—</div></div>
+        <div id="sp-c2" style="font-size:14px;font-weight:700">—</div>
+      </div>
       <div class="sp-actions">
         <button class="sp-sell" onclick="openSheet(spTk,'sell')">SELL</button>
         <button class="sp-buy" onclick="openSheet(spTk,'buy')">BUY</button>
@@ -1452,9 +1466,13 @@ function closeStockPage(){$("stock-page").classList.remove("open");spTk=null;}
 function updateSP(){
   if(!spTk)return;
   const p=prices[spTk]||0,ch=changes[spTk]||0;
+  const cs=(ch>=0?"▲":"▼")+Math.abs(ch).toFixed(2)+"%";
+  const col=ch>=0?"var(--green)":"var(--red)";
   $("sp-p").textContent="$"+fmt(p);
-  $("sp-c").textContent=(ch>=0?"▲":"▼")+Math.abs(ch).toFixed(2)+"%";
-  $("sp-c").style.color=ch>=0?"var(--green)":"var(--red)";
+  $("sp-c").textContent=cs;$("sp-c").style.color=col;
+  $("sp-tk2").textContent=spTk;
+  $("sp-p2").textContent="$"+fmt(p);
+  $("sp-c2").textContent=cs;$("sp-c2").style.color=col;
 }
 async function loadHist(tk){
   $("sp-chart-load").style.display="flex";
@@ -1533,21 +1551,42 @@ function drawSP(series){
   const mn=Math.min(...vals),mx=Math.max(...vals),rng=(mx-mn)||1;
   const up=vals[vals.length-1]>=vals[0];
   const col=up?"#059669":"#dc2626";
-  const px=i=>10+(i/(vals.length-1))*(W-20);
-  const py=v=>12+(1-(v-mn)/rng)*(H-36);
+  const L=50,R=10,T=10,B=22;
+  const px=i=>L+(i/(vals.length-1))*(W-L-R);
+  const py=v=>T+(1-(v-mn)/rng)*(H-T-B);
+  const fp=v=>v>=1000?(v/1000).toFixed(1).replace(".0","")+"k":v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2);
+  // Y gridlines + price labels
+  x.font="10px -apple-system,sans-serif";
+  const steps=4;
+  for(let i=0;i<=steps;i++){
+    const v=mn+rng*i/steps, y=py(v);
+    x.strokeStyle="#eef0f3";x.lineWidth=1;
+    x.beginPath();x.moveTo(L,y);x.lineTo(W-R,y);x.stroke();
+    x.fillStyle="#9ca3af";x.textAlign="right";
+    x.fillText("$"+fp(v),L-6,y+3);
+  }
+  // X date labels
+  x.textAlign="center";x.fillStyle="#9ca3af";
+  const nlab=Math.min(5,vals.length);
+  for(let i=0;i<nlab;i++){
+    const idx=Math.round(i*(vals.length-1)/(nlab-1));
+    const d=pts[idx][0];
+    const lab=spYears>=5?d.slice(0,4):(["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(d.slice(5,7))-1]+" "+d.slice(2,4));
+    x.fillText(lab,px(idx),H-6);
+  }
+  x.textAlign="left";
+  // area fill
   x.beginPath();x.moveTo(px(0),py(vals[0]));
   vals.forEach((v,i)=>x.lineTo(px(i),py(v)));
-  x.lineTo(px(vals.length-1),H-10);x.lineTo(px(0),H-10);x.closePath();
+  x.lineTo(px(vals.length-1),H-B);x.lineTo(px(0),H-B);x.closePath();
   const g=x.createLinearGradient(0,0,0,H);
   g.addColorStop(0,up?"rgba(5,150,105,.16)":"rgba(220,38,38,.16)");
   g.addColorStop(1,"rgba(255,255,255,0)");
   x.fillStyle=g;x.fill();
+  // line
   x.beginPath();x.moveTo(px(0),py(vals[0]));
   vals.forEach((v,i)=>x.lineTo(px(i),py(v)));
   x.strokeStyle=col;x.lineWidth=2;x.lineJoin="round";x.stroke();
-  x.fillStyle="#9ca3af";x.font="10px -apple-system,sans-serif";
-  x.fillText("$"+mx.toLocaleString("en-US",{maximumFractionDigits:0}),10,11);
-  x.fillText("$"+mn.toLocaleString("en-US",{maximumFractionDigits:0}),10,H-2);
   const perf=((vals[vals.length-1]-vals[0])/vals[0])*100;
   $("sp-perf").innerHTML=`<span style="color:${col}">${perf>=0?"+":""}${perf.toFixed(1)}%</span> <span style="color:var(--text3);font-weight:500">over ${spYears===10?"10 years":spYears+" year"+(spYears>1?"s":"")} · ${vals.length} weekly data points</span>`;
 }
