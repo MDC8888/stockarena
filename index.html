@@ -532,7 +532,7 @@ svg.mc{flex-shrink:0}
     <div class="sp-main">
       <div class="sp-head2">
         <div><div class="sp-sym" id="sp-sym" style="font-size:22px">—</div><div class="sp-nm" id="sp-nm" style="font-size:12px">—</div></div>
-        <div><span class="sp-chgpill" id="sp-c">—</span></div>
+
       </div>
       <div class="sp-chartbox">
         <canvas id="sp-chart"></canvas>
@@ -1491,6 +1491,7 @@ function openStockPage(tk){
   $("sp-stats").innerHTML="";$("sp-about").textContent="";$("sp-perf").textContent="";
   updateSP();
   $("stock-page").classList.add("open");
+  spHover=null;spBindHover();
   loadDescs().then(d=>{
     if(spTk!==tk)return;
     const story=d&&d[tk];
@@ -1507,7 +1508,6 @@ function updateSP(){
   const p=prices[spTk]||0,ch=changes[spTk]||0;
   const cs=(ch>=0?"▲":"▼")+Math.abs(ch).toFixed(2)+"%";
   const col=ch>=0?"var(--green)":"var(--red)";
-  $("sp-c").textContent=cs;$("sp-c").style.color=col;
   $("sp-tk2").textContent=spTk;
   $("sp-p2").textContent="$"+fmt(p);
   $("sp-c2").textContent=cs;$("sp-c2").style.color=col;
@@ -1537,7 +1537,26 @@ async function loadHist(tk){
   $("sp-about").innerHTML=about;
   $("sp-about").dataset.full="1";
 }
-function spRange(y){spYears=y;if(spTk&&histCache[spTk])drawSP(histCache[spTk].series);}
+function spRange(y){spYears=y;spHover=null;if(spTk&&histCache[spTk])drawSP(histCache[spTk].series);}
+let spHover=null,spLastSeries=null,spPts=[],spLay=null;
+function spBindHover(){
+  const c=$("sp-chart");if(!c||c.dataset.bound)return;
+  c.dataset.bound="1";
+  const move=(clientX)=>{
+    if(!spLay||!spPts.length)return;
+    const r=c.getBoundingClientRect();
+    const xr=clientX-r.left;
+    const {L,R,W}=spLay;
+    let i=Math.round(((xr-L)/(W-L-R))*(spPts.length-1));
+    i=Math.max(0,Math.min(spPts.length-1,i));
+    if(i!==spHover){spHover=i;if(spLastSeries)drawSP(spLastSeries);}
+  };
+  c.addEventListener("mousemove",e=>move(e.clientX));
+  c.addEventListener("mouseleave",()=>{spHover=null;if(spLastSeries)drawSP(spLastSeries);});
+  c.addEventListener("touchstart",e=>{move(e.touches[0].clientX);},{passive:true});
+  c.addEventListener("touchmove",e=>{move(e.touches[0].clientX);},{passive:true});
+  c.addEventListener("touchend",()=>{setTimeout(()=>{spHover=null;if(spLastSeries)drawSP(spLastSeries);},1200);},{passive:true});
+}
 function fmtRet(r){
   if(r===null||!isFinite(r))return "—";
   const c=r>=0?"var(--green)":"var(--red)";
@@ -1590,6 +1609,7 @@ function drawSP(series){
   const mn=Math.min(...vals),mx=Math.max(...vals),rng=(mx-mn)||1;
   const up=vals[vals.length-1]>=vals[0];
   const col=up?"#059669":"#dc2626";
+  spLastSeries=series;
   const L=50,R=10,T=10,B=22;
   const px=i=>L+(i/(vals.length-1))*(W-L-R);
   const py=v=>T+(1-(v-mn)/rng)*(H-T-B);
@@ -1626,6 +1646,25 @@ function drawSP(series){
   x.beginPath();x.moveTo(px(0),py(vals[0]));
   vals.forEach((v,i)=>x.lineTo(px(i),py(v)));
   x.strokeStyle=col;x.lineWidth=2;x.lineJoin="round";x.stroke();
+  spPts=pts;spLay={L,R,T,B,W,H};
+  // Crosshair + price tooltip
+  if(spHover!=null&&spHover<vals.length){
+    const hx=px(spHover),hv=vals[spHover],hy=py(hv);
+    x.strokeStyle="#c7ccd4";x.lineWidth=1;x.setLineDash([3,3]);
+    x.beginPath();x.moveTo(hx,T);x.lineTo(hx,H-B);x.stroke();
+    x.setLineDash([]);
+    x.fillStyle=col;x.beginPath();x.arc(hx,hy,4,0,7);x.fill();
+    x.fillStyle="#fff";x.beginPath();x.arc(hx,hy,2,0,7);x.fill();
+    const d=pts[spHover][0];
+    const lab=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(d.slice(5,7))-1]+" "+d.slice(0,4)+"  ·  $"+fmt(hv);
+    x.font="600 11px -apple-system,sans-serif";
+    const tw=x.measureText(lab).width+16;
+    let bx=Math.min(Math.max(hx-tw/2,L),W-R-tw);
+    x.fillStyle="rgba(17,24,39,.92)";
+    x.beginPath();x.roundRect?x.roundRect(bx,T,tw,22,6):x.rect(bx,T,tw,22);x.fill();
+    x.fillStyle="#fff";x.textAlign="left";
+    x.fillText(lab,bx+8,T+15);
+  }
   const perf=((vals[vals.length-1]-vals[0])/vals[0])*100;
   $("sp-perf").innerHTML=`<span style="color:${col}">${perf>=0?"+":""}${perf.toFixed(1)}%</span> <span style="color:var(--text3);font-weight:500">over ${spYears===10?"10 years":spYears+" year"+(spYears>1?"s":"")} · ${vals.length} weekly data points</span>`;
 }
