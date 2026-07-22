@@ -1099,11 +1099,21 @@ function authWith(provider){
   if(FB){
     if(provider==="apple")return showToast("Apple sign-in coming soon","err");
     const gp=new firebase.auth.GoogleAuthProvider();
+    const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(mobile){
+      // Popups are unreliable on mobile browsers - use the redirect flow
+      FB.auth.signInWithRedirect(gp).catch(()=>showToast("Google sign-in failed","err"));
+      return;
+    }
     FB.auth.signInWithPopup(gp).then(cred=>{
       username=cred.user.displayName||"Player";saveState();
-      // Routing is handled by onAuthStateChanged: no accepted rules on this device -> full onboarding
+      // Routing is handled by onAuthStateChanged
     }).catch(err=>{
       if(err.code==="auth/multi-factor-auth-required"){mfaChallenge(err,null);return;}
+      if(err.code==="auth/popup-blocked"||err.code==="auth/popup-closed-by-user"||err.code==="auth/cancelled-popup-request"){
+        FB.auth.signInWithRedirect(gp).catch(()=>showToast("Google sign-in failed","err"));
+        return;
+      }
       showToast("Google sign-in failed","err");
     });
     return;
@@ -2153,7 +2163,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-H";
+const APP_VERSION="v22.07-I";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
@@ -2184,6 +2194,10 @@ function init(){
   });
   // Auto-resume: Firebase session if enabled, otherwise local save
   if(FB){
+    FB.auth.getRedirectResult().catch(err=>{
+      if(err&&err.code==="auth/multi-factor-auth-required"){mfaChallenge(err,null);return;}
+      if(err&&err.code&&err.code!=="auth/no-auth-event")console.warn("redirect:",err.code);
+    });
     FB.auth.onAuthStateChanged(u=>{
       FBuser=u;
       if(u&&!appStarted&&!onboarding){
