@@ -483,9 +483,17 @@ svg.mc{flex-shrink:0}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
 <script type="module">
-import { getAuth, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver }
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-window.__mfa = { getAuth, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver };
+const app = initializeApp({
+  apiKey:"AIzaSyBVj5VBJd3Tl47WJJ-fGwWzgjZJ9tPEUb4",
+  authDomain:"stocksim-318a0.firebaseapp.com",
+  projectId:"stocksim-318a0",
+  appId:"1:430148503558:web:47654c1b5e427f6f31db87"
+});
+const auth = getAuth(app);
+window.__mfa = { auth, onAuthStateChanged, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver };
 </script>
 <script>
 // ══ TRANSLATIONS ══
@@ -1002,7 +1010,16 @@ function plainSignOut(){
 }
 let tfaSecret=null;
 function mfaApi(){return window.__mfa&&window.__mfa.TotpMultiFactorGenerator?window.__mfa:null;}
-function mfaUser(){const m=mfaApi();if(!m)return null;try{return m.getAuth().currentUser;}catch(e){return null;}}
+function mfaUser(){const m=mfaApi();if(!m)return null;try{return m.auth.currentUser;}catch(e){return null;}}
+function mfaWaitUser(){
+  return new Promise(res=>{
+    const m=mfaApi();
+    if(!m)return res(null);
+    if(m.auth.currentUser)return res(m.auth.currentUser);
+    const to=setTimeout(()=>{unsub&&unsub();res(m.auth.currentUser);},4000);
+    const unsub=m.onAuthStateChanged(m.auth,u=>{if(u){clearTimeout(to);unsub();res(u);}});
+  });
+}
 function renderTFA(){
   const area=$("tfa-area");if(!area)return;
   if(!FB||!FBuser){area.innerHTML='<div class="rule-why">Sign in to manage 2FA.</div>';return;}
@@ -1019,8 +1036,10 @@ function renderTFA(){
   }
 }
 async function tfaStart(){
-  const m=mfaApi(),u=mfaUser();
-  if(!m||!u)return showToast("2FA not available — refresh the page","err");
+  const m=mfaApi();
+  if(!m)return showToast("2FA not available — refresh the page","err");
+  const u=await mfaWaitUser();
+  if(!u)return showToast("Sign out and log in again, then enable 2FA","err");
   try{
     const session=await m.multiFactor(u).getSession();
     tfaSecret=await m.TotpMultiFactorGenerator.generateSecret(session);
@@ -1069,7 +1088,7 @@ async function mfaChallenge(err,emailFallback){
   try{
     let resolver=null;
     try{resolver=err.resolver||null;}catch(e){}
-    if(!resolver){try{resolver=m.getMultiFactorResolver(m.getAuth(),err);}catch(e){}}
+    if(!resolver){try{resolver=m.getMultiFactorResolver(m.auth,err);}catch(e){}}
     if(!resolver)return false;
     const code=prompt("🔒 Enter your 6-digit 2FA code:");
     if(!code)return false;
