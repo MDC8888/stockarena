@@ -207,6 +207,15 @@ exports.hello = onCall(async (req) => {
   if (prices) await upsertPlayer(uid, rn, s, prices, false);
   if (restoredTrades > 0) await pRef.set({ trades: restoredTrades }, { merge: true });
   const finalName = rn || (pSnap.exists ? pSnap.data().name : null);
+  // opportunistic ghost/dupe cleanup on app open (same 5-min throttle as cleanupNow)
+  try {
+    const meta = db.doc("system/janitor");
+    const js = await meta.get();
+    if (!js.exists || Date.now() - (js.data().t || 0) > 5 * 60 * 1000) {
+      await meta.set({ t: Date.now() });
+      await janitorSweep(prices);
+    }
+  } catch (e) {}
   return { cash: s.cash, holdings: s.holdings, month: mk, name: finalName };
 });
 
@@ -234,6 +243,7 @@ exports.retire = onCall(async (req) => {
     un.forEach((u) => b.delete(u.ref));
     await b.commit();
   } catch (e) {}
+  try { await janitorSweep(null); } catch (e) {}
   return { ok: true };
 });
 

@@ -2,10 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Leaderboards (current + archived months): public read, server-only write
+    // Leaderboards (current + archived months): public read, server-only write.
+    // A signed-in user may delete their OWN row (account deletion fallback).
     match /{board}/{uid} {
       allow read: if board.matches('players_.*');
-      allow write: if false;
+      allow delete: if board.matches('players_.*')
+                    && request.auth != null && request.auth.uid == uid;
+      allow create, update: if false;
     }
 
     // Live price cache: public read
@@ -14,10 +17,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Your own portfolio state: read your own, never write (server does)
+    // Your own portfolio state: read your own; delete your own on account removal
     match /states/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if false;
+      allow delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if false;
     }
 
     // Trade history: private to owner, until the month is released for everyone

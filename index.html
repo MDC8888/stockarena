@@ -1383,7 +1383,11 @@ async function deleteAccount(){
     if(FB&&FBuser){
       // retire removes the leaderboard row + state server-side; retry once so a blip can't leave a ghost
       try{await FB.fns.httpsCallable("retire")({});}
-      catch(e){try{await FB.fns.httpsCallable("retire")({});}catch(e2){}}
+      catch(e){try{await FB.fns.httpsCallable("retire")({});}catch(e2){console.warn("retire failed:",e2&&e2.message);}}
+      // belt & braces: delete our own leaderboard row + state directly (rules allow deleting your own)
+      const now=new Date(),mk=now.getUTCFullYear()+"_"+String(now.getUTCMonth()+1).padStart(2,"0");
+      try{await FB.db.doc("players_"+mk+"/"+FBuser.uid).delete();}catch(e){console.warn("row delete:",e&&e.message);}
+      try{await FB.db.doc("states/"+FBuser.uid).delete();}catch(e){}
       await releaseUsername(username);
       store.del("sa_tut_"+FBuser.uid);
       await FBuser.delete();
@@ -2237,7 +2241,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-Y";
+const APP_VERSION="v22.07-Z";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
