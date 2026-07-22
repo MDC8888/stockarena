@@ -243,21 +243,68 @@ exports.revalue = onSchedule(
     const prices = await getPrices();
     if (!prices) return;
     const mk = monthKey();
-    const states = await db.collection("states").get();
+    const [statesSnap, playersSnap] = await Promise.all([
+      db.collection("states").get(),
+      db.collection(`players_${mk}`).get(),
+    ]);
+    const stateMap = {};
+    statesSnap.forEach((d) => (stateMap[d.id] = d.data()));
+
+    // 1. Purge ghosts: leaderboard rows whose auth account no longer exists
+    const ids = playersSnap.docs.map((d) => ({ uid: d.id }));
+    const notFound = new Set();
+    for (let i = 0; i < ids.length; i += 100) {
+      try {
+        const res = await admin.auth().getUsers(ids.slice(i, i + 100));
+        res.notFound.forEach((u) => notFound.add(u.uid));
+      } catch (e) {}
+    }
     const batch = db.batch();
-    let i = 0;
-    states.forEach((doc) => {
-      const s = doc.data();
-      if (s.month !== mk) return;
+    const alive = [];
+    for (const doc of playersSnap.docs) {
+      if (notFound.has(doc.id)) {
+        batch.delete(doc.ref);
+        batch.delete(db.doc(`states/${doc.id}`));
+        try {
+          const un = await db.collection("usernames").where("uid", "==", doc.id).get();
+          un.forEach((u) => batch.delete(u.ref));
+        } catch (e) {}
+      } else alive.push(doc);
+    }
+
+    // 2. De-duplicate names: only the registered owner keeps a contested name
+    const byKey = {};
+    for (const doc of alive) {
+      const nm = doc.data().name;
+      if (!nm) continue;
+      const k = nameKeyOf(nm);
+      (byKey[k] = byKey[k] || []).push(doc);
+    }
+    for (const [k, docs] of Object.entries(byKey)) {
+      if (docs.length < 2) continue;
+      let owner = docs[0].id;
+      try {
+        const claim = await db.doc(`usernames/${k}`).get();
+        if (claim.exists) owner = claim.data().uid;
+        else batch.set(db.doc(`usernames/${k}`), { uid: owner, name: docs[0].data().name });
+      } catch (e) {}
+      for (const d of docs) {
+        if (d.id !== owner) batch.set(d.ref, { name: "Player-" + d.id.slice(0, 5) }, { merge: true });
+      }
+    }
+
+    // 3. Refresh everyone's value
+    for (const doc of alive) {
+      const s = stateMap[doc.id];
+      if (!s || s.month !== mk) continue;
       const v = portfolioValue(s, prices);
-      batch.set(db.doc(`players_${mk}/${doc.id}`), {
+      batch.set(doc.ref, {
         value: Math.round(v * 100) / 100,
         ret: Math.round(((v - CASH0) / CASH0) * 10000) / 100,
         updated: admin.firestore.FieldValue.serverTimestamp(),
       }, { merge: true });
-      i++;
-    });
-    if (i > 0) await batch.commit();
+    }
+    await batch.commit();
   }
 );
 
