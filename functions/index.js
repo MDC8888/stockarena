@@ -179,7 +179,14 @@ exports.trade = onCall(async (req) => {
     return s;
   });
 
-  const rn = await resolveName(uid, name);
+  // trades never rename: keep the current leaderboard name if one exists and differs
+  let rn = null;
+  try {
+    const pSnapT = await db.doc(`players_${mk}/${uid}`).get();
+    const curT = pSnapT.exists ? pSnapT.data().name : null;
+    if (curT && name && nameKeyOf(curT) !== nameKeyOf(String(name))) rn = curT;
+    else rn = await resolveName(uid, name);
+  } catch (e) {}
   await upsertPlayer(uid, rn, result, prices, true);
   return { ok: true, cash: result.cash, holdings: result.holdings, price };
 });
@@ -200,13 +207,37 @@ exports.hello = onCall(async (req) => {
     else s = { cash: CASH0, holdings: {}, month: mk };
     await stateRef.set(s);
   }
-  let rn = await resolveName(uid, req.data && req.data.name);
+  const wanted = String((req.data && req.data.name) || "").trim().slice(0, 20);
   const pRef = db.doc(`players_${mk}/${uid}`);
   const pSnap = await pRef.get();
-  if (!rn && (!pSnap.exists || !pSnap.data().name)) rn = "Player-" + uid.slice(0, 5);
+  const curName = pSnap.exists ? pSnap.data().name : null;
+  let rn = null, renameBlocked = false;
+  // changing an existing (non auto-assigned) name is allowed once per month
+  const isRename = wanted && curName && !/^Player-/.test(curName) && nameKeyOf(curName) !== nameKeyOf(wanted);
+  if (isRename) {
+    const rref = db.doc(`renames/${uid}`);
+    const rSnap = await rref.get();
+    if (rSnap.exists && rSnap.data().m === mk) { renameBlocked = true; }
+    else {
+      rn = await resolveName(uid, wanted);
+      if (rn) {
+        await rref.set({ m: mk, ts: admin.firestore.FieldValue.serverTimestamp() });
+        // release this user's old name claims so others can use them
+        try {
+          const un = await db.collection("usernames").where("uid", "==", uid).get();
+          const b = db.batch(); let ch = false;
+          un.forEach((u) => { if (u.id !== nameKeyOf(rn)) { b.delete(u.ref); ch = true; } });
+          if (ch) await b.commit();
+        } catch (e) {}
+      }
+    }
+  } else if (wanted) {
+    rn = await resolveName(uid, wanted);
+  }
+  if (!rn && !curName) rn = "Player-" + uid.slice(0, 5);
   if (prices) await upsertPlayer(uid, rn, s, prices, false);
   if (restoredTrades > 0) await pRef.set({ trades: restoredTrades }, { merge: true });
-  const finalName = rn || (pSnap.exists ? pSnap.data().name : null);
+  const finalName = rn || curName;
   // opportunistic ghost/dupe cleanup on app open (same 5-min throttle as cleanupNow)
   try {
     const meta = db.doc("system/janitor");
@@ -216,7 +247,7 @@ exports.hello = onCall(async (req) => {
       await janitorSweep(prices);
     }
   } catch (e) {}
-  return { cash: s.cash, holdings: s.holdings, month: mk, name: finalName };
+  return { cash: s.cash, holdings: s.holdings, month: mk, name: finalName, renameBlocked };
 });
 
 // ── callable: bind this month's result to the email before account deletion ──
