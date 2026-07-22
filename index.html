@@ -1517,7 +1517,7 @@ async function loadHist(tk){
   let data=histCache[tk];
   if(!data){
     try{
-      const res=await fetch(`/.netlify/functions/history?ticker=${tk}&v=3`);
+      const res=await fetch(`/.netlify/functions/history?ticker=${tk}&v=4`);
       if(res.ok)data=await res.json();
       if(data&&data.series&&data.series.length>1)histCache[tk]=data;else data=null;
     }catch(e){data=null;}
