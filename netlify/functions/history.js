@@ -31,7 +31,7 @@ exports.handler = async function (event) {
           name: meta.name || t,
           exchange: meta.exchangeCode || "",
           since: meta.startDate ? String(meta.startDate).slice(0, 4) : "",
-          description: String(meta.description || "").slice(0, 600),
+          description: String(meta.description || "").slice(0, 1500),
         },
         series,
       }),

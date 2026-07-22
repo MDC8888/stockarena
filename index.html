@@ -1461,7 +1461,7 @@ async function loadHist(tk){
   let data=histCache[tk];
   if(!data){
     try{
-      const res=await fetch(`/.netlify/functions/history?ticker=${tk}&v=2`);
+      const res=await fetch(`/.netlify/functions/history?ticker=${tk}&v=3`);
       if(res.ok)data=await res.json();
       if(data&&data.series&&data.series.length>1)histCache[tk]=data;else data=null;
     }catch(e){data=null;}
@@ -1473,8 +1473,12 @@ async function loadHist(tk){
   buildStats(data.series,data.meta||{});
   const m=data.meta||{};
   const descs=await loadDescs();
-  const custom=descs&&descs[tk];
-  $("sp-about").innerHTML=`<b style="color:var(--text)">${esc(m.name||tk)}</b><br>${esc(custom||m.description||"No description available.")}`;
+  const story=descs&&descs[tk];
+  let about=`<b style="color:var(--text)">${esc(m.name||tk)}</b><br>${esc(m.description||"No description available.")}`;
+  if(story){
+    about+=`<div class="card-header" style="padding:18px 0 8px">📈 WHY IT MOVED — RECENT YEARS</div>${esc(story)}`;
+  }
+  $("sp-about").innerHTML=about;
 }
 function spRange(y){spYears=y;if(spTk&&histCache[spTk])drawSP(histCache[spTk].series);}
 function fmtRet(r){
