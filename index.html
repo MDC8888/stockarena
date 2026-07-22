@@ -520,6 +520,7 @@ svg.mc{flex-shrink:0}
           </div>
           <div style="font-size:12px;color:var(--text3);margin-top:6px">Names are unique — if it's taken, pick another.</div>
           <div style="font-size:12px;color:var(--text2);margin-top:12px" id="prof-email"></div>
+          <div style="font-size:10px;color:var(--text3);margin-top:6px" id="prof-ver"></div>
           <button class="btn-sell" style="margin-top:14px;width:100%;padding:12px;border-radius:10px" onclick="tutStart()">🎓 View tutorial again</button>
           <button class="btn-sell" style="margin-top:10px;width:100%;padding:12px;border-radius:10px" onclick="plainSignOut()">Sign out</button>
         </div>
@@ -828,7 +829,7 @@ try{
 }catch(e){console.warn("Firebase init:",e.message);}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function syncMe(){
-  if(!FB||!FBuser)return;
+  if(!FB||!FB.fns||!FBuser)return;
   FB.fns.httpsCallable("hello")({name:username}).then(r=>{
     const d=r.data||{};
     if(typeof d.cash==="number"){cash=d.cash;holdings=d.holdings||{};saveState();updateAll();}
@@ -1136,6 +1137,7 @@ function renderProfile(){
   $("prof-name").value=username;
   $("reset-btn").style.display=(FB&&FBuser)?"none":"block";
   renderTFA();
+  $("prof-ver").textContent="Stonk Arena "+APP_VERSION;
   $("prof-email").textContent=FB&&FBuser?("Signed in as: "+(FBuser.email||"Google account")):"Local demo account";
 }
 async function profSaveName(){
@@ -1384,8 +1386,13 @@ async function startLoading(){
 }
 
 // ══ APP ══
-function enterApp(){show("app-screen");setLang(lang);updateAll();startSim();syncMe();startLB();startMeta();loadServerHistory();
-  if(!store.get("sa_tut"))setTimeout(()=>tutStart(),600);}
+function enterApp(){
+  show("app-screen");
+  const safe=f=>{try{f();}catch(e){console.warn("startup:",e);}};
+  safe(()=>setLang(lang));safe(updateAll);safe(startSim);
+  safe(syncMe);safe(startLB);safe(startMeta);safe(loadServerHistory);
+  if(!store.get("sa_tut"))setTimeout(()=>{try{tutStart();}catch(e){}},600);
+}
 const TUT=[
   ["👋","Welcome to Stonk Arena","Everyone starts with €10,000 virtual capital and trades at real market prices. Highest return this month wins €100 — for real."],
   ["📈","Explore any stock","Tap a stock row to open its page: a 10-year chart, key stats, what the company does and why the price moved in recent years."],
@@ -1521,7 +1528,7 @@ function errMsg(e){
 }
 async function doBuy(ticker,n){
   n=Math.max(1,parseInt(n)||1);
-  if(!FB||!FBuser)return doBuyLocal(ticker,n);
+  if(!FB||!FB.fns||!FBuser)return doBuyLocal(ticker,n);
   if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
   try{
     const res=await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"BUY",name:username});
@@ -1535,7 +1542,7 @@ async function doBuy(ticker,n){
 }
 async function doSell(ticker,n){
   n=Math.max(1,parseInt(n)||1);
-  if(!FB||!FBuser)return doSellLocal(ticker,n);
+  if(!FB||!FB.fns||!FBuser)return doSellLocal(ticker,n);
   if(mktStatus()==="weekend"){showToast("📅 Weekend — trading resumes Monday","err");return false;}
   try{
     const res=await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"SELL",name:username});
@@ -1927,6 +1934,8 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
+const APP_VERSION="v22.07-A";
+console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
   loadDescs();
