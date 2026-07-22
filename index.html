@@ -268,23 +268,29 @@ svg.mc{flex-shrink:0}
   .sp-stats{grid-template-columns:repeat(3,1fr)}
   .sp-actions{margin-top:0}
 }
-.sheet-overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+.sheet-overlay{position:fixed;inset:0;background:rgba(17,24,39,.5);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .sheet-overlay.open{display:flex}
-.sheet{background:var(--white);width:100%;max-width:400px;border-radius:20px;padding:14px 20px 24px;animation:slideUp .18s ease;box-shadow:0 16px 48px rgba(0,0,0,.28)}
-@keyframes slideUp{from{transform:translateY(50px);opacity:.5}to{transform:translateY(0);opacity:1}}
-.sheet-handle{display:none}
-.sheet-head{display:flex;justify-content:space-between;align-items:baseline}
-.sheet-sym{font-size:20px;font-weight:700;color:var(--text)}
+.sheet{background:var(--white);width:100%;max-width:380px;border-radius:22px;padding:18px 20px 20px;animation:popIn .16s ease;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+@keyframes popIn{from{transform:scale(.96);opacity:.5}to{transform:scale(1);opacity:1}}
+.sheet-toprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sheet-modebadge{font-size:11px;font-weight:800;letter-spacing:.8px;padding:5px 12px;border-radius:20px}
+.sheet-x{width:30px;height:30px;border-radius:50%;border:none;background:var(--bg);color:var(--text3);font-size:13px;cursor:pointer;font-family:var(--sans)}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.sheet-sym{font-size:22px;font-weight:800;color:var(--text);line-height:1.1}
+.sheet-name{font-size:12px;color:var(--text3);margin-top:3px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet-pb{text-align:right}
 .sheet-price{font-size:20px;font-weight:700;color:var(--text)}
-.sheet-sub{display:flex;justify-content:space-between;font-size:13px;color:var(--text3);margin:2px 0 16px}
-.sheet-qty-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.qbtn{width:46px;height:46px;border-radius:12px;border:1px solid var(--border);background:var(--bg);font-size:22px;color:var(--text);cursor:pointer;font-family:var(--sans)}
-#sheet-qty{flex:1;text-align:center;font-size:18px;font-weight:600;padding:11px;border:1px solid var(--border);border-radius:12px;font-family:var(--sans);color:var(--text);outline:none;-webkit-appearance:none}
-.sheet-total{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:16px;font-weight:500}
-.sheet-actions{display:flex;gap:10px}
-.sheet-sellbtn{flex:1;padding:15px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--text);font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
-.sheet-buybtn{flex:1;padding:15px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
-.sheet-buybtn:disabled,.sheet-sellbtn:disabled{opacity:.35;cursor:not-allowed}
+.sheet-chg{font-size:12px;font-weight:700;margin-top:2px}
+.sheet-qty-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.qbtn{width:48px;height:48px;border-radius:12px;border:1px solid var(--border);background:var(--bg);font-size:22px;color:var(--text);cursor:pointer;font-family:var(--sans);flex-shrink:0}
+#sheet-qty{flex:1;min-width:0;text-align:center;font-size:19px;font-weight:700;padding:12px 4px;border:1px solid var(--border);border-radius:12px;font-family:var(--sans);color:var(--text);outline:none;-webkit-appearance:none;background:var(--white)}
+.sheet-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:16px;padding:0 2px}
+.sheet-meta b{color:var(--text)}
+.sheet-actions{display:flex;flex-direction:column;gap:8px}
+.sheet-cta{width:100%;padding:15px;border-radius:13px;border:none;font-weight:800;font-size:14.5px;font-family:var(--sans);cursor:pointer;letter-spacing:.2px}
+.sheet-cta.buy{background:var(--blue);color:#fff}
+.sheet-cta.sell{background:#dc2626;color:#fff}
+.sheet-cta:disabled{opacity:.4;cursor:not-allowed}
 .stock-item{cursor:pointer}
 .stock-chev{color:var(--text3);font-size:20px;margin-left:4px;flex-shrink:0;line-height:1}
 .coach-ov{position:fixed;inset:0;z-index:720;display:none;pointer-events:none}
@@ -633,20 +639,21 @@ svg.mc{flex-shrink:0}
 </div>
 <div class="sheet-overlay" id="sheet-ov" onclick="closeSheet()">
   <div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><span class="sheet-sym" id="sh-sym">—</span><span class="sheet-price" id="sh-price">—</span></div>
-    <div class="sheet-sub"><span id="sh-name">—</span><span id="sh-chg">—</span></div>
+    <div class="sheet-toprow">
+      <span class="sheet-modebadge" id="sh-mode">BUY</span>
+      <button class="sheet-x" onclick="closeSheet()">✕</button>
+    </div>
+    <div class="sheet-head">
+      <div><div class="sheet-sym" id="sh-sym">—</div><div class="sheet-name" id="sh-name">—</div></div>
+      <div class="sheet-pb"><div class="sheet-price" id="sh-price">—</div><div class="sheet-chg" id="sh-chg">—</div></div>
     </div>
     <div class="sheet-qty-row">
       <button class="qbtn" onclick="sheetStep(-1)">−</button>
       <input type="number" id="sheet-qty" value="1" min="1" inputmode="numeric" oninput="sheetUpdate()">
       <button class="qbtn" onclick="sheetStep(1)">+</button>
     </div>
-    <div class="sheet-total"><span id="sh-held">—</span><span id="sh-total">—</span></div>
-    <div class="sheet-actions">
-      <button class="sheet-sellbtn" id="sh-sellbtn" onclick="sheetSell()">SELL</button>
-      <button class="sheet-buybtn" id="sh-buybtn" onclick="sheetBuy()">BUY</button>
-    </div>
+    <div class="sheet-meta"><span id="sh-held">—</span><span>Total: <b id="sh-total">—</b></span></div>
+    <div id="sheet-actions" class="sheet-actions"></div>
   </div>
 </div>
 <div id="learn-page">
@@ -1950,11 +1957,8 @@ function drawSP(series){
 function openSheet(tk,mode){
   const s=STOCKS.find(x=>x.t===tk);if(!s)return;
   sheetTk=tk;sheetMode=(mode==="sell")?"sell":(mode==="buy")?"buy":"both";
-  $("sh-sym").textContent=tk;
-  $("sh-name").textContent=s.n;
   const held=holdings[tk]||0;
-  $("sheet-qty").value=(mode==="sell"&&held>0)?held:1;
-  $("sh-buybtn").disabled=false;$("sh-sellbtn").disabled=false;
+  $("sheet-qty").value=(sheetMode==="sell"&&held>0)?held:1;
   sheetUpdate();
   $("sheet-ov").classList.add("open");
 }
@@ -1962,38 +1966,45 @@ function closeSheet(){$("sheet-ov").classList.remove("open");sheetTk=null;}
 function sheetStep(d){const i=$("sheet-qty");i.value=Math.max(1,(parseInt(i.value)||1)+d);sheetUpdate();}
 function sheetUpdate(){
   if(!sheetTk)return;
+  const s=STOCKS.find(x=>x.t===sheetTk)||{n:""};
   const p=prices[sheetTk]||0,ch=changes[sheetTk]||0,held=holdings[sheetTk]||0;
   const n=Math.max(1,parseInt($("sheet-qty").value)||1);
+  const up=ch>=0;
+  $("sh-sym").textContent=sheetTk;
+  $("sh-name").textContent=s.n;
   $("sh-price").textContent="$"+fmt(p);
-  $("sh-chg").textContent=(ch>=0?"▲":"▼")+Math.abs(ch).toFixed(2)+"%";
-  $("sh-chg").style.color=ch>=0?"var(--green)":"var(--red)";
-  $("sh-held").textContent=held>0?`You own ${held}×`:"You own 0×";
-  $("sh-total").textContent=`Total: $${fmt(p*n)}`;
+  $("sh-chg").textContent=(up?"▲ ":"▼ ")+Math.abs(ch).toFixed(2)+"%";
+  $("sh-chg").style.color=up?"var(--green)":"var(--red)";
+  const b=$("sh-mode");
+  b.textContent=sheetMode==="sell"?"SELL":sheetMode==="buy"?"BUY":"TRADE";
+  b.style.background=sheetMode==="sell"?"#fee2e2":sheetMode==="buy"?"var(--blue3)":"var(--bg)";
+  b.style.color=sheetMode==="sell"?"#b91c1c":sheetMode==="buy"?"var(--blue)":"var(--text2)";
+  $("sh-held").textContent=`You own ${held}×`;
+  $("sh-total").textContent="$"+fmt(p*n);
   const tradable=liveSet.has(sheetTk)&&mktStatus()!=="weekend";
-  $("sh-buybtn").disabled=!tradable;
-  $("sh-sellbtn").disabled=!tradable||held===0;
-  $("sh-buybtn").textContent=tradable?`BUY ${n}×`:"🔒 LOCKED";
-  $("sh-sellbtn").textContent=held>0?`SELL ${Math.min(n,held)}×`:"SELL";
-  $("sh-buybtn").style.display=(sheetMode==="sell")?"none":"block";
-  $("sh-sellbtn").style.display=(sheetMode==="buy")?"none":"block";
-  const sp=sheetMode==="sell";
-  $("sh-sellbtn").style.background=sp?"var(--red)":"var(--white)";
-  $("sh-sellbtn").style.color=sp?"#fff":"var(--text)";
-  $("sh-sellbtn").style.border=sp?"none":"1px solid var(--border)";
+  const sellN=Math.min(n,held)||0;
+  let btns="";
+  if(sheetMode!=="sell")btns+=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:"🔒 Market closed"}</button>`;
+  if(sheetMode!=="buy")btns+=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:"Nothing to sell"}</button>`;
+  $("sheet-actions").innerHTML=btns;
 }
 async function sheetBuy(){
   if(!sheetTk)return;
-  const n=parseInt($("sheet-qty").value)||1;
-  $("sh-buybtn").disabled=true;$("sh-buybtn").textContent="...";
+  const n=Math.max(1,parseInt($("sheet-qty").value)||1);
+  $("sheet-actions").style.opacity=".55";
   const ok=await doBuy(sheetTk,n);
+  $("sheet-actions").style.opacity="1";
   sheetUpdate();
   if(ok)closeSheet();
 }
 async function sheetSell(){
   if(!sheetTk)return;
-  const n=parseInt($("sheet-qty").value)||1;
-  $("sh-sellbtn").disabled=true;$("sh-sellbtn").textContent="...";
+  const held=holdings[sheetTk]||0;
+  const n=Math.min(Math.max(1,parseInt($("sheet-qty").value)||1),held);
+  if(n<1)return;
+  $("sheet-actions").style.opacity=".55";
   const ok=await doSell(sheetTk,n);
+  $("sheet-actions").style.opacity="1";
   sheetUpdate();
   if(ok)closeSheet();
 }
@@ -2132,7 +2143,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-F";
+const APP_VERSION="v22.07-G";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
