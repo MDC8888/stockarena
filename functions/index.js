@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// STONK ARENA — server-authoritative game engine
+// STONK ARENA — CI deploy v2 — server-authoritative game engine
 // Trades are validated and executed HERE. The browser can no
 // longer invent prices, cash or returns.
 // ═══════════════════════════════════════════════════════════
