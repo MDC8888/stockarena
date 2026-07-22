@@ -367,8 +367,8 @@ svg.mc{flex-shrink:0}
       <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
       <span class="auth-logo-name">Stonk Arena</span>
     </div>
-    <h1 class="auth-heading" style="margin-bottom:4px">Choose your<br><em>language</em></h1>
-    <p class="auth-sub">Select a language to continue.</p>
+    <h1 class="auth-heading" style="margin-bottom:4px" data-i18n-html="ob1">Choose your<br><em>language</em></h1>
+    <p class="auth-sub" data-i18n="ob2">Select a language to continue.</p>
     <div class="rules-list" id="lang-list"></div>
   </div>
 </div>
@@ -380,10 +380,10 @@ svg.mc{flex-shrink:0}
       <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
       <span class="auth-logo-name">Stonk Arena</span>
     </div>
-    <h1 class="auth-heading" style="margin-bottom:4px" id="name-head">Choose your player name</h1>
-    <p class="auth-sub" id="name-sub">This name is shown on the leaderboard.</p>
-    <div class="form-group"><input type="text" class="form-input" id="name-input" maxlength="20" placeholder="Player name"></div>
-    <button class="btn-primary" id="name-btn" onclick="nameContinue()">Continue →</button>
+    <h1 class="auth-heading" style="margin-bottom:4px" id="name-head" data-i18n="nHead">Choose your player name</h1>
+    <p class="auth-sub" id="name-sub" data-i18n="nSub">This name is shown on the leaderboard.</p>
+    <div class="form-group"><input type="text" class="form-input" id="name-input" maxlength="20" placeholder="Player name" data-i18n-ph="nPh"></div>
+    <button class="btn-primary" id="name-btn" onclick="nameContinue()" data-i18n="cont">Continue →</button>
   </div>
 </div>
 
@@ -395,39 +395,39 @@ svg.mc{flex-shrink:0}
       <span class="auth-logo-name">Stonk Arena</span>
     </div>
     <div class="auth-toggle">
-      <button class="auth-toggle-btn active" id="toggle-login" onclick="showAuthMode('login')">Sign in</button>
-      <button class="auth-toggle-btn" id="toggle-signup" onclick="showAuthMode('signup')">Create account</button>
+      <button class="auth-toggle-btn active" id="toggle-login" onclick="showAuthMode('login')" data-i18n="aIn">Sign in</button>
+      <button class="auth-toggle-btn" id="toggle-signup" onclick="showAuthMode('signup')" data-i18n="aUp">Create account</button>
     </div>
     <div id="auth-login">
-      <h1 class="auth-heading">Welcome<br>back <em>trader</em></h1>
-      <p class="auth-sub">Sign in to continue your competition.</p>
-      <div class="prize-badge"><span class="prize-badge-icon">🏆</span><span class="prize-badge-text">Monthly winner takes <span class="prize-badge-amount">€100 cash</span></span></div>
+      <h1 class="auth-heading" data-i18n-html="aWelH">Welcome<br>back <em>trader</em></h1>
+      <p class="auth-sub" data-i18n="aWelS">Sign in to continue your competition.</p>
+      <div class="prize-badge"><span class="prize-badge-icon">🏆</span><span class="prize-badge-text" data-i18n-html="aPrize">Monthly winner takes <span class="prize-badge-amount">€100 cash</span></span></div>
       <div class="social-btns">
-        <button class="social-btn" onclick="authWith('google')"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg><span class="social-btn-text">Continue with Google</span></button>
-        <button class="social-btn" onclick="authWith('apple')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><span class="social-btn-text">Continue with Apple</span></button>
+        <button class="social-btn" onclick="authWith('google')"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg><span class="social-btn-text" data-i18n="aG">Continue with Google</span></button>
+        <button class="social-btn" onclick="authWith('apple')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><span class="social-btn-text" data-i18n="aA">Continue with Apple</span></button>
       </div>
-      <div class="divider"><div class="divider-line"></div><span class="divider-text">or</span><div class="divider-line"></div></div>
-      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="login-email" placeholder="you@example.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="login-pass" placeholder="••••••••"></div>
-      <button class="btn-primary" onclick="loginWithEmail()">Sign in</button>
-      <div class="auth-footer"><a href="#">Forgot password?</a> · By continuing you agree to our <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></div>
+      <div class="divider"><div class="divider-line"></div><span class="divider-text" data-i18n="aOr">or</span><div class="divider-line"></div></div>
+      <div class="form-group"><label class="form-label" data-i18n="aEmail">Email</label><input type="email" class="form-input" id="login-email" placeholder="you@example.com"></div>
+      <div class="form-group"><label class="form-label" data-i18n="aPass">Password</label><input type="password" class="form-input" id="login-pass" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="loginWithEmail()" data-i18n="aIn">Sign in</button>
+      <div class="auth-footer" data-i18n-html="aFootIn"><a href="#">Forgot password?</a> · By continuing you agree to our <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></div>
     </div>
     <div id="auth-signup" style="display:none">
-      <h1 class="auth-heading">Start trading.<br><em>Win monthly.</em></h1>
-      <p class="auth-sub">€10,000 virtual capital. Real competition. Real prize.</p>
-      <div class="prize-badge"><span class="prize-badge-icon">🏆</span><span class="prize-badge-text">Monthly winner takes <span class="prize-badge-amount">€100 cash</span></span></div>
-      <button class="signout-btn" style="margin:-16px 0 20px;display:block" onclick="showRules('auth')">📋 Read the rules first</button>
+      <h1 class="auth-heading" data-i18n-html="aStartH">Start trading.<br><em>Win monthly.</em></h1>
+      <p class="auth-sub" data-i18n="aStartS">€10,000 virtual capital. Real competition. Real prize.</p>
+      <div class="prize-badge"><span class="prize-badge-icon">🏆</span><span class="prize-badge-text" data-i18n-html="aPrize">Monthly winner takes <span class="prize-badge-amount">€100 cash</span></span></div>
+      <button class="signout-btn" style="margin:-16px 0 20px;display:block" onclick="showRules('auth')" data-i18n="aRules">📋 Read the rules first</button>
       <div class="social-btns">
-        <button class="social-btn" onclick="authWith('google')"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg><span class="social-btn-text">Sign up with Google</span></button>
-        <button class="social-btn" onclick="authWith('apple')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><span class="social-btn-text">Sign up with Apple</span></button>
+        <button class="social-btn" onclick="authWith('google')"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg><span class="social-btn-text" data-i18n="aGU">Sign up with Google</span></button>
+        <button class="social-btn" onclick="authWith('apple')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><span class="social-btn-text" data-i18n="aAU">Sign up with Apple</span></button>
       </div>
-      <div class="divider"><div class="divider-line"></div><span class="divider-text">or</span><div class="divider-line"></div></div>
-      <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="signup-name" placeholder="Your name"></div>
-      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="signup-email" placeholder="you@example.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="signup-pass" placeholder="Min. 8 characters"></div>
-      <div class="form-group"><label class="form-label">Confirm password</label><input type="password" class="form-input" id="signup-pass2" placeholder="Repeat password"></div>
-      <button class="btn-primary" onclick="signupWithEmail()">Create account</button>
-      <div class="auth-footer">By creating an account you agree to our <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></div>
+      <div class="divider"><div class="divider-line"></div><span class="divider-text" data-i18n="aOr">or</span><div class="divider-line"></div></div>
+      <div class="form-group"><label class="form-label" data-i18n="aName">Name</label><input type="text" class="form-input" id="signup-name" placeholder="Your name" data-i18n-ph="aPhName"></div>
+      <div class="form-group"><label class="form-label" data-i18n="aEmail">Email</label><input type="email" class="form-input" id="signup-email" placeholder="you@example.com"></div>
+      <div class="form-group"><label class="form-label" data-i18n="aPass">Password</label><input type="password" class="form-input" id="signup-pass" placeholder="Min. 8 characters" data-i18n-ph="aPh8"></div>
+      <div class="form-group"><label class="form-label" data-i18n="aPass2">Confirm password</label><input type="password" class="form-input" id="signup-pass2" placeholder="Repeat password" data-i18n-ph="aPhRep"></div>
+      <button class="btn-primary" onclick="signupWithEmail()" data-i18n="aUp">Create account</button>
+      <div class="auth-footer" data-i18n-html="aFootUp">By creating an account you agree to our <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></div>
     </div>
   </div>
 </div>
@@ -439,8 +439,8 @@ svg.mc{flex-shrink:0}
       <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
       <span class="auth-logo-name">Stonk Arena</span>
     </div>
-    <h1 class="auth-heading" style="margin-bottom:4px" id="rules-head">The rules</h1>
-    <p class="auth-sub" id="rules-sub">Six rules — all designed to keep the game fair.</p>
+    <h1 class="auth-heading" style="margin-bottom:4px" id="rules-head" data-i18n="rHead">The rules</h1>
+    <p class="auth-sub" id="rules-sub" data-i18n="rSub">Six rules — all designed to keep the game fair.</p>
     <div class="rules-list">
       <div class="rule-item"><div class="rule-icon">💰</div><div><div class="rule-title" id="r1t"></div><div class="rule-why" id="r1w"></div></div></div>
       <div class="rule-item"><div class="rule-icon">📊</div><div><div class="rule-title" id="r2t"></div><div class="rule-why" id="r2w"></div></div></div>
@@ -453,7 +453,7 @@ svg.mc{flex-shrink:0}
       <input type="checkbox" id="rules-accept" style="width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:var(--blue)" onchange="onAcceptChange()">
       <span style="font-size:13px;color:var(--text);line-height:1.4" id="rules-accept-lbl"></span>
     </label>
-    <button class="btn-primary" id="rules-btn" onclick="rulesContinue()">Continue →</button>
+    <button class="btn-primary" id="rules-btn" onclick="rulesContinue()" data-i18n="cont">Continue →</button>
   </div>
 </div>
 
@@ -461,11 +461,11 @@ svg.mc{flex-shrink:0}
 <div id="loading-screen" class="screen">
   <div class="load-card">
     <div class="load-logo"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
-    <div class="load-title">Loading markets</div>
+    <div class="load-title" data-i18n="ldT">Loading markets</div>
     <div class="load-sub" id="load-sub">Fetching live prices...</div>
     <div class="load-track"><div class="load-bar" id="load-bar" style="width:0%"></div></div>
     <div class="load-error" id="load-err" style="display:none"></div>
-    <button class="load-continue" id="load-cont" style="display:none" onclick="enterApp()">Continue anyway →</button>
+    <button class="load-continue" id="load-cont" style="display:none" onclick="enterApp()" data-i18n="ldC">Continue anyway →</button>
   </div>
 </div>
 
@@ -495,10 +495,10 @@ svg.mc{flex-shrink:0}
   <div class="app-content" id="app-content">
     <div class="panel active" id="panel-market">
       <div class="filter-row">
-        <input type="search" class="search-input" id="search-input" placeholder="Search..." oninput="onFilter()">
+        <input type="search" class="search-input" id="search-input" placeholder="Search..." data-i18n-ph="mSearch" oninput="onFilter()">
         <select class="filter-select" id="sector-sel" onchange="onFilter()"></select>
         <select class="filter-select" id="sort-sel" onchange="onFilter()">
-          <option value="pop" selected>🔥 Popular</option><option value="ticker">A–Z</option><option value="change">% Chg</option><option value="price">Price</option>
+          <option value="pop" selected data-i18n="sPop">🔥 Popular</option><option value="ticker">A–Z</option><option value="change" data-i18n="sChg">% Chg</option><option value="price" data-i18n="sPrice">Price</option>
         </select>
       </div>
       <div class="stock-list" id="stock-list"></div>
@@ -524,68 +524,68 @@ svg.mc{flex-shrink:0}
       <div class="prize-card">
         <div class="prize-card-label" id="lb-lbl">MONTHLY PRIZE</div>
         <div class="prize-card-amount">€<em>100</em></div>
-        <div class="prize-card-sub" id="lb-sub">Highest return wins</div>
+        <div class="prize-card-sub" id="lb-sub" data-i18n="lbSub">Highest return wins</div>
       </div>
       <div id="leader-list"></div>
       <div id="winners-card"></div>
       <div id="hof-card"></div>
       <div class="card" style="margin-top:12px">
-        <div class="card-header">🤝 TRUST & CONTACT</div>
+        <div class="card-header" data-i18n="tcHead">🤝 TRUST & CONTACT</div>
         <div style="padding:0 16px 16px;font-size:12.5px;color:var(--text2);line-height:1.8">
-          🏆 The monthly prize is paid via <b>SEPA bank transfer</b> within 14 days of verification — see <a href="terms.html" target="_blank" style="color:var(--blue)">Terms</a>.<br>
+          <span data-i18n-html="tcBody">🏆 The monthly prize is paid via <b>SEPA bank transfer</b> within 14 days of verification — see <a href="terms.html" target="_blank" style="color:var(--blue)">Terms</a>.<br>
           📊 Market data: Financial Modeling Prep &amp; Tiingo — real exchange prices, refreshed every few minutes.<br>
           🔒 Trades are validated server-side; the leaderboard cannot be manipulated.<br>
           ✉️ Questions or payouts: <a href="mailto:support@stonkarena.net" style="color:var(--blue)">support@stonkarena.net</a><br>
-          👤 Founder: <a href="mailto:mdc@stonkarena.net" style="color:var(--blue)">mdc@stonkarena.net</a>
+          👤 Founder: <a href="mailto:mdc@stonkarena.net" style="color:var(--blue)">mdc@stonkarena.net</a></span>
         </div>
       </div>
       <div class="invite-card">
-        <div class="invite-title">Invite friends to compete</div>
+        <div class="invite-title" data-i18n="invT">Invite friends to compete</div>
         <div class="invite-sub" id="lb-invite">Share your link and build the leaderboard.</div>
       </div>
       <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="btn-sell" style="flex:1;padding:11px;border-radius:10px" onclick="showRules('app')">📋 Rules</button>
-        <button class="btn-buy" style="flex:1;padding:11px;border-radius:10px" onclick="shareApp()">🔗 Invite friends</button>
+        <button class="btn-sell" style="flex:1;padding:11px;border-radius:10px" onclick="showRules('app')" data-i18n="btnRules">📋 Rules</button>
+        <button class="btn-buy" style="flex:1;padding:11px;border-radius:10px" onclick="shareApp()" data-i18n="btnInv">🔗 Invite friends</button>
       </div>
-      <button class="btn-buy" style="width:100%;padding:12px;border-radius:10px;margin-top:8px" onclick="shareCard()">📸 Share my result</button>
+      <button class="btn-buy" style="width:100%;padding:12px;border-radius:10px;margin-top:8px" onclick="shareCard()" data-i18n="btnShare">📸 Share my result</button>
     </div>
     <div class="panel" id="panel-learn">
-      <h1 class="auth-heading" style="font-size:24px;margin-bottom:4px">Learn <em>investing</em></h1>
-      <p class="auth-sub" style="margin-bottom:6px">Open a lesson to mark it complete.</p>
+      <h1 class="auth-heading" style="font-size:24px;margin-bottom:4px" data-i18n-html="lnH">Learn <em>investing</em></h1>
+      <p class="auth-sub" style="margin-bottom:6px" data-i18n="lnS">Open a lesson to mark it complete.</p>
       <div id="learn-overall" style="margin-bottom:16px"></div>
       <div id="learn-list"></div>
     </div>
     <div class="panel" id="panel-profile">
       <div class="card">
-        <div class="card-header">ACCOUNT</div>
+        <div class="card-header" data-i18n="prAcc">ACCOUNT</div>
         <div style="padding:0 16px 16px">
-          <label class="form-label">Player name</label>
+          <label class="form-label" data-i18n="prName">Player name</label>
           <div style="display:flex;gap:8px">
             <input type="text" class="form-input" id="prof-name" maxlength="20" style="flex:1">
-            <button class="btn-buy" style="padding:0 18px;border-radius:10px" onclick="profSaveName()">Save</button>
+            <button class="btn-buy" style="padding:0 18px;border-radius:10px" onclick="profSaveName()" data-i18n="prSave">Save</button>
           </div>
-          <div style="font-size:12px;color:var(--text3);margin-top:6px">Names are unique — if it's taken, pick another.</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:6px" data-i18n="prUniq">Names are unique — if it's taken, pick another.</div>
           <div style="font-size:12px;color:var(--text2);margin-top:12px" id="prof-email"></div>
           <div style="font-size:10px;color:var(--text3);margin-top:6px" id="prof-ver"></div>
-          <button class="btn-sell" style="margin-top:14px;width:100%;padding:12px;border-radius:10px" onclick="tutStart()">🎓 View tutorial again</button>
-          <button class="btn-sell" style="margin-top:10px;width:100%;padding:12px;border-radius:10px" onclick="plainSignOut()">Sign out</button>
+          <button class="btn-sell" style="margin-top:14px;width:100%;padding:12px;border-radius:10px" onclick="tutStart()" data-i18n="prTut">🎓 View tutorial again</button>
+          <button class="btn-sell" style="margin-top:10px;width:100%;padding:12px;border-radius:10px" onclick="plainSignOut()" data-i18n="prOut">Sign out</button>
         </div>
       </div>
       <div class="card">
-        <div class="card-header">SECURITY</div>
+        <div class="card-header" data-i18n="prSec">SECURITY</div>
         <div style="padding:0 16px 16px">
           <div class="rule-item" style="margin:0;align-items:flex-start">
             <div class="rule-icon">🔒</div>
-            <div style="flex:1"><div class="rule-title">Two-factor authentication</div>
+            <div style="flex:1"><div class="rule-title" data-i18n="prTfa">Two-factor authentication</div>
             <div id="tfa-area"></div></div>
           </div>
         </div>
       </div>
       <div class="card" style="border-color:#fecaca">
-        <div class="card-header" style="color:#991b1b">DANGER ZONE</div>
+        <div class="card-header" style="color:#991b1b" data-i18n="prDz">DANGER ZONE</div>
         <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px">
-          <button class="btn-sell" id="reset-btn" style="padding:12px;border-radius:10px" onclick="resetAccount()">Sign out & reset portfolio</button>
-          <button class="btn-sell" style="padding:12px;border-radius:10px;color:#991b1b;border-color:#fecaca" onclick="deleteAccount()">🗑️ Delete account permanently</button>
+          <button class="btn-sell" id="reset-btn" style="padding:12px;border-radius:10px" onclick="resetAccount()" data-i18n="prReset">Sign out & reset portfolio</button>
+          <button class="btn-sell" style="padding:12px;border-radius:10px;color:#991b1b;border-color:#fecaca" onclick="deleteAccount()" data-i18n="prDel">🗑️ Delete account permanently</button>
         </div>
       </div>
     </div>
@@ -618,7 +618,7 @@ svg.mc{flex-shrink:0}
       </div>
       <div class="sp-chartbox">
         <canvas id="sp-chart"></canvas>
-        <div id="sp-chart-load" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text3)">Loading chart…</div>
+        <div id="sp-chart-load" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text3)" data-i18n="spLoadC">Loading chart…</div>
       </div>
       <div style="display:flex;gap:6px;margin:12px 0 4px" id="sp-ranges">
         <button class="btn-sell" style="flex:1;padding:8px;border-radius:8px" onclick="spRange(1)">1Y</button>
@@ -634,10 +634,10 @@ svg.mc{flex-shrink:0}
         <div id="sp-c2" style="font-size:14px;font-weight:700">—</div>
       </div>
       <div class="sp-actions">
-        <button class="sp-sell" onclick="openSheet(spTk,'sell')">SELL</button>
-        <button class="sp-buy" onclick="openSheet(spTk,'buy')">BUY</button>
+        <button class="sp-sell" onclick="openSheet(spTk,'sell')" data-i18n="sell">SELL</button>
+        <button class="sp-buy" onclick="openSheet(spTk,'buy')" data-i18n="buy">BUY</button>
       </div>
-      <div class="card-header" style="padding-left:0">ABOUT</div>
+      <div class="card-header" style="padding-left:0" data-i18n="spAbout">ABOUT</div>
       <div class="sp-about" id="sp-about"></div>
     </div>
   </div>
@@ -646,8 +646,8 @@ svg.mc{flex-shrink:0}
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-toprow">
       <div class="sheet-seg">
-        <button id="seg-buy" onclick="sheetSetMode('buy')">BUY</button>
-        <button id="seg-sell" onclick="sheetSetMode('sell')">SELL</button>
+        <button id="seg-buy" onclick="sheetSetMode('buy')" data-i18n="buy">BUY</button>
+        <button id="seg-sell" onclick="sheetSetMode('sell')" data-i18n="sell">SELL</button>
       </div>
       <button class="sheet-x" onclick="closeSheet()">✕</button>
     </div>
@@ -660,7 +660,7 @@ svg.mc{flex-shrink:0}
       <input type="number" id="sheet-qty" value="1" min="1" inputmode="numeric" oninput="sheetUpdate()">
       <button class="qbtn" onclick="sheetStep(1)">+</button>
     </div>
-    <div class="sheet-meta"><span id="sh-held">—</span><span>Total: <b id="sh-total">—</b></span></div>
+    <div class="sheet-meta"><span id="sh-held">—</span><span><span data-i18n="shTotal">Total:</span> <b id="sh-total">—</b></span></div>
     <div id="sheet-actions" class="sheet-actions"></div>
   </div>
 </div>
@@ -703,7 +703,7 @@ svg.mc{flex-shrink:0}
     <div class="tut-text" id="tut-text">—</div>
     <div class="tut-dots" id="tut-dots"></div>
     <button class="tut-next" id="tut-next" onclick="tutNext()">Next →</button>
-    <button class="tut-skip" onclick="tutClose()">Skip tutorial</button>
+    <button class="tut-skip" onclick="tutClose()" data-i18n="tutSkip">Skip tutorial</button>
   </div>
 </div>
 <div id="toast"></div>
@@ -730,14 +730,32 @@ window.__mfa = { auth, onAuthStateChanged, multiFactor, TotpMultiFactorGenerator
 // ══ TRANSLATIONS ══
 const L={
   en:{f:"🇬🇧",l:"English",whyMoved:"WHY IT MOVED — RECENT YEARS",loadProf:"Loading full company profile…",nameTaken:"Name already taken",nameOnce:"You can change your name only once per month",hP:"PORTFOLIO",hR:"RETURN",hC:"CASH",hL:"LEFT",nM:"MARKET",nP:"PORTFOLIO",nLb:"RANKING",ptL1:"TOTAL",ptL2:"RETURN",ptL3:"CASH",ptPos:"OPEN POSITIONS",ptNoPos:"No positions yet. Go trade.",ptTr:"TRADE HISTORY",ptNoTr:"No trades yet.",lbLbl:"MONTHLY PRIZE",lbSub:"Highest return wins real life €100",dLeft:"days left",invite:"Share your link and build the leaderboard.",you:"YOU",trades:"trades",allSec:"All",noCash:"Insufficient cash",noShares:"Not enough shares",bought:"Bought",sold:"Sold",buy:"BUY",sell:"SELL",maxPos:"Max 30% per stock — diversify",qual:"Qualified",qualNeed:"trades to qualify",rHead:"The rules",rSub:"Six rules — designed to keep the game fair.",rAccept:"I accept the rules and will follow them",rCont:"Continue →",r1t:"€10,000 virtual capital",r1w:"Everyone starts equal. Skill decides, not budget.",r2t:"Max 30% per stock",r2w:"Forces diversification and prevents all-in gambling.",r3t:"Minimum 5 trades to qualify",r3w:"Active management wins — not one lucky bet.",r4t:"Highest return wins €100",r4w:"The competition resets every month.",r5t:"Real market prices",r5w:"Stocks & ETFs only, following the live market.",r6t:"Free to play",r6w:"No deposit, no stake, no risk.",nHead:"Choose your player name",nSub:"This name is shown on the leaderboard.",nPr:"PROFILE",nLn:"LEARN"},
-  nl:{f:"🇳🇱",l:"Nederlands",whyMoved:"WAAROM HET BEWOOG — AFGELOPEN JAREN",loadProf:"Volledig bedrijfsprofiel laden…",nameTaken:"Naam is al in gebruik",nameOnce:"Je kunt je naam maar één keer per maand veranderen",hP:"PORTFOLIO",hR:"RENDEMENT",hC:"CASH",hL:"NOG",nM:"MARKT",nP:"PORTFOLIO",nLb:"KLASSEMENT",ptL1:"TOTAAL",ptL2:"RENDEMENT",ptL3:"CASH",ptPos:"OPEN POSITIES",ptNoPos:"Nog geen posities.",ptTr:"TRADE HISTORY",ptNoTr:"Nog geen trades.",lbLbl:"MAANDPRIJS",lbSub:"Hoogste rendement wint €100 op je bankrekening",dLeft:"dagen resterend",invite:"Nodig vrienden uit om mee te doen.",you:"JIJ",trades:"trades",allSec:"Alle",noCash:"Onvoldoende cash",noShares:"Niet genoeg aandelen",bought:"Gekocht",sold:"Verkocht",buy:"KOOP",sell:"VERKOOP",maxPos:"Max 30% per aandeel — spreid je risico",qual:"Gekwalificeerd",qualNeed:"trades om te kwalificeren",rHead:"De regels",rSub:"Zes regels — voor een eerlijk spel.",rAccept:"Ik accepteer de regels en zal ze volgen",rCont:"Doorgaan →",r1t:"€10.000 virtueel kapitaal",r1w:"Iedereen start gelijk. Vaardigheid beslist, niet budget.",r2t:"Max 30% per aandeel",r2w:"Verplicht spreiden — geen alles-op-één gokken.",r3t:"Minimum 5 trades om te kwalificeren",r3w:"Actief beheer wint, geen geluksgok.",r4t:"Hoogste rendement wint €100",r4w:"De competitie herstart elke maand.",r5t:"Echte marktprijzen",r5w:"Enkel aandelen en ETF\u2019s, live markt.",r6t:"Gratis spelen",r6w:"Geen inleg, geen inzet, geen risico.",nHead:"Kies je spelersnaam",nSub:"Deze naam staat op het klassement.",nPr:"PROFIEL",nLn:"LEREN"},
+  nl:{f:"🇳🇱",l:"Nederlands",whyMoved:"WAAROM HET BEWOOG — AFGELOPEN JAREN",loadProf:"Volledig bedrijfsprofiel laden…",nameTaken:"Naam is al in gebruik",nameOnce:"Je kunt je naam maar één keer per maand veranderen",hP:"PORTFOLIO",hR:"RENDEMENT",hC:"CASH",hL:"NOG",nM:"MARKT",nP:"PORTFOLIO",nLb:"KLASSEMENT",ptL1:"TOTAAL",ptL2:"RENDEMENT",ptL3:"CASH",ptPos:"OPEN POSITIES",ptNoPos:"Nog geen posities.",ptTr:"TRADE HISTORY",ptNoTr:"Nog geen trades.",lbLbl:"MAANDPRIJS",lbSub:"Hoogste rendement wint €100 op je bankrekening",dLeft:"dagen resterend",invite:"Nodig vrienden uit om mee te doen.",you:"JIJ",trades:"trades",allSec:"Alle",noCash:"Onvoldoende cash",noShares:"Niet genoeg aandelen",bought:"Gekocht",sold:"Verkocht",buy:"KOOP",sell:"VERKOOP",maxPos:"Max 30% per aandeel — spreid je risico",qual:"Gekwalificeerd",qualNeed:"trades om te kwalificeren",rHead:"De regels",rSub:"Zes regels — voor een eerlijk spel.",rAccept:"Ik accepteer de regels en zal ze volgen",rCont:"Doorgaan →",r1t:"€10.000 virtueel kapitaal",r1w:"Iedereen start gelijk. Vaardigheid beslist, niet budget.",r2t:"Max 30% per aandeel",r2w:"Verplicht spreiden — geen alles-op-één gokken.",r3t:"Minimum 5 trades om te kwalificeren",r3w:"Actief beheer wint, geen geluksgok.",r4t:"Hoogste rendement wint €100",r4w:"De competitie herstart elke maand.",r5t:"Echte marktprijzen",r5w:"Enkel aandelen en ETF’s, live markt.",r6t:"Gratis spelen",r6w:"Geen inleg, geen inzet, geen risico.",nHead:"Kies je spelersnaam",nSub:"Deze naam staat op het klassement.",nPr:"PROFIEL",nLn:"LEREN"},
   de:{f:"🇩🇪",l:"Deutsch",whyMoved:"WARUM ES SICH BEWEGTE — LETZTE JAHRE",loadProf:"Vollständiges Firmenprofil wird geladen…",nameTaken:"Name bereits vergeben",nameOnce:"Du kannst deinen Namen nur einmal pro Monat ändern",hP:"PORTFOLIO",hR:"RENDITE",hC:"GUTHABEN",hL:"NOCH",nM:"MARKT",nP:"PORTFOLIO",nLb:"RANGLISTE",ptL1:"GESAMT",ptL2:"RENDITE",ptL3:"GUTHABEN",ptPos:"OFFENE POSITIONEN",ptNoPos:"Noch keine Positionen.",ptTr:"HANDELSHISTORIE",ptNoTr:"Noch keine Trades.",lbLbl:"MONATSPREIS",lbSub:"Höchste Rendite gewinnt",dLeft:"Tage verbleibend",invite:"Freunde einladen.",you:"DU",trades:"Trades",allSec:"Alle",noCash:"Nicht genug Guthaben",noShares:"Nicht genug Aktien",bought:"Gekauft",sold:"Verkauft",buy:"KAUFEN",sell:"VERKAUFEN",rHead:"Die Regeln",rSub:"Sechs Regeln — für ein faires Spiel.",rAccept:"Ich akzeptiere die Regeln und werde sie befolgen",rCont:"Weiter →",r1t:"€10.000 virtuelles Kapital",r1w:"Alle starten gleich. Können entscheidet, nicht Budget.",r2t:"Max. 30% pro Aktie",r2w:"Erzwingt Diversifikation, verhindert Zocken.",r3t:"Mindestens 5 Trades zur Qualifikation",r3w:"Aktives Management gewinnt, kein Glücksspiel.",r4t:"Höchste Rendite gewinnt €100",r4w:"Der Wettbewerb startet jeden Monat neu.",r5t:"Echte Marktpreise",r5w:"Nur Aktien & ETFs, Live-Markt.",r6t:"Kostenlos spielen",r6w:"Keine Einzahlung, kein Einsatz, kein Risiko.",nHead:"Wähle deinen Spielernamen",nSub:"Dieser Name erscheint in der Rangliste."},
-  fr:{f:"🇫🇷",l:"Français",whyMoved:"POURQUOI ÇA A BOUGÉ — DERNIÈRES ANNÉES",loadProf:"Chargement du profil complet…",nameTaken:"Nom déjà pris",nameOnce:"Vous ne pouvez changer de nom qu’une fois par mois",hP:"PORTEFEUILLE",hR:"RENDEMENT",hC:"LIQUIDITÉS",hL:"RESTE",nM:"MARCHÉ",nP:"PORTEFEUILLE",nLb:"CLASSEMENT",ptL1:"TOTAL",ptL2:"RENDEMENT",ptL3:"LIQUIDITÉS",ptPos:"POSITIONS OUVERTES",ptNoPos:"Aucune position.",ptTr:"HISTORIQUE",ptNoTr:"Aucune transaction.",lbLbl:"PRIX MENSUEL",lbSub:"Meilleur rendement gagne",dLeft:"jours restants",invite:"Invitez des amis.",you:"VOUS",trades:"trades",allSec:"Tous",noCash:"Liquidités insuffisantes",noShares:"Pas assez d'actions",bought:"Acheté",sold:"Vendu",buy:"ACHETER",sell:"VENDRE",rHead:"Les règles",rSub:"Six règles — pour un jeu équitable.",rAccept:"J\u2019accepte les règles et je les suivrai",rCont:"Continuer →",r1t:"10 000 € de capital virtuel",r1w:"Tout le monde part à égalité. Le talent décide.",r2t:"Max 30% par action",r2w:"Force la diversification, empêche le tout-ou-rien.",r3t:"Minimum 5 transactions pour se qualifier",r3w:"La gestion active gagne, pas un pari chanceux.",r4t:"Le meilleur rendement gagne 100 €",r4w:"La compétition recommence chaque mois.",r5t:"Prix de marché réels",r5w:"Actions et ETF uniquement, marché en direct.",r6t:"Gratuit",r6w:"Pas de dépôt, pas de mise, pas de risque.",nHead:"Choisis ton nom de joueur",nSub:"Ce nom apparaît au classement."},
+  fr:{f:"🇫🇷",l:"Français",whyMoved:"POURQUOI ÇA A BOUGÉ — DERNIÈRES ANNÉES",loadProf:"Chargement du profil complet…",nameTaken:"Nom déjà pris",nameOnce:"Vous ne pouvez changer de nom qu’une fois par mois",hP:"PORTEFEUILLE",hR:"RENDEMENT",hC:"LIQUIDITÉS",hL:"RESTE",nM:"MARCHÉ",nP:"PORTEFEUILLE",nLb:"CLASSEMENT",ptL1:"TOTAL",ptL2:"RENDEMENT",ptL3:"LIQUIDITÉS",ptPos:"POSITIONS OUVERTES",ptNoPos:"Aucune position.",ptTr:"HISTORIQUE",ptNoTr:"Aucune transaction.",lbLbl:"PRIX MENSUEL",lbSub:"Meilleur rendement gagne",dLeft:"jours restants",invite:"Invitez des amis.",you:"VOUS",trades:"trades",allSec:"Tous",noCash:"Liquidités insuffisantes",noShares:"Pas assez d'actions",bought:"Acheté",sold:"Vendu",buy:"ACHETER",sell:"VENDRE",rHead:"Les règles",rSub:"Six règles — pour un jeu équitable.",rAccept:"J’accepte les règles et je les suivrai",rCont:"Continuer →",r1t:"10 000 € de capital virtuel",r1w:"Tout le monde part à égalité. Le talent décide.",r2t:"Max 30% par action",r2w:"Force la diversification, empêche le tout-ou-rien.",r3t:"Minimum 5 transactions pour se qualifier",r3w:"La gestion active gagne, pas un pari chanceux.",r4t:"Le meilleur rendement gagne 100 €",r4w:"La compétition recommence chaque mois.",r5t:"Prix de marché réels",r5w:"Actions et ETF uniquement, marché en direct.",r6t:"Gratuit",r6w:"Pas de dépôt, pas de mise, pas de risque.",nHead:"Choisis ton nom de joueur",nSub:"Ce nom apparaît au classement."},
   es:{f:"🇪🇸",l:"Español",whyMoved:"POR QUÉ SE MOVIÓ — ÚLTIMOS AÑOS",loadProf:"Cargando perfil completo…",nameTaken:"Nombre ya en uso",nameOnce:"Solo puedes cambiar tu nombre una vez al mes",hP:"CARTERA",hR:"RENTABILIDAD",hC:"EFECTIVO",hL:"QUEDAN",nM:"MERCADO",nP:"CARTERA",nLb:"CLASIFICACIÓN",ptL1:"TOTAL",ptL2:"RENTABILIDAD",ptL3:"EFECTIVO",ptPos:"POSICIONES ABIERTAS",ptNoPos:"Sin posiciones.",ptTr:"HISTORIAL",ptNoTr:"Sin operaciones.",lbLbl:"PREMIO MENSUAL",lbSub:"Mayor rentabilidad gana",dLeft:"días restantes",invite:"Invita amigos.",you:"TÚ",trades:"ops",allSec:"Todos",noCash:"Efectivo insuficiente",noShares:"No hay suficientes acciones",bought:"Comprado",sold:"Vendido",buy:"COMPRAR",sell:"VENDER",rHead:"Las reglas",rSub:"Seis reglas — para un juego justo.",rAccept:"Acepto las reglas y las seguiré",rCont:"Continuar →",r1t:"€10.000 de capital virtual",r1w:"Todos empiezan igual. La habilidad decide.",r2t:"Máx 30% por acción",r2w:"Obliga a diversificar, evita apostarlo todo.",r3t:"Mínimo 5 operaciones para calificar",r3w:"La gestión activa gana, no una apuesta.",r4t:"El mayor retorno gana €100",r4w:"La competición se reinicia cada mes.",r5t:"Precios de mercado reales",r5w:"Solo acciones y ETFs, mercado en vivo.",r6t:"Gratis",r6w:"Sin depósito, sin apuesta, sin riesgo.",nHead:"Elige tu nombre de jugador",nSub:"Este nombre aparece en la clasificación."},
   pt:{f:"🇵🇹",l:"Português",whyMoved:"PORQUE SE MOVEU — ÚLTIMOS ANOS",loadProf:"A carregar o perfil completo…",nameTaken:"Nome já em uso",nameOnce:"Só podes mudar o nome uma vez por mês",hP:"CARTEIRA",hR:"RETORNO",hC:"SALDO",hL:"FALTA",nM:"MERCADO",nP:"CARTEIRA",nLb:"CLASSIFICAÇÃO",ptL1:"TOTAL",ptL2:"RETORNO",ptL3:"SALDO",ptPos:"POSIÇÕES ABERTAS",ptNoPos:"Sem posições.",ptTr:"HISTÓRICO",ptNoTr:"Sem negociações.",lbLbl:"PRÊMIO MENSAL",lbSub:"Maior retorno vence",dLeft:"dias restantes",invite:"Convide amigos.",you:"VOCÊ",trades:"neg.",allSec:"Todos",noCash:"Saldo insuficiente",noShares:"Ações insuficientes",bought:"Comprado",sold:"Vendido",buy:"COMPRAR",sell:"VENDER",rHead:"As regras",rSub:"Seis regras — para um jogo justo.",rAccept:"Aceito as regras e vou segui-las",rCont:"Continuar →",r1t:"€10.000 de capital virtual",r1w:"Todos começam iguais. A habilidade decide.",r2t:"Máx 30% por ação",r2w:"Obriga a diversificar, evita apostar tudo.",r3t:"Mínimo 5 negociações para qualificar",r3w:"A gestão ativa vence, não uma aposta.",r4t:"O maior retorno ganha €100",r4w:"A competição reinicia todo mês.",r5t:"Preços reais de mercado",r5w:"Apenas ações e ETFs, mercado ao vivo.",r6t:"Grátis",r6w:"Sem depósito, sem aposta, sem risco.",nHead:"Escolha seu nome de jogador",nSub:"Este nome aparece na classificação."},
   pl:{f:"🇵🇱",l:"Polski",whyMoved:"DLACZEGO SIĘ ZMIENIAŁ — OSTATNIE LATA",loadProf:"Wczytywanie pełnego profilu…",nameTaken:"Nazwa jest już zajęta",nameOnce:"Nazwę możesz zmienić tylko raz w miesiącu",hP:"PORTFEL",hR:"ZWROT",hC:"GOTÓWKA",hL:"ZOSTAŁO",nM:"RYNEK",nP:"PORTFEL",nLb:"RANKING",ptL1:"ŁĄCZNIE",ptL2:"ZWROT",ptL3:"GOTÓWKA",ptPos:"OTWARTE POZYCJE",ptNoPos:"Brak pozycji.",ptTr:"HISTORIA",ptNoTr:"Brak transakcji.",lbLbl:"NAGRODA MIESIĘCZNA",lbSub:"Najwyższy zwrot wygrywa",dLeft:"dni pozostało",invite:"Zaproś znajomych.",you:"TY",trades:"transakcji",allSec:"Wszystkie",noCash:"Brak środków",noShares:"Za mało akcji",bought:"Kupiono",sold:"Sprzedano",buy:"KUP",sell:"SPRZEDAJ",rHead:"Zasady",rSub:"Sześć zasad — dla uczciwej gry.",rAccept:"Akceptuję zasady i będę ich przestrzegać",rCont:"Dalej →",r1t:"€10.000 wirtualnego kapitału",r1w:"Wszyscy zaczynają równo. Umiejętności decydują.",r2t:"Maks. 30% na akcję",r2w:"Wymusza dywersyfikację, zapobiega hazardowi.",r3t:"Minimum 5 transakcji do kwalifikacji",r3w:"Aktywne zarządzanie wygrywa, nie hazard.",r4t:"Najwyższy zwrot wygrywa €100",r4w:"Konkurs resetuje się co miesiąc.",r5t:"Prawdziwe ceny rynkowe",r5w:"Tylko akcje i ETF-y, rynek na żywo.",r6t:"Gra za darmo",r6w:"Bez depozytu, bez stawki, bez ryzyka.",nHead:"Wybierz nazwę gracza",nSub:"Ta nazwa pojawi się w rankingu."},
-  it:{f:"🇮🇹",l:"Italiano",whyMoved:"PERCHÉ SI È MOSSO — ULTIMI ANNI",loadProf:"Caricamento del profilo completo…",nameTaken:"Nome già in uso",nameOnce:"Puoi cambiare nome solo una volta al mese",hP:"PORTAFOGLIO",hR:"RENDIMENTO",hC:"CONTANTI",hL:"RIMANE",nM:"MERCATO",nP:"PORTAFOGLIO",nLb:"CLASSIFICA",ptL1:"TOTALE",ptL2:"RENDIMENTO",ptL3:"CONTANTI",ptPos:"POSIZIONI APERTE",ptNoPos:"Nessuna posizione.",ptTr:"STORICO",ptNoTr:"Nessuna operazione.",lbLbl:"PREMIO MENSILE",lbSub:"Il rendimento più alto vince",dLeft:"giorni rimanenti",invite:"Invita amici.",you:"TU",trades:"op.",allSec:"Tutti",noCash:"Contanti insufficienti",noShares:"Azioni insufficienti",bought:"Acquistato",sold:"Venduto",buy:"COMPRA",sell:"VENDI",rHead:"Le regole",rSub:"Sei regole — per un gioco corretto.",rAccept:"Accetto le regole e le seguirò",rCont:"Continua →",r1t:"€10.000 di capitale virtuale",r1w:"Tutti partono uguali. L\u2019abilità decide.",r2t:"Max 30% per azione",r2w:"Obbliga a diversificare, evita l\u2019azzardo.",r3t:"Minimo 5 operazioni per qualificarsi",r3w:"La gestione attiva vince, non l\u2019azzardo.",r4t:"Il rendimento più alto vince €100",r4w:"La competizione riparte ogni mese.",r5t:"Prezzi di mercato reali",r5w:"Solo azioni ed ETF, mercato live.",r6t:"Gratis",r6w:"Nessun deposito, nessuna puntata, nessun rischio.",nHead:"Scegli il tuo nome giocatore",nSub:"Questo nome appare in classifica."},
+  it:{f:"🇮🇹",l:"Italiano",whyMoved:"PERCHÉ SI È MOSSO — ULTIMI ANNI",loadProf:"Caricamento del profilo completo…",nameTaken:"Nome già in uso",nameOnce:"Puoi cambiare nome solo una volta al mese",hP:"PORTAFOGLIO",hR:"RENDIMENTO",hC:"CONTANTI",hL:"RIMANE",nM:"MERCATO",nP:"PORTAFOGLIO",nLb:"CLASSIFICA",ptL1:"TOTALE",ptL2:"RENDIMENTO",ptL3:"CONTANTI",ptPos:"POSIZIONI APERTE",ptNoPos:"Nessuna posizione.",ptTr:"STORICO",ptNoTr:"Nessuna operazione.",lbLbl:"PREMIO MENSILE",lbSub:"Il rendimento più alto vince",dLeft:"giorni rimanenti",invite:"Invita amici.",you:"TU",trades:"op.",allSec:"Tutti",noCash:"Contanti insufficienti",noShares:"Azioni insufficienti",bought:"Acquistato",sold:"Venduto",buy:"COMPRA",sell:"VENDI",rHead:"Le regole",rSub:"Sei regole — per un gioco corretto.",rAccept:"Accetto le regole e le seguirò",rCont:"Continua →",r1t:"€10.000 di capitale virtuale",r1w:"Tutti partono uguali. L’abilità decide.",r2t:"Max 30% per azione",r2w:"Obbliga a diversificare, evita l’azzardo.",r3t:"Minimo 5 operazioni per qualificarsi",r3w:"La gestione attiva vince, non l’azzardo.",r4t:"Il rendimento più alto vince €100",r4w:"La competizione riparte ogni mese.",r5t:"Prezzi di mercato reali",r5w:"Solo azioni ed ETF, mercato live.",r6t:"Gratis",r6w:"Nessun deposito, nessuna puntata, nessun rischio.",nHead:"Scegli il tuo nome giocatore",nSub:"Questo nome appare in classifica."},
 };
+// ── extended UI translations (part 1) ──
+Object.assign(L.en,{"ob1":"Choose your<br><em>language</em>","ob2":"Select a language to continue.","nPh":"Player name","cont":"Continue →","aIn":"Sign in","aUp":"Create account","aWelH":"Welcome<br>back <em>trader</em>","aWelS":"Sign in to continue your competition.","aPrize":"Monthly winner takes <span class=\"prize-badge-amount\">€100 cash</span>","aG":"Continue with Google","aA":"Continue with Apple","aGU":"Sign up with Google","aAU":"Sign up with Apple","aOr":"or","aEmail":"Email","aPass":"Password","aName":"Name","aPass2":"Confirm password","aFootIn":"<a href=\"#\">Forgot password?</a> · By continuing you agree to our <a href=\"terms.html\" target=\"_blank\">Terms</a> and <a href=\"privacy.html\" target=\"_blank\">Privacy Policy</a>","aFootUp":"By creating an account you agree to our <a href=\"terms.html\" target=\"_blank\">Terms of Service</a> and <a href=\"privacy.html\" target=\"_blank\">Privacy Policy</a>","aStartH":"Start trading.<br><em>Win monthly.</em>","aStartS":"€10,000 virtual capital. Real competition. Real prize.","aRules":"📋 Read the rules first","aPhName":"Your name","aPh8":"Min. 8 characters","aPhRep":"Repeat password","ldT":"Loading markets","ldC":"Continue anyway →","mSearch":"Search...","sPop":"🔥 Popular","sChg":"% Chg","sPrice":"Price","bLoad":"⏳ LOADING","bLive":"LIVE","bClosed":"CLOSED","bOpen":"OPEN","bWknd":"WEEKEND","bPre":"PRE","bAfter":"AFTER","tcHead":"🤝 TRUST & CONTACT","tcBody":"🏆 The monthly prize is paid via <b>SEPA bank transfer</b> within 14 days of verification — see <a href=\"terms.html\" target=\"_blank\" style=\"color:var(--blue)\">Terms</a>.<br>📊 Market data: Financial Modeling Prep &amp; Tiingo — real exchange prices, refreshed every few minutes.<br>🔒 Trades are validated server-side; the leaderboard cannot be manipulated.<br>✉️ Questions or payouts: <a href=\"mailto:support@stonkarena.net\" style=\"color:var(--blue)\">support@stonkarena.net</a><br>👤 Founder: <a href=\"mailto:mdc@stonkarena.net\" style=\"color:var(--blue)\">mdc@stonkarena.net</a>","invT":"Invite friends to compete","btnRules":"📋 Rules","btnInv":"🔗 Invite friends","btnShare":"📸 Share my result","lnH":"Learn <em>investing</em>","lnS":"Open a lesson to mark it complete.","lnOverall":"Overall progress","lnLessons":"lessons","lnOverview":"Overview","lnBack":"Back","lnFinish":"Finish module ✓","lnNext":"Next →","lnDone":"complete!","prAcc":"ACCOUNT","prName":"Player name","prSave":"Save","prUniq":"Names are unique — if it's taken, pick another.","prTut":"🎓 View tutorial again","prOut":"Sign out","prSec":"SECURITY","prTfa":"Two-factor authentication","prDz":"DANGER ZONE","prReset":"Sign out & reset portfolio","prDel":"🗑️ Delete account permanently","prSignedAs":"Signed in as:","prLocal":"Local demo account","spLoadC":"Loading chart…","spAbout":"ABOUT","stHi":"52W HIGH","stLo":"52W LOW","stSec":"SECTOR","stEx":"EXCHANGE","stSince":"LISTED SINCE","spUnav":"Chart & profile unavailable for this instrument.","spNoDesc":"No description available.","shTotal":"Total:","shOwn":"You own","shClosed":"🔒 Market closed","shLoadPx":"⏳ Loading live price...","shNone":"You own 0 shares — nothing to sell","toWknd":"📅 Weekend — trading resumes Monday","toClosed":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","toWait":"⏳ Waiting for live price...","toMonth":"🗓️ New month — fresh €10,000!","toNameFail":"Could not change name — try again","toNameUse":"Name in use — you are","toDel":"Account deleted","toDelFail":"Delete failed — try again","toSrv":"Server error — try again","toCopied":"Link copied","cfDel":"Permanently delete your account and all data? This cannot be undone.","shareTxt":"Trade virtual stocks. Win €100 every month.","wWin":"winner","wPrev":"PREVIOUS WINNERS","wHof":"HALL OF FAME — MOST WINS","tutT":"Welcome to Stonk Arena","tutX":"Everyone starts with €10,000 virtual capital at real market prices. Highest return this month wins €100 REAL-LIFE cash — paid to your bank account, not in-game money. Let me show you around the app itself.","tutGo":"Show me around →","tourGo":"Start trading 🚀","tourNext":"Next →","tutSkip":"Skip tutorial","tour1t":"Tap any stock 👇","tour1x":"Opens the full stock page: a 10-year chart with hover prices, key stats, what the company does and why it moved.","tour2t":"Trade safely 👇","tour2x":"BUY and SELL always open a confirmation panel first — pick the amount, see the total, then confirm. Max 30% per stock keeps it fair.","tour3t":"Your portfolio 👆","tour3x":"Your positions, cash and full trade history live here.","tour4t":"The ranking 👆","tour4x":"The live leaderboard. Make at least 5 trades to qualify — highest return wins real life €100, paid to your bank account. The competition restarts every month, so everyone gets a fresh shot.","tour5t":"Learn & track progress 👆","tour5x":"Short courses with progress bars — from the absolute basics to value investing."});
+Object.assign(L.nl,{"ob1":"Kies je<br><em>taal</em>","ob2":"Selecteer een taal om verder te gaan.","nPh":"Spelersnaam","cont":"Doorgaan →","aIn":"Inloggen","aUp":"Account aanmaken","aWelH":"Welkom<br>terug <em>trader</em>","aWelS":"Log in en zet je competitie verder.","aPrize":"Maandwinnaar krijgt <span class=\"prize-badge-amount\">€100 cash</span>","aG":"Doorgaan met Google","aA":"Doorgaan met Apple","aGU":"Registreren met Google","aAU":"Registreren met Apple","aOr":"of","aEmail":"E-mail","aPass":"Wachtwoord","aName":"Naam","aPass2":"Bevestig wachtwoord","aFootIn":"<a href=\"#\">Wachtwoord vergeten?</a> · Door verder te gaan aanvaard je onze <a href=\"terms.html\" target=\"_blank\">Voorwaarden</a> en ons <a href=\"privacy.html\" target=\"_blank\">Privacybeleid</a>","aFootUp":"Door een account aan te maken aanvaard je onze <a href=\"terms.html\" target=\"_blank\">Gebruiksvoorwaarden</a> en ons <a href=\"privacy.html\" target=\"_blank\">Privacybeleid</a>","aStartH":"Begin met traden.<br><em>Win elke maand.</em>","aStartS":"€10.000 virtueel kapitaal. Echte competitie. Echte prijs.","aRules":"📋 Lees eerst de regels","aPhName":"Je naam","aPh8":"Min. 8 tekens","aPhRep":"Herhaal wachtwoord","ldT":"Markten laden","ldC":"Toch doorgaan →","mSearch":"Zoeken...","sPop":"🔥 Populair","sChg":"% Verschil","sPrice":"Prijs","bLoad":"⏳ LADEN","bLive":"LIVE","bClosed":"GESLOTEN","bOpen":"OPEN","bWknd":"WEEKEND","bPre":"VOORBEURS","bAfter":"NABEURS","tcHead":"🤝 VERTROUWEN & CONTACT","tcBody":"🏆 De maandprijs wordt uitbetaald via <b>SEPA-overschrijving</b> binnen 14 dagen na verificatie — zie <a href=\"terms.html\" target=\"_blank\" style=\"color:var(--blue)\">Voorwaarden</a>.<br>📊 Marktdata: Financial Modeling Prep &amp; Tiingo — echte beurskoersen, elke paar minuten ververst.<br>🔒 Trades worden server-side gevalideerd; het klassement kan niet gemanipuleerd worden.<br>✉️ Vragen of uitbetalingen: <a href=\"mailto:support@stonkarena.net\" style=\"color:var(--blue)\">support@stonkarena.net</a><br>👤 Oprichter: <a href=\"mailto:mdc@stonkarena.net\" style=\"color:var(--blue)\">mdc@stonkarena.net</a>","invT":"Nodig vrienden uit","btnRules":"📋 Regels","btnInv":"🔗 Vrienden uitnodigen","btnShare":"📸 Deel mijn resultaat","lnH":"Leer <em>beleggen</em>","lnS":"Open een les om ze als voltooid te markeren.","lnOverall":"Totale voortgang","lnLessons":"lessen","lnOverview":"Overzicht","lnBack":"Terug","lnFinish":"Module afronden ✓","lnNext":"Volgende →","lnDone":"voltooid!","prAcc":"ACCOUNT","prName":"Spelersnaam","prSave":"Opslaan","prUniq":"Namen zijn uniek — is hij bezet, kies dan een andere.","prTut":"🎓 Bekijk tutorial opnieuw","prOut":"Uitloggen","prSec":"BEVEILIGING","prTfa":"Tweestapsverificatie","prDz":"GEVARENZONE","prReset":"Uitloggen & portefeuille resetten","prDel":"🗑️ Account permanent verwijderen","prSignedAs":"Ingelogd als:","prLocal":"Lokaal demo-account","spLoadC":"Grafiek laden…","spAbout":"OVER","stHi":"52W HOOG","stLo":"52W LAAG","stSec":"SECTOR","stEx":"BEURS","stSince":"GENOTEERD SINDS","spUnav":"Grafiek & profiel niet beschikbaar voor dit instrument.","spNoDesc":"Geen beschrijving beschikbaar.","shTotal":"Totaal:","shOwn":"Je bezit","shClosed":"🔒 Markt gesloten","shLoadPx":"⏳ Live prijs laden...","shNone":"Je bezit 0 aandelen — niets te verkopen","toWknd":"📅 Weekend — handelen kan weer op maandag","toClosed":"🕐 Markt gesloten — handelen kan 15:30–22:00 (ma–vr)","toWait":"⏳ Wachten op live prijs...","toMonth":"🗓️ Nieuwe maand — verse €10.000!","toNameFail":"Naam wijzigen mislukt — probeer opnieuw","toNameUse":"Naam bezet — je heet","toDel":"Account verwijderd","toDelFail":"Verwijderen mislukt — probeer opnieuw","toSrv":"Serverfout — probeer opnieuw","toCopied":"Link gekopieerd","cfDel":"Je account en alle gegevens permanent verwijderen? Dit kan niet ongedaan worden gemaakt.","shareTxt":"Handel in virtuele aandelen. Win elke maand €100.","wWin":"keer winnaar","wPrev":"VORIGE WINNAARS","wHof":"HALL OF FAME — MEESTE OVERWINNINGEN","tutT":"Welkom bij Stonk Arena","tutX":"Iedereen start met €10.000 virtueel kapitaal tegen echte beurskoersen. Het hoogste rendement deze maand wint €100 ÉCHT geld — uitbetaald op je bankrekening, geen spelgeld. Ik geef je een rondleiding door de app.","tutGo":"Leid me rond →","tourGo":"Begin met traden 🚀","tourNext":"Volgende →","tutSkip":"Tutorial overslaan","tour1t":"Tik op een aandeel 👇","tour1x":"Opent de volledige aandelenpagina: een grafiek van 10 jaar met hover-prijzen, kerncijfers, wat het bedrijf doet en waarom het bewoog.","tour2t":"Veilig handelen 👇","tour2x":"KOOP en VERKOOP openen altijd eerst een bevestigingspaneel — kies het aantal, zie het totaal en bevestig dan. Max 30% per aandeel houdt het eerlijk.","tour3t":"Je portefeuille 👆","tour3x":"Je posities, cash en volledige handelshistoriek vind je hier.","tour4t":"Het klassement 👆","tour4x":"Het live klassement. Doe minstens 5 trades om mee te dingen — het hoogste rendement wint €100 écht geld, uitbetaald op je bankrekening. De competitie herstart elke maand, dus iedereen krijgt een nieuwe kans.","tour5t":"Leren & voortgang 👆","tour5x":"Korte cursussen met voortgangsbalken — van de absolute basis tot waardebeleggen.","buy":"KOOP","sell":"VERKOOP"});
+Object.assign(L.de,{"ob1":"Wähle deine<br><em>Sprache</em>","ob2":"Wähle eine Sprache, um fortzufahren.","nPh":"Spielername","cont":"Weiter →","aIn":"Anmelden","aUp":"Konto erstellen","aWelH":"Willkommen<br>zurück, <em>Trader</em>","aWelS":"Melde dich an und setze deinen Wettbewerb fort.","aPrize":"Monatssieger erhält <span class=\"prize-badge-amount\">€100 in bar</span>","aG":"Weiter mit Google","aA":"Weiter mit Apple","aGU":"Registrieren mit Google","aAU":"Registrieren mit Apple","aOr":"oder","aEmail":"E-Mail","aPass":"Passwort","aName":"Name","aPass2":"Passwort bestätigen","aFootIn":"<a href=\"#\">Passwort vergessen?</a> · Mit dem Fortfahren akzeptierst du unsere <a href=\"terms.html\" target=\"_blank\">AGB</a> und <a href=\"privacy.html\" target=\"_blank\">Datenschutzerklärung</a>","aFootUp":"Mit der Kontoerstellung akzeptierst du unsere <a href=\"terms.html\" target=\"_blank\">AGB</a> und <a href=\"privacy.html\" target=\"_blank\">Datenschutzerklärung</a>","aStartH":"Beginne zu traden.<br><em>Gewinne monatlich.</em>","aStartS":"€10.000 virtuelles Kapital. Echter Wettbewerb. Echter Preis.","aRules":"📋 Lies zuerst die Regeln","aPhName":"Dein Name","aPh8":"Min. 8 Zeichen","aPhRep":"Passwort wiederholen","ldT":"Märkte werden geladen","ldC":"Trotzdem fortfahren →","mSearch":"Suchen...","sPop":"🔥 Beliebt","sChg":"% Änd.","sPrice":"Preis","bLoad":"⏳ LÄDT","bLive":"LIVE","bClosed":"GESCHLOSSEN","bOpen":"OFFEN","bWknd":"WOCHENENDE","bPre":"VORBÖRSE","bAfter":"NACHBÖRSE","tcHead":"🤝 VERTRAUEN & KONTAKT","tcBody":"🏆 Der Monatspreis wird per <b>SEPA-Überweisung</b> innerhalb von 14 Tagen nach Verifizierung ausgezahlt — siehe <a href=\"terms.html\" target=\"_blank\" style=\"color:var(--blue)\">AGB</a>.<br>📊 Marktdaten: Financial Modeling Prep &amp; Tiingo — echte Börsenkurse, alle paar Minuten aktualisiert.<br>🔒 Trades werden serverseitig validiert; die Rangliste kann nicht manipuliert werden.<br>✉️ Fragen oder Auszahlungen: <a href=\"mailto:support@stonkarena.net\" style=\"color:var(--blue)\">support@stonkarena.net</a><br>👤 Gründer: <a href=\"mailto:mdc@stonkarena.net\" style=\"color:var(--blue)\">mdc@stonkarena.net</a>","invT":"Lade Freunde ein","btnRules":"📋 Regeln","btnInv":"🔗 Freunde einladen","btnShare":"📸 Mein Ergebnis teilen","lnH":"Lerne <em>investieren</em>","lnS":"Öffne eine Lektion, um sie abzuschließen.","lnOverall":"Gesamtfortschritt","lnLessons":"Lektionen","lnOverview":"Übersicht","lnBack":"Zurück","lnFinish":"Modul abschließen ✓","lnNext":"Weiter →","lnDone":"abgeschlossen!","prAcc":"KONTO","prName":"Spielername","prSave":"Speichern","prUniq":"Namen sind einzigartig — ist er vergeben, wähle einen anderen.","prTut":"🎓 Tutorial erneut ansehen","prOut":"Abmelden","prSec":"SICHERHEIT","prTfa":"Zwei-Faktor-Authentifizierung","prDz":"GEFAHRENZONE","prReset":"Abmelden & Portfolio zurücksetzen","prDel":"🗑️ Konto dauerhaft löschen","prSignedAs":"Angemeldet als:","prLocal":"Lokales Demokonto","spLoadC":"Chart wird geladen…","spAbout":"ÜBER","stHi":"52W HOCH","stLo":"52W TIEF","stSec":"SEKTOR","stEx":"BÖRSE","stSince":"NOTIERT SEIT","spUnav":"Chart & Profil für dieses Instrument nicht verfügbar.","spNoDesc":"Keine Beschreibung verfügbar.","shTotal":"Gesamt:","shOwn":"Du besitzt","shClosed":"🔒 Markt geschlossen","shLoadPx":"⏳ Live-Kurs wird geladen...","shNone":"Du besitzt 0 Aktien — nichts zu verkaufen","toWknd":"📅 Wochenende — Handel wieder ab Montag","toClosed":"🕐 Markt geschlossen — Handel 15:30–22:00 MEZ (Mo–Fr)","toWait":"⏳ Warte auf Live-Kurs...","toMonth":"🗓️ Neuer Monat — frische €10.000!","toNameFail":"Namensänderung fehlgeschlagen — versuch es erneut","toNameUse":"Name vergeben — du heißt","toDel":"Konto gelöscht","toDelFail":"Löschen fehlgeschlagen — versuch es erneut","toSrv":"Serverfehler — versuch es erneut","toCopied":"Link kopiert","cfDel":"Dein Konto und alle Daten dauerhaft löschen? Das kann nicht rückgängig gemacht werden.","shareTxt":"Handle virtuelle Aktien. Gewinne jeden Monat €100.","wWin":"Mal Sieger","wPrev":"BISHERIGE SIEGER","wHof":"HALL OF FAME — MEISTE SIEGE","tutT":"Willkommen bei Stonk Arena","tutX":"Alle starten mit €10.000 virtuellem Kapital zu echten Börsenkursen. Die höchste Monatsrendite gewinnt €100 ECHTES Geld — ausgezahlt auf dein Bankkonto, kein Spielgeld. Ich zeige dir die App.","tutGo":"Zeig mir alles →","tourGo":"Jetzt traden 🚀","tourNext":"Weiter →","tutSkip":"Tutorial überspringen","tour1t":"Tippe auf eine Aktie 👇","tour1x":"Öffnet die Aktienseite: 10-Jahres-Chart mit Hover-Kursen, Kennzahlen, was das Unternehmen macht und warum es sich bewegte.","tour2t":"Sicher handeln 👇","tour2x":"KAUFEN und VERKAUFEN öffnen immer zuerst ein Bestätigungsfenster — Menge wählen, Summe sehen, bestätigen. Max. 30% pro Aktie hält es fair.","tour3t":"Dein Portfolio 👆","tour3x":"Deine Positionen, dein Guthaben und deine Handelshistorie findest du hier.","tour4t":"Die Rangliste 👆","tour4x":"Die Live-Rangliste. Mach mindestens 5 Trades, um dich zu qualifizieren — die höchste Rendite gewinnt echte €100, ausgezahlt aufs Bankkonto. Der Wettbewerb startet jeden Monat neu.","tour5t":"Lernen & Fortschritt 👆","tour5x":"Kurze Kurse mit Fortschrittsbalken — von den Grundlagen bis zum Value Investing.","buy":"KAUFEN","sell":"VERKAUFEN"});
+Object.assign(L.fr,{"ob1":"Choisis ta<br><em>langue</em>","ob2":"Sélectionne une langue pour continuer.","nPh":"Nom de joueur","cont":"Continuer →","aIn":"Se connecter","aUp":"Créer un compte","aWelH":"Bon retour,<br><em>trader</em>","aWelS":"Connecte-toi pour poursuivre ta compétition.","aPrize":"Le gagnant du mois reçoit <span class=\"prize-badge-amount\">100 € en cash</span>","aG":"Continuer avec Google","aA":"Continuer avec Apple","aGU":"S'inscrire avec Google","aAU":"S'inscrire avec Apple","aOr":"ou","aEmail":"E-mail","aPass":"Mot de passe","aName":"Nom","aPass2":"Confirmer le mot de passe","aFootIn":"<a href=\"#\">Mot de passe oublié ?</a> · En continuant, tu acceptes nos <a href=\"terms.html\" target=\"_blank\">Conditions</a> et notre <a href=\"privacy.html\" target=\"_blank\">Politique de confidentialité</a>","aFootUp":"En créant un compte, tu acceptes nos <a href=\"terms.html\" target=\"_blank\">Conditions d’utilisation</a> et notre <a href=\"privacy.html\" target=\"_blank\">Politique de confidentialité</a>","aStartH":"Commence à trader.<br><em>Gagne chaque mois.</em>","aStartS":"10 000 € de capital virtuel. Vraie compétition. Vrai prix.","aRules":"📋 Lis d'abord les règles","aPhName":"Ton nom","aPh8":"Min. 8 caractères","aPhRep":"Répète le mot de passe","ldT":"Chargement des marchés","ldC":"Continuer quand même →","mSearch":"Rechercher...","sPop":"🔥 Populaires","sChg":"% Var.","sPrice":"Prix","bLoad":"⏳ CHARGEMENT","bLive":"LIVE","bClosed":"FERMÉ","bOpen":"OUVERT","bWknd":"WEEK-END","bPre":"PRÉ-OUVERTURE","bAfter":"APRÈS-CLÔTURE","tcHead":"🤝 CONFIANCE & CONTACT","tcBody":"🏆 Le prix mensuel est payé par <b>virement SEPA</b> sous 14 jours après vérification — voir les <a href=\"terms.html\" target=\"_blank\" style=\"color:var(--blue)\">Conditions</a>.<br>📊 Données de marché : Financial Modeling Prep &amp; Tiingo — vrais cours de bourse, actualisés toutes les quelques minutes.<br>🔒 Les transactions sont validées côté serveur ; le classement ne peut pas être manipulé.<br>✉️ Questions ou paiements : <a href=\"mailto:support@stonkarena.net\" style=\"color:var(--blue)\">support@stonkarena.net</a><br>👤 Fondateur : <a href=\"mailto:mdc@stonkarena.net\" style=\"color:var(--blue)\">mdc@stonkarena.net</a>","invT":"Invite des amis","btnRules":"📋 Règles","btnInv":"🔗 Inviter des amis","btnShare":"📸 Partager mon résultat","lnH":"Apprends à <em>investir</em>","lnS":"Ouvre une leçon pour la marquer comme terminée.","lnOverall":"Progression globale","lnLessons":"leçons","lnOverview":"Aperçu","lnBack":"Retour","lnFinish":"Terminer le module ✓","lnNext":"Suivant →","lnDone":"terminé !","prAcc":"COMPTE","prName":"Nom de joueur","prSave":"Enregistrer","prUniq":"Les noms sont uniques — s'il est pris, choisis-en un autre.","prTut":"🎓 Revoir le tutoriel","prOut":"Se déconnecter","prSec":"SÉCURITÉ","prTfa":"Authentification à deux facteurs","prDz":"ZONE DE DANGER","prReset":"Se déconnecter & réinitialiser","prDel":"🗑️ Supprimer le compte définitivement","prSignedAs":"Connecté en tant que :","prLocal":"Compte démo local","spLoadC":"Chargement du graphique…","spAbout":"À PROPOS","stHi":"HAUT 52S","stLo":"BAS 52S","stSec":"SECTEUR","stEx":"BOURSE","stSince":"COTÉ DEPUIS","spUnav":"Graphique & profil indisponibles pour cet instrument.","spNoDesc":"Aucune description disponible.","shTotal":"Total :","shOwn":"Tu détiens","shClosed":"🔒 Marché fermé","shLoadPx":"⏳ Chargement du cours...","shNone":"Tu détiens 0 action — rien à vendre","toWknd":"📅 Week-end — le trading reprend lundi","toClosed":"🕐 Marché fermé — trading 15h30–22h00 (lun–ven)","toWait":"⏳ En attente du cours en direct...","toMonth":"🗓️ Nouveau mois — 10 000 € tout frais !","toNameFail":"Changement de nom impossible — réessaie","toNameUse":"Nom pris — tu t'appelles","toDel":"Compte supprimé","toDelFail":"Échec de la suppression — réessaie","toSrv":"Erreur serveur — réessaie","toCopied":"Lien copié","cfDel":"Supprimer définitivement ton compte et toutes tes données ? C'est irréversible.","shareTxt":"Trade des actions virtuelles. Gagne 100 € chaque mois.","wWin":"victoire(s)","wPrev":"ANCIENS GAGNANTS","wHof":"HALL OF FAME — PLUS DE VICTOIRES","tutT":"Bienvenue sur Stonk Arena","tutX":"Tout le monde démarre avec 10 000 € de capital virtuel aux vrais cours de bourse. Le meilleur rendement du mois gagne 100 € en VRAI argent — versés sur ton compte bancaire. Je te fais visiter l'app.","tutGo":"Fais-moi visiter →","tourGo":"Commencer à trader 🚀","tourNext":"Suivant →","tutSkip":"Passer le tutoriel","tour1t":"Touche une action 👇","tour1x":"Ouvre la page complète : graphique sur 10 ans avec survol des prix, chiffres clés, ce que fait l'entreprise et pourquoi elle a bougé.","tour2t":"Trade en sécurité 👇","tour2x":"ACHETER et VENDRE ouvrent toujours d'abord un panneau de confirmation — choisis la quantité, vois le total, confirme. Max 30% par action pour rester équitable.","tour3t":"Ton portefeuille 👆","tour3x":"Tes positions, ton cash et tout ton historique de transactions sont ici.","tour4t":"Le classement 👆","tour4x":"Le classement en direct. Fais au moins 5 transactions pour te qualifier — le meilleur rendement gagne 100 € réels, versés sur ton compte. La compétition redémarre chaque mois.","tour5t":"Apprendre & progresser 👆","tour5x":"Des cours courts avec barres de progression — des bases absolues au value investing.","buy":"ACHETER","sell":"VENDRE"});
+//I18N-PART2-ANCHOR
+Object.assign(L.de,{"maxPos":"Max. 30% pro Aktie — diversifiziere","qual":"Qualifiziert","qualNeed":"Trades bis zur Qualifikation","nPr":"PROFIL","nLn":"LERNEN"});
+Object.assign(L.fr,{"maxPos":"Max 30% par action — diversifie","qual":"Qualifié","qualNeed":"transactions pour se qualifier","nPr":"PROFIL","nLn":"APPRENDRE"});
+Object.assign(L.es,{"maxPos":"Máx. 30% por acción — diversifica","qual":"Clasificado","qualNeed":"operaciones para clasificarte","nPr":"PERFIL","nLn":"APRENDER"});
+Object.assign(L.pt,{"maxPos":"Máx. 30% por ação — diversifica","qual":"Qualificado","qualNeed":"operações para qualificar","nPr":"PERFIL","nLn":"APRENDER"});
+Object.assign(L.pl,{"maxPos":"Maks. 30% na akcję — dywersyfikuj","qual":"Zakwalifikowany","qualNeed":"transakcji do kwalifikacji","nPr":"PROFIL","nLn":"NAUKA"});
+Object.assign(L.it,{"maxPos":"Max 30% per azione — diversifica","qual":"Qualificato","qualNeed":"operazioni per qualificarsi","nPr":"PROFILO","nLn":"IMPARA"});
+// ── extended UI translations (part 2) ──
+Object.assign(L.es,{"ob1":"Elige tu<br><em>idioma</em>","ob2":"Selecciona un idioma para continuar.","nPh":"Nombre de jugador","cont":"Continuar →","aIn":"Iniciar sesión","aUp":"Crear cuenta","aWelH":"Bienvenido<br>de nuevo, <em>trader</em>","aWelS":"Inicia sesión para continuar tu competición.","aPrize":"El ganador del mes recibe <span class=\"prize-badge-amount\">100 € en efectivo</span>","aG":"Continuar con Google","aA":"Continuar con Apple","aGU":"Registrarse con Google","aAU":"Registrarse con Apple","aOr":"o","aEmail":"Correo","aPass":"Contraseña","aName":"Nombre","aPass2":"Confirmar contraseña","aFootIn":"<a href=\"#\">¿Olvidaste la contraseña?</a> · Al continuar aceptas nuestros <a href=\"terms.html\" target=\"_blank\">Términos</a> y la <a href=\"privacy.html\" target=\"_blank\">Política de privacidad</a>","aFootUp":"Al crear una cuenta aceptas nuestros <a href=\"terms.html\" target=\"_blank\">Términos de servicio</a> y la <a href=\"privacy.html\" target=\"_blank\">Política de privacidad</a>","aStartH":"Empieza a operar.<br><em>Gana cada mes.</em>","aStartS":"10.000 € de capital virtual. Competición real. Premio real.","aRules":"📋 Lee primero las reglas","aPhName":"Tu nombre","aPh8":"Mín. 8 caracteres","aPhRep":"Repite la contraseña","ldT":"Cargando mercados","ldC":"Continuar igualmente →","mSearch":"Buscar...","sPop":"🔥 Populares","sChg":"% Var.","sPrice":"Precio","bLoad":"⏳ CARGANDO","bLive":"LIVE","bClosed":"CERRADO","bOpen":"ABIERTO","bWknd":"FIN DE SEMANA","bPre":"PREAPERTURA","bAfter":"POSCIERRE","tcHead":"🤝 CONFIANZA Y CONTACTO","tcBody":"🏆 El premio mensual se paga por <b>transferencia SEPA</b> en 14 días tras la verificación — ver <a href=\"terms.html\" target=\"_blank\" style=\"color:var(--blue)\">Términos</a>.<br>📊 Datos de mercado: Financial Modeling Prep &amp; Tiingo — precios reales de bolsa, actualizados cada pocos minutos.<br>🔒 Las operaciones se validan en el servidor; la clasificación no puede manipularse.<br>✉️ Preguntas o pagos: <a href=\"mailto:support@stonkarena.net\" style=\"color:var(--blue)\">support@stonkarena.net</a><br>👤 Fundador: <a href=\"mailto:mdc@stonkarena.net\" style=\"color:var(--blue)\">mdc@stonkarena.net</a>","invT":"Invita a tus amigos","btnRules":"📋 Reglas","btnInv":"🔗 Invitar amigos","btnShare":"📸 Compartir mi resultado","lnH":"Aprende a <em>invertir</em>","lnS":"Abre una lección para marcarla como completada.","lnOverall":"Progreso total","lnLessons":"lecciones","lnOverview":"Resumen","lnBack":"Atrás","lnFinish":"Terminar módulo ✓","lnNext":"Siguiente →","lnDone":"¡completado!","prAcc":"CUENTA","prName":"Nombre de jugador","prSave":"Guardar","prUniq":"Los nombres son únicos — si está ocupado, elige otro.","prTut":"🎓 Ver el tutorial de nuevo","prOut":"Cerrar sesión","prSec":"SEGURIDAD","prTfa":"Autenticación en dos pasos","prDz":"ZONA DE PELIGRO","prReset":"Cerrar sesión y reiniciar cartera","prDel":"🗑️ Eliminar cuenta permanentemente","prSignedAs":"Sesión iniciada como:","prLocal":"Cuenta demo local","spLoadC":"Cargando gráfico…","spAbout":"ACERCA DE","stHi":"MÁX 52S","stLo":"MÍN 52S","stSec":"SECTOR","stEx":"BOLSA","stSince":"COTIZA DESDE","spUnav":"Gráfico y perfil no disponibles para este instrumento.","spNoDesc":"No hay descripción disponible.","shTotal":"Total:","shOwn":"Tienes","shClosed":"🔒 Mercado cerrado","shLoadPx":"⏳ Cargando precio en vivo...","shNone":"Tienes 0 acciones — nada que vender","toWknd":"📅 Fin de semana — se opera de nuevo el lunes","toClosed":"🕐 Mercado cerrado — horario 15:30–22:00 CET (lun–vie)","toWait":"⏳ Esperando precio en vivo...","toMonth":"🗓️ ¡Nuevo mes — 10.000 € frescos!","toNameFail":"No se pudo cambiar el nombre — inténtalo de nuevo","toNameUse":"Nombre ocupado — te llamas","toDel":"Cuenta eliminada","toDelFail":"Error al eliminar — inténtalo de nuevo","toSrv":"Error del servidor — inténtalo de nuevo","toCopied":"Enlace copiado","cfDel":"¿Eliminar permanentemente tu cuenta y todos tus datos? No se puede deshacer.","shareTxt":"Opera con acciones virtuales. Gana 100 € cada mes.","wWin":"victoria(s)","wPrev":"GANADORES ANTERIORES","wHof":"SALÓN DE LA FAMA — MÁS VICTORIAS","tutT":"Bienvenido a Stonk Arena","tutX":"Todos empiezan con 10.000 € de capital virtual a precios reales de bolsa. El mayor rendimiento del mes gana 100 € REALES — pagados a tu cuenta bancaria. Te enseño la app.","tutGo":"Enséñamela →","tourGo":"Empezar a operar 🚀","tourNext":"Siguiente →","tutSkip":"Saltar tutorial","tour1t":"Toca una acción 👇","tour1x":"Abre la página completa: gráfico de 10 años con precios al pasar el dedo, cifras clave, qué hace la empresa y por qué se movió.","tour2t":"Opera con seguridad 👇","tour2x":"COMPRAR y VENDER siempre abren primero un panel de confirmación — elige la cantidad, mira el total y confirma. Máx. 30% por acción.","tour3t":"Tu cartera 👆","tour3x":"Tus posiciones, tu efectivo y todo tu historial de operaciones están aquí.","tour4t":"La clasificación 👆","tour4x":"La clasificación en vivo. Haz al menos 5 operaciones para clasificarte — el mayor rendimiento gana 100 € reales, pagados a tu cuenta. La competición se reinicia cada mes.","tour5t":"Aprende y progresa 👆","tour5x":"Cursos cortos con barras de progreso — desde lo más básico hasta el value investing.","buy":"COMPRAR","sell":"VENDER"});
+Object.assign(L.pt,{"ob1":"Escolhe o teu<br><em>idioma</em>","ob2":"Seleciona um idioma para continuar.","nPh":"Nome de jogador","cont":"Continuar →","aIn":"Iniciar sessão","aUp":"Criar conta","aWelH":"Bem-vindo<br>de volta, <em>trader</em>","aWelS":"Inicia sessão para continuar a tua competição.","aPrize":"O vencedor do mês recebe <span class=\"prize-badge-amount\">€100 em dinheiro</span>","aG":"Continuar com Google","aA":"Continuar com Apple","aGU":"Registar com Google","aAU":"Registar com Apple","aOr":"ou","aEmail":"E-mail","aPass":"Palavra-passe","aName":"Nome","aPass2":"Confirmar palavra-passe","aFootIn":"<a href=\"#\">Esqueceste a palavra-passe?</a> · Ao continuar aceitas os nossos <a href=\"terms.html\" target=\"_blank\">Termos</a> e a <a href=\"privacy.html\" target=\"_blank\">Política de Privacidade</a>","aFootUp":"Ao criar uma conta aceitas os nossos <a href=\"terms.html\" target=\"_blank\">Termos de Serviço</a> e a <a href=\"privacy.html\" target=\"_blank\">Política de Privacidade</a>","aStartH":"Começa a negociar.<br><em>Ganha todos os meses.</em>","aStartS":"€10.000 de capital virtual. Competição real. Prémio real.","aRules":"📋 Lê primeiro as regras","aPhName":"O teu nome","aPh8":"Mín. 8 caracteres","aPhRep":"Repete a palavra-passe","ldT":"A carregar mercados","ldC":"Continuar mesmo assim →","mSearch":"Pesquisar...","sPop":"🔥 Populares","sChg":"% Var.","sPrice":"Preço","bLoad":"⏳ A CARREGAR","bLive":"LIVE","bClosed":"FECHADO","bOpen":"ABERTO","bWknd":"FIM DE SEMANA","bPre":"PRÉ-ABERTURA","bAfter":"PÓS-FECHO","tcHead":"🤝 CONFIANÇA E CONTACTO","tcBody":"🏆 O prémio mensal é pago por <b>transferência SEPA</b> no prazo de 14 dias após verificação — ver <a href=\"terms.html\" target=\"_blank\" style=\"color:var(--blue)\">Termos</a>.<br>📊 Dados de mercado: Financial Modeling Prep &amp; Tiingo — preços reais de bolsa, atualizados a cada poucos minutos.<br>🔒 As operações são validadas no servidor; a classificação não pode ser manipulada.<br>✉️ Perguntas ou pagamentos: <a href=\"mailto:support@stonkarena.net\" style=\"color:var(--blue)\">support@stonkarena.net</a><br>👤 Fundador: <a href=\"mailto:mdc@stonkarena.net\" style=\"color:var(--blue)\">mdc@stonkarena.net</a>","invT":"Convida amigos","btnRules":"📋 Regras","btnInv":"🔗 Convidar amigos","btnShare":"📸 Partilhar o meu resultado","lnH":"Aprende a <em>investir</em>","lnS":"Abre uma lição para a marcar como concluída.","lnOverall":"Progresso total","lnLessons":"lições","lnOverview":"Resumo","lnBack":"Voltar","lnFinish":"Concluir módulo ✓","lnNext":"Seguinte →","lnDone":"concluído!","prAcc":"CONTA","prName":"Nome de jogador","prSave":"Guardar","prUniq":"Os nomes são únicos — se estiver ocupado, escolhe outro.","prTut":"🎓 Ver o tutorial novamente","prOut":"Terminar sessão","prSec":"SEGURANÇA","prTfa":"Autenticação de dois fatores","prDz":"ZONA DE PERIGO","prReset":"Terminar sessão e repor carteira","prDel":"🗑️ Eliminar conta permanentemente","prSignedAs":"Sessão iniciada como:","prLocal":"Conta demo local","spLoadC":"A carregar gráfico…","spAbout":"SOBRE","stHi":"MÁX 52S","stLo":"MÍN 52S","stSec":"SETOR","stEx":"BOLSA","stSince":"COTADA DESDE","spUnav":"Gráfico e perfil indisponíveis para este instrumento.","spNoDesc":"Sem descrição disponível.","shTotal":"Total:","shOwn":"Tens","shClosed":"🔒 Mercado fechado","shLoadPx":"⏳ A carregar preço em direto...","shNone":"Tens 0 ações — nada para vender","toWknd":"📅 Fim de semana — volta a negociar na segunda","toClosed":"🕐 Mercado fechado — negociação 15:30–22:00 CET (seg–sex)","toWait":"⏳ À espera do preço em direto...","toMonth":"🗓️ Novo mês — €10.000 frescos!","toNameFail":"Não foi possível mudar o nome — tenta novamente","toNameUse":"Nome ocupado — chamas-te","toDel":"Conta eliminada","toDelFail":"Falha ao eliminar — tenta novamente","toSrv":"Erro do servidor — tenta novamente","toCopied":"Ligação copiada","cfDel":"Eliminar permanentemente a tua conta e todos os dados? Não pode ser desfeito.","shareTxt":"Negocia ações virtuais. Ganha €100 todos os meses.","wWin":"vitória(s)","wPrev":"VENCEDORES ANTERIORES","wHof":"HALL OF FAME — MAIS VITÓRIAS","tutT":"Bem-vindo à Stonk Arena","tutX":"Todos começam com €10.000 de capital virtual a preços reais de bolsa. O maior retorno do mês ganha €100 REAIS — pagos na tua conta bancária. Deixa-me mostrar-te a app.","tutGo":"Mostra-me →","tourGo":"Começar a negociar 🚀","tourNext":"Seguinte →","tutSkip":"Saltar tutorial","tour1t":"Toca numa ação 👇","tour1x":"Abre a página completa: gráfico de 10 anos com preços ao passar o dedo, números-chave, o que a empresa faz e porque se moveu.","tour2t":"Negoceia em segurança 👇","tour2x":"COMPRAR e VENDER abrem sempre primeiro um painel de confirmação — escolhe a quantidade, vê o total e confirma. Máx. 30% por ação.","tour3t":"A tua carteira 👆","tour3x":"As tuas posições, dinheiro e todo o histórico de operações estão aqui.","tour4t":"A classificação 👆","tour4x":"A classificação em direto. Faz pelo menos 5 operações para te qualificares — o maior retorno ganha €100 reais, pagos na tua conta. A competição recomeça todos os meses.","tour5t":"Aprende e progride 👆","tour5x":"Cursos curtos com barras de progresso — do básico absoluto ao value investing.","buy":"COMPRAR","sell":"VENDER"});
+Object.assign(L.pl,{"ob1":"Wybierz swój<br><em>język</em>","ob2":"Wybierz język, aby kontynuować.","nPh":"Nazwa gracza","cont":"Dalej →","aIn":"Zaloguj się","aUp":"Utwórz konto","aWelH":"Witaj<br>ponownie, <em>traderze</em>","aWelS":"Zaloguj się, aby kontynuować rywalizację.","aPrize":"Zwycięzca miesiąca otrzymuje <span class=\"prize-badge-amount\">100 € w gotówce</span>","aG":"Kontynuuj z Google","aA":"Kontynuuj z Apple","aGU":"Zarejestruj się przez Google","aAU":"Zarejestruj się przez Apple","aOr":"lub","aEmail":"E-mail","aPass":"Hasło","aName":"Imię","aPass2":"Potwierdź hasło","aFootIn":"<a href=\"#\">Nie pamiętasz hasła?</a> · Kontynuując, akceptujesz nasz <a href=\"terms.html\" target=\"_blank\">Regulamin</a> i <a href=\"privacy.html\" target=\"_blank\">Politykę prywatności</a>","aFootUp":"Tworząc konto, akceptujesz nasz <a href=\"terms.html\" target=\"_blank\">Regulamin</a> i <a href=\"privacy.html\" target=\"_blank\">Politykę prywatności</a>","aStartH":"Zacznij handlować.<br><em>Wygrywaj co miesiąc.</em>","aStartS":"10 000 € wirtualnego kapitału. Prawdziwa rywalizacja. Prawdziwa nagroda.","aRules":"📋 Najpierw przeczytaj zasady","aPhName":"Twoje imię","aPh8":"Min. 8 znaków","aPhRep":"Powtórz hasło","ldT":"Ładowanie rynków","ldC":"Kontynuuj mimo to →","mSearch":"Szukaj...","sPop":"🔥 Popularne","sChg":"% Zm.","sPrice":"Cena","bLoad":"⏳ ŁADOWANIE","bLive":"LIVE","bClosed":"ZAMKNIĘTE","bOpen":"OTWARTE","bWknd":"WEEKEND","bPre":"PRZED SESJĄ","bAfter":"PO SESJI","tcHead":"🤝 ZAUFANIE I KONTAKT","tcBody":"🏆 Nagroda miesięczna wypłacana jest <b>przelewem SEPA</b> w ciągu 14 dni od weryfikacji — zobacz <a href=\"terms.html\" target=\"_blank\" style=\"color:var(--blue)\">Regulamin</a>.<br>📊 Dane rynkowe: Financial Modeling Prep &amp; Tiingo — prawdziwe kursy giełdowe, odświeżane co kilka minut.<br>🔒 Transakcje są walidowane po stronie serwera; rankingu nie da się zmanipulować.<br>✉️ Pytania i wypłaty: <a href=\"mailto:support@stonkarena.net\" style=\"color:var(--blue)\">support@stonkarena.net</a><br>👤 Założyciel: <a href=\"mailto:mdc@stonkarena.net\" style=\"color:var(--blue)\">mdc@stonkarena.net</a>","invT":"Zaproś znajomych","btnRules":"📋 Zasady","btnInv":"🔗 Zaproś znajomych","btnShare":"📸 Udostępnij mój wynik","lnH":"Ucz się <em>inwestowania</em>","lnS":"Otwórz lekcję, aby oznaczyć ją jako ukończoną.","lnOverall":"Postęp ogólny","lnLessons":"lekcji","lnOverview":"Przegląd","lnBack":"Wstecz","lnFinish":"Zakończ moduł ✓","lnNext":"Dalej →","lnDone":"ukończono!","prAcc":"KONTO","prName":"Nazwa gracza","prSave":"Zapisz","prUniq":"Nazwy są unikalne — jeśli zajęta, wybierz inną.","prTut":"🎓 Obejrzyj samouczek ponownie","prOut":"Wyloguj się","prSec":"BEZPIECZEŃSTWO","prTfa":"Uwierzytelnianie dwuskładnikowe","prDz":"STREFA ZAGROŻENIA","prReset":"Wyloguj i zresetuj portfel","prDel":"🗑️ Usuń konto na zawsze","prSignedAs":"Zalogowano jako:","prLocal":"Lokalne konto demo","spLoadC":"Ładowanie wykresu…","spAbout":"O SPÓŁCE","stHi":"MAX 52T","stLo":"MIN 52T","stSec":"SEKTOR","stEx":"GIEŁDA","stSince":"NOTOWANA OD","spUnav":"Wykres i profil niedostępne dla tego instrumentu.","spNoDesc":"Brak opisu.","shTotal":"Razem:","shOwn":"Posiadasz","shClosed":"🔒 Rynek zamknięty","shLoadPx":"⏳ Ładowanie kursu na żywo...","shNone":"Posiadasz 0 akcji — nie ma czego sprzedać","toWknd":"📅 Weekend — handel wraca w poniedziałek","toClosed":"🕐 Rynek zamknięty — handel 15:30–22:00 CET (pn–pt)","toWait":"⏳ Oczekiwanie na kurs na żywo...","toMonth":"🗓️ Nowy miesiąc — świeże 10 000 €!","toNameFail":"Nie udało się zmienić nazwy — spróbuj ponownie","toNameUse":"Nazwa zajęta — nazywasz się","toDel":"Konto usunięte","toDelFail":"Usuwanie nie powiodło się — spróbuj ponownie","toSrv":"Błąd serwera — spróbuj ponownie","toCopied":"Link skopiowany","cfDel":"Trwale usunąć Twoje konto i wszystkie dane? Tego nie można cofnąć.","shareTxt":"Handluj wirtualnymi akcjami. Wygrywaj 100 € co miesiąc.","wWin":"wygranych","wPrev":"POPRZEDNI ZWYCIĘZCY","wHof":"GALERIA SŁAW — NAJWIĘCEJ WYGRANYCH","tutT":"Witaj w Stonk Arena","tutX":"Każdy zaczyna z 10 000 € wirtualnego kapitału po prawdziwych kursach giełdowych. Najwyższa stopa zwrotu w miesiącu wygrywa 100 € PRAWDZIWYCH pieniędzy — wypłacanych na Twoje konto bankowe. Oprowadzę Cię po aplikacji.","tutGo":"Oprowadź mnie →","tourGo":"Zacznij handlować 🚀","tourNext":"Dalej →","tutSkip":"Pomiń samouczek","tour1t":"Dotknij dowolnej akcji 👇","tour1x":"Otwiera pełną stronę spółki: 10-letni wykres z kursami, kluczowe dane, czym zajmuje się firma i dlaczego kurs się zmieniał.","tour2t":"Handluj bezpiecznie 👇","tour2x":"KUP i SPRZEDAJ zawsze najpierw otwierają panel potwierdzenia — wybierz ilość, zobacz sumę, potwierdź. Maks. 30% na akcję.","tour3t":"Twój portfel 👆","tour3x":"Twoje pozycje, gotówka i pełna historia transakcji są tutaj.","tour4t":"Ranking 👆","tour4x":"Ranking na żywo. Wykonaj co najmniej 5 transakcji, aby się zakwalifikować — najwyższy zwrot wygrywa prawdziwe 100 €, wypłacane na konto. Rywalizacja zaczyna się od nowa co miesiąc.","tour5t":"Ucz się i śledź postępy 👆","tour5x":"Krótkie kursy z paskami postępu — od absolutnych podstaw po inwestowanie w wartość.","buy":"KUP","sell":"SPRZEDAJ"});
+Object.assign(L.it,{"ob1":"Scegli la tua<br><em>lingua</em>","ob2":"Seleziona una lingua per continuare.","nPh":"Nome giocatore","cont":"Continua →","aIn":"Accedi","aUp":"Crea account","aWelH":"Bentornato,<br><em>trader</em>","aWelS":"Accedi per continuare la tua competizione.","aPrize":"Il vincitore del mese riceve <span class=\"prize-badge-amount\">100 € in contanti</span>","aG":"Continua con Google","aA":"Continua con Apple","aGU":"Registrati con Google","aAU":"Registrati con Apple","aOr":"oppure","aEmail":"E-mail","aPass":"Password","aName":"Nome","aPass2":"Conferma password","aFootIn":"<a href=\"#\">Password dimenticata?</a> · Continuando accetti i nostri <a href=\"terms.html\" target=\"_blank\">Termini</a> e l’<a href=\"privacy.html\" target=\"_blank\">Informativa privacy</a>","aFootUp":"Creando un account accetti i nostri <a href=\"terms.html\" target=\"_blank\">Termini di servizio</a> e l’<a href=\"privacy.html\" target=\"_blank\">Informativa privacy</a>","aStartH":"Inizia a fare trading.<br><em>Vinci ogni mese.</em>","aStartS":"10.000 € di capitale virtuale. Vera competizione. Vero premio.","aRules":"📋 Leggi prima le regole","aPhName":"Il tuo nome","aPh8":"Min. 8 caratteri","aPhRep":"Ripeti la password","ldT":"Caricamento mercati","ldC":"Continua comunque →","mSearch":"Cerca...","sPop":"🔥 Popolari","sChg":"% Var.","sPrice":"Prezzo","bLoad":"⏳ CARICAMENTO","bLive":"LIVE","bClosed":"CHIUSO","bOpen":"APERTO","bWknd":"WEEKEND","bPre":"PRE-APERTURA","bAfter":"DOPO-CHIUSURA","tcHead":"🤝 FIDUCIA E CONTATTI","tcBody":"🏆 Il premio mensile viene pagato con <b>bonifico SEPA</b> entro 14 giorni dalla verifica — vedi i <a href=\"terms.html\" target=\"_blank\" style=\"color:var(--blue)\">Termini</a>.<br>📊 Dati di mercato: Financial Modeling Prep &amp; Tiingo — prezzi di borsa reali, aggiornati ogni pochi minuti.<br>🔒 Le operazioni sono validate lato server; la classifica non può essere manipolata.<br>✉️ Domande o pagamenti: <a href=\"mailto:support@stonkarena.net\" style=\"color:var(--blue)\">support@stonkarena.net</a><br>👤 Fondatore: <a href=\"mailto:mdc@stonkarena.net\" style=\"color:var(--blue)\">mdc@stonkarena.net</a>","invT":"Invita gli amici","btnRules":"📋 Regole","btnInv":"🔗 Invita amici","btnShare":"📸 Condividi il mio risultato","lnH":"Impara a <em>investire</em>","lnS":"Apri una lezione per segnarla come completata.","lnOverall":"Progresso totale","lnLessons":"lezioni","lnOverview":"Panoramica","lnBack":"Indietro","lnFinish":"Completa il modulo ✓","lnNext":"Avanti →","lnDone":"completato!","prAcc":"ACCOUNT","prName":"Nome giocatore","prSave":"Salva","prUniq":"I nomi sono unici — se è occupato, scegline un altro.","prTut":"🎓 Rivedi il tutorial","prOut":"Esci","prSec":"SICUREZZA","prTfa":"Autenticazione a due fattori","prDz":"ZONA PERICOLO","prReset":"Esci e azzera il portafoglio","prDel":"🗑️ Elimina definitivamente l'account","prSignedAs":"Accesso come:","prLocal":"Account demo locale","spLoadC":"Caricamento grafico…","spAbout":"INFORMAZIONI","stHi":"MAX 52S","stLo":"MIN 52S","stSec":"SETTORE","stEx":"BORSA","stSince":"QUOTATA DAL","spUnav":"Grafico e profilo non disponibili per questo strumento.","spNoDesc":"Nessuna descrizione disponibile.","shTotal":"Totale:","shOwn":"Possiedi","shClosed":"🔒 Mercato chiuso","shLoadPx":"⏳ Caricamento prezzo live...","shNone":"Possiedi 0 azioni — niente da vendere","toWknd":"📅 Weekend — si torna a operare lunedì","toClosed":"🕐 Mercato chiuso — trading 15:30–22:00 CET (lun–ven)","toWait":"⏳ In attesa del prezzo live...","toMonth":"🗓️ Nuovo mese — 10.000 € freschi!","toNameFail":"Impossibile cambiare nome — riprova","toNameUse":"Nome occupato — ti chiami","toDel":"Account eliminato","toDelFail":"Eliminazione non riuscita — riprova","toSrv":"Errore del server — riprova","toCopied":"Link copiato","cfDel":"Eliminare definitivamente il tuo account e tutti i dati? Non si può annullare.","shareTxt":"Fai trading con azioni virtuali. Vinci 100 € ogni mese.","wWin":"vittoria/e","wPrev":"VINCITORI PRECEDENTI","wHof":"HALL OF FAME — PIÙ VITTORIE","tutT":"Benvenuto su Stonk Arena","tutX":"Tutti partono con 10.000 € di capitale virtuale a prezzi di borsa reali. Il rendimento più alto del mese vince 100 € VERI — pagati sul tuo conto bancario. Ti faccio fare un giro nell'app.","tutGo":"Fammi fare un giro →","tourGo":"Inizia a fare trading 🚀","tourNext":"Avanti →","tutSkip":"Salta il tutorial","tour1t":"Tocca un'azione 👇","tour1x":"Apre la pagina completa: grafico a 10 anni con prezzi al passaggio, dati chiave, cosa fa l'azienda e perché si è mossa.","tour2t":"Opera in sicurezza 👇","tour2x":"COMPRA e VENDI aprono sempre prima un pannello di conferma — scegli la quantità, guarda il totale, conferma. Max 30% per azione.","tour3t":"Il tuo portafoglio 👆","tour3x":"Le tue posizioni, la liquidità e tutta la cronologia delle operazioni sono qui.","tour4t":"La classifica 👆","tour4x":"La classifica live. Fai almeno 5 operazioni per qualificarti — il rendimento più alto vince 100 € veri, pagati sul tuo conto. La competizione riparte ogni mese.","tour5t":"Impara e monitora i progressi 👆","tour5x":"Corsi brevi con barre di progresso — dalle basi assolute al value investing.","buy":"COMPRA","sell":"VENDI"});
+
 
 // ══ STOCKS (fallback prices, updated June 2026 where known) ══
 const STOCKS=[
@@ -915,7 +933,7 @@ function syncMe(){
   FB.fns.httpsCallable("hello")({name:username}).then(r=>{
     const d=r.data||{};
     if(typeof d.cash==="number"){cash=d.cash;holdings=d.holdings||{};}
-    if(d.name&&d.name!==username){username=d.name;showToast("Name in use — you are "+d.name,"err");}
+    if(d.name&&d.name!==username){username=d.name;showToast(t("toNameUse")+" "+d.name,"err");}
     saveState();updateAll();
   }).catch(e=>console.warn("hello:",e.message));
 }
@@ -997,7 +1015,7 @@ function loadState(){
   username=s.username; lang=s.lang||"en";
   if(s.month&&s.month!==MONTH_KEY){
     cash=CASH0;holdings={};tradeLog=[];
-    setTimeout(()=>showToast("🗓️ New month — fresh €10,000!"),1500);
+    setTimeout(()=>showToast(t("toMonth")),1500);
   }else{
     cash=typeof s.cash==="number"?s.cash:CASH0;
     holdings=s.holdings||{}; tradeLog=s.tradeLog||[];
@@ -1186,7 +1204,7 @@ function showRules(mode){
   applyRulesText();
   const onboard=mode==="onboard";
   $("rules-accept-row").style.display=onboard?"flex":"none";
-  $("rules-btn").textContent=onboard?t("rCont"):"← Back";
+  $("rules-btn").textContent=onboard?t("rCont"):"← "+t("lnBack");
   $("rules-btn").disabled=onboard&&!$("rules-accept").checked;
   show("rules-screen");
 }
@@ -1199,7 +1217,7 @@ function rulesContinue(){
   else{store.set("sa_onboarded",true);startLoading();}
 }
 function pickLang(code){
-  lang=code;saveState();
+  try{setLang(code);}catch(e){lang=code;saveState();}
   showNameScreen();
 }
 function showNameScreen(){
@@ -1241,11 +1259,12 @@ async function releaseUsername(oldName){
   }catch(e){}
 }
 function renderProfile(){
-  $("prof-name").value=username;
+  const pn=$("prof-name");
+  if(document.activeElement!==pn)pn.value=username;
   $("reset-btn").style.display=(FB&&FBuser)?"none":"block";
   renderTFA();
   $("prof-ver").textContent="Stonk Arena "+APP_VERSION;
-  $("prof-email").textContent=FB&&FBuser?("Signed in as: "+(FBuser.email||"Google account")):"Local demo account";
+  $("prof-email").textContent=FB&&FBuser?(t("prSignedAs")+" "+(FBuser.email||"Google account")):t("prLocal");
 }
 async function profSaveName(){
   const n=$("prof-name").value.trim().slice(0,20);
@@ -1266,7 +1285,7 @@ async function profSaveName(){
     saveState();updateAll();
     try{await FBuser.updateProfile({displayName:username});}catch(e){}
     showToast("✓ "+username);
-  }catch(e){showToast("Could not change name — try again","err");}
+  }catch(e){showToast(t("toNameFail"),"err");}
 }
 function plainSignOut(){
   saveState();
@@ -1386,7 +1405,7 @@ async function reauthFlow(){
   return true;
 }
 async function deleteAccount(){
-  if(!confirm("Permanently delete your account and all data? This cannot be undone."))return;
+  if(!confirm(t("cfDel")))return;
   const run=async()=>{
     if(FB&&FBuser){
       // retire removes the leaderboard row + state server-side; retry once so a blip can't leave a ghost
@@ -1401,7 +1420,7 @@ async function deleteAccount(){
       await FBuser.delete();
     }
     store.del(stateKey());store.del("sa_onboarded");
-    showToast("Account deleted");
+    showToast(t("toDel"));
     setTimeout(()=>location.reload(),700);
   };
   try{await run();}
@@ -1411,7 +1430,7 @@ async function deleteAccount(){
         const ok=await reauthFlow();
         if(ok)await run();
       }catch(e2){showToast("Confirmation failed — wrong password?","err");}
-    }else showToast("Delete failed — try again","err");
+    }else showToast(t("toDelFail"),"err");
   }
 }
 async function shareCard(){
@@ -1449,8 +1468,8 @@ async function shareCard(){
 }
 function shareApp(){
   const url=location.href.split("?")[0];
-  if(navigator.share){navigator.share({title:"Stonk Arena",text:"Trade virtual stocks. Win €100 every month.",url}).catch(()=>{});}
-  else{try{navigator.clipboard.writeText(url);showToast("Link copied");}catch(e){showToast(url);}}
+  if(navigator.share){navigator.share({title:"Stonk Arena",text:t("shareTxt"),url}).catch(()=>{});}
+  else{try{navigator.clipboard.writeText(url);showToast(t("toCopied"));}catch(e){showToast(url);}}
 }
 function resetAccount(){
   if(!confirm("Sign out and reset your portfolio? This cannot be undone."))return;
@@ -1577,6 +1596,41 @@ const COURSE=[
 {id:"p4",t:"⚠️ This game vs reality",h:`<p>Stonk Arena uses real market prices but virtual money. No spreads, no taxes, no sweaty palms — the emotional weight of real euros simply cannot be simulated, and that weight is half of investing.</p><p>Treat every result here as tuition: patterns learned, mistakes made free of charge, instincts trained before a single real euro is at risk. Nothing in this app is investment advice.</p><div class="lp-tip">💡 <b>Final fix:</b> keep a one-line journal per month: "what did the market teach me?". Twelve honest lines a year outperform most finance degrees.</div>`},
 {id:"bk4",t:"📖 Books to go deeper",h:`<div class="lp-books"><div>📘 <b>Thinking, Fast and Slow</b> — Daniel Kahneman. The Nobel-winning map of the brain's two systems and every bias that costs investors money.</div><div>📙 <b>Misbehaving</b> — Richard Thaler. The funny origin story of behavioural economics, by its other Nobel laureate.</div><div>📗 <b>The Psychology of Money</b> — Morgan Housel. If only one book gets read from this entire course, make it this one.</div></div>`}]}
 ];
+// ── Dutch course content (used when lang==="nl"; other languages fall back to English) ──
+const COURSE_NL={mods:{
+"Module 1 · The basics":"Module 1 · De basis",
+"Module 2 · Value investing":"Module 2 · Waardebeleggen",
+"Module 3 · Risk & portfolio":"Module 3 · Risico & portefeuille",
+"Module 4 · Psychology & practice":"Module 4 · Psychologie & praktijk"
+},lessons:{
+b1:{t:"📈 Wat is een aandeel?",h:`<p>Een aandeel is een klein eigendomsstukje van een echt bedrijf. Wie één Apple-aandeel bezit, bezit een flintertje van elke verkochte iPhone, elke dollar winst en elk toekomstig product. Aandeelhouders lenen geen geld uit — ze bezitten het bedrijf, met alle kansen en risico's.</p><p>Bedrijven verkopen aandelen om geld op te halen voor groei; daarna verhandelen beleggers die aandelen onderling op beurzen zoals de NYSE en Nasdaq, de hele dag door, tegen elke prijs waarover koper en verkoper het eens worden.</p><div class="lp-tip">💡 <b>In de praktijk:</b> maak vóór elke aankoop deze zin af: "Ik wil een stukje van dit bedrijf bezitten omdat…". Is het enige antwoord "de koers steeg laatst", dan is het speculeren, geen eigenaarschap.</div>`},
+b2:{t:"🧺 Wat is een ETF?",h:`<p>Een ETF (exchange-traded fund) is een mandje met veel aandelen, verpakt in één verhandelbaar instrument. Wie SPY koopt, bezit meteen alle 500 grootste Amerikaanse bedrijven; QQQ bundelt de 100 grootste Nasdaq-namen.</p><p>ETF's losten het oudste probleem van beleggen op: spreiden zonder fortuin of honderd transacties. Daarom werden ze wereldwijd dé bouwsteen voor spaarders — goedkoop, transparant en bruut moeilijk te verslaan.</p><div class="lp-tip">💡 <b>In de praktijk:</b> in dit spel is een ETF-positie een stabilisator — hij wint zelden de maand, maar leert je hoe de hele markt ademt terwijl losse aandelen slingeren.</div>`},
+b3:{t:"💹 Waarom bewegen koersen?",h:`<p>Een koers is niets meer dan de laatste deal tussen een koper en een verkoper. Bij nieuws — winst boven verwachting, een CEO die opstapt, veranderende rente — heronderhandelen duizenden deelnemers meteen wat ze willen betalen.</p><p>Op korte termijn volgen koersen emoties en krantenkoppen. Over jaren volgen ze met opmerkelijke trouw één ding: de echte winst van het bedrijf. Dagelijkse schommelingen zijn vooral ruis; de lange trend is het signaal.</p><div class="lp-tip">💡 <b>In de praktijk:</b> daalt een aandeel op nieuws, vraag dan: "verandert dit wat het bedrijf over vijf jaar verdient?". Meestal is het eerlijke antwoord nee — en dat zegt iets over de verkoper, niet over het bedrijf.</div>`},
+b4:{t:"🏦 Marktkapitalisatie — wat een bedrijf echt kost",h:`<p>Marktkapitalisatie = koers × aantal aandelen. Het is het prijskaartje van het hele bedrijf. Apple aan $200 per aandeel met 15 miljard aandelen kost ~$3 biljoen; een aandeel van $5 met miljarden stukken kan "duurder" zijn dan één van $500.</p><p>Daarom is aandelen beoordelen op hun koers per stuk een beginnersval — het aantal aandelen bepaalt hoe groot elk stukje is. Denk altijd in termen van het hele bedrijf.</p><div class="lp-tip">💡 <b>In de praktijk:</b> de aandelenpagina's hier tonen echte koersen; een "goedkoop ogend" aandeel van $12 kan zware schulden en krimpende winst dragen. Een koers zegt niets zonder context.</div>`},
+b5:{t:"💰 Dividend — betaald worden om te wachten",h:`<p>Sommige bedrijven keren een deel van hun winst cash uit aan aandeelhouders, meestal elk kwartaal — dividend. Volwassen cashmachines (Coca-Cola, banken, nutsbedrijven) betalen betrouwbaar; snelle groeiers zoals Amazon herinvesteren alles in expansie.</p><p>Geen van beide is 'beter': totaalrendement = koersverandering + dividend. Een saaie 3%-betaler die traag groeit kan een glamouraandeel dat nergens heen gaat stilletjes verslaan.</p><div class="lp-tip">💡 <b>In de praktijk:</b> in de maandcompetitie doet dividend er nauwelijks toe — maar in het echte leven leverde herbelegd dividend historisch een enorm deel van het totale beursrendement.</div>`},
+bk1:{t:"📖 Boeken om dieper te gaan",h:`<p>Twee geliefde startpunten, leesbaar zonder enige financiële achtergrond:</p><div class="lp-books"><div>📕 <b>The Little Book of Common Sense Investing</b> — John Bogle. De oprichter van Vanguard legt in gewone taal uit waarom goedkope indexfondsen bijna iedereen verslaan.</div><div>📗 <b>One Up on Wall Street</b> — Peter Lynch. Een legendarische fondsbeheerder over het spotten van geweldige bedrijven in het dagelijks leven.</div></div><p>Beide liggen in elke boekhandel of online voor de prijs van twee bioscooptickets — waarschijnlijk de aankoop met het hoogste rendement in heel beleggend bestaan.</p>`},
+v1:{t:"🎯 Prijs is wat je betaalt, waarde is wat je krijgt",h:`<p>Waardebeleggen, gegrondvest door Benjamin Graham en geperfectioneerd door Warren Buffett, rust op één inzicht: de markt is een humeurige zakenpartner. Graham noemde hem <i>Mr. Market</i> — de ene dag euforisch en te duur, de andere dag depressief en kwaliteit dumpend met korting.</p>${SVGS.pv}<p>De waardebelegger schat wat een bedrijf echt waard is (zijn toekomstige winsten) en handelt alleen wanneer de humeurige prijs betekenisvol onder die stabiele waardelijn zakt.</p><div class="lp-tip">💡 <b>Zo denk je erover:</b> zie elke koers als een bod, niet als een oordeel. De vraag is nooit "wat doet de koers?" maar "wat zou ik voor het hele bedrijf betalen?"</div>`},
+v2:{t:"🔢 De koers-winstverhouding — de prijs van winst",h:`<p>Koers/winst deelt de koers door de jaarwinst per aandeel: hoeveel euro betaal je voor €1 jaarlijkse winst.</p>${SVGS.pe}<p>Een K/W van 12 kan een koopje zijn (stabiele bank) of een val (stervende retailer); een K/W van 30 kan dure hype zijn of eerlijk voor een snelle groeier. De ratio opent het gesprek — groei, schuld en slotgracht maken het af.</p><div class="lp-tip">💡 <b>Zo denk je erover:</b> draai hem om. Een K/W van 20 = een "winstrendement" van 5%. Zou dit bedrijf geld lenen aan 5% veilig voelen? Dat instinct is vaak scherper dan de ratio zelf.</div>`},
+v3:{t:"🏰 Slotgrachten — waarom sommige winsten overleven",h:`<p>Hoge winsten trekken concurrenten aan zoals bloed haaien aantrekt. Een <b>slotgracht</b> is wat ze buiten houdt: een merk waar mensen extra voor betalen (Coca-Cola), een netwerk waar iedereen bij moet (Visa), pijnlijke overstapkosten (Microsoft Office) of onverslaanbare schaal (de prijzen van Costco).</p><p>Buffetts kernvraag is niet "zal dit bedrijf groeien?" maar "kan iets het in tien jaar kapotmaken?". Bedrijven met brede slotgracht groeien decennialang stilletjes door — en verdienen hogere prijzen.</p><div class="lp-tip">💡 <b>Zo denk je erover:</b> doe voor elk aandeel in deze app de "onbeperkt-geld-test": zou een rivaal met €10 miljard zijn klanten kunnen afpakken? Eerlijk nee? Dan is dát een slotgracht.</div>`},
+v4:{t:"🛡️ Veiligheidsmarge",h:`<p>Elke schatting van bedrijfswaarde is fout — de vraag is alleen hoevéél. Grahams antwoord: koop zo ver onder je schatting dat fout zitten nog steeds geen pijn doet. Waardeer je een bedrijf op €100 per aandeel? De gedisciplineerde belegger wacht op €70.</p><p>De veiligheidsmarge is ingenieursdenken toegepast op geld: bruggen worden gebouwd om meer te dragen dan de verwachte last — portefeuilles horen dat ook.</p><div class="lp-tip">💡 <b>Zo denk je erover:</b> schrijf vóór elke aankoop op wat de these kan breken en hoeveel je dan kunt verliezen. Is dat verlies ondraaglijk, dan is de prijs niet laag genoeg — loop weg.</div>`},
+v5:{t:"⏳ Tijd in de markt verslaat timing",h:`<p>Goedkope aandelen kunnen jaren goedkoop blijven, en de grootste stijgingsdagen van de beurs clusteren vlak naast de engste crashes. Wie slechts de 10 beste dagen van een decennium mist, halveert ruwweg zijn totaalrendement — en niemand weet vooraf welke dagen dat zijn.</p>${SVGS.comp}<p>Daarom koppelen waardebeleggers geduld aan hun koopjes: koop kwaliteit onder de waarde en laat samengestelde groei — groei op groei — jarenlang het zware werk doen.</p><div class="lp-tip">💡 <b>Zo denk je erover:</b> Buffetts aanhoudperiode is "voor altijd". Vraag vóór de koop: blij om dit te bezitten als de beurs vijf jaar dichtgaat? Zo niet, dan is het een trade, geen belegging.</div>`},
+bk2:{t:"📖 Boeken om dieper te gaan",h:`<div class="lp-books"><div>📘 <b>The Intelligent Investor</b> — Benjamin Graham. De bijbel van het waardebeleggen; hoofdstukken 8 (Mr. Market) en 20 (veiligheidsmarge) alleen al zijn de prijs waard.</div><div>📙 <b>The Little Book That Still Beats the Market</b> — Joel Greenblatt. Een grappig boek van 2 uur dat waarde uitlegt met een simpele 'magische formule'.</div><div>📄 <b>Warren Buffetts aandeelhoudersbrieven</b> — gratis op berkshirehathaway.com. Vijftig jaar van de beste beleggingseducatie ooit geschreven, kosteloos.</div></div>`},
+r1:{t:"🎢 Volatiliteit — de toegangsprijs",h:`<p>Volatiliteit meet hoe wild een koers om zijn pad slingert. Meme-aandelen en crypto bewegen dubbele cijfers per dag; Coca-Cola kabbelt.</p>${SVGS.vol}<p>Volatiliteit is niet hetzelfde als risico — een wilde rit die hoger eindigt verslaat een vlakke die lager eindigt. Maar volatiliteit schudt mensen op het slechtste moment uit de markt, en dat maakt het een psychologisch risico, ook als het geen financieel risico is.</p><div class="lp-tip">💡 <b>De fix:</b> bepaal de maximale daling die je zonder paniek kunt aanzien (wees eerlijk: -30% zien?). Maak posities zo groot dat dat getal kan gebeuren zonder gedwongen verkoop.</div>`},
+r2:{t:"🧩 Spreiding — de enige gratis lunch",h:`<p>Elk afzonderlijk bedrijf kan kapotgaan aan fraude, disruptie of pech — maar niet allemaal tegelijk. Spreiden over bedrijven en sectoren haalt die individuele rampen weg zonder het verwachte rendement te verlagen; daarom noemen economen het de enige gratis lunch in de financiën.</p>${SVGS.div}<p>Precies daarom begrenst Stonk Arena elke positie op 30%: alles-op-één-ticker is geen strategie, het is een muntworp met extra stappen.</p><div class="lp-tip">💡 <b>De fix:</b> een simpele check — als je slechtste positie morgen naar nul gaat, overleeft je portefeuille dat? Zo niet, dan is het concentratie, geen overtuiging.</div>`},
+r3:{t:"⚖️ Positiegrootte — de beslissing vóór de beslissing",h:`<p>Hoevéél je in een idee steekt, doet er meer toe dan de meeste keuzes. Professionals denken in overleefbare inzetten: klein genoeg dat geen enkele fout fataal is, groot genoeg dat gelijk hebben ertoe doet.</p><p>De wiskunde is wreed en asymmetrisch: een verlies van 50% vergt een winst van 100% alleen al om quitte te staan. De onderkant beschermen is geen lafheid — het houdt de samengestelde groei in leven.</p><div class="lp-tip">💡 <b>De fix:</b> gebruik een regel, geen gevoel. Bijvoorbeeld: maximaal 20-30% per positie (dit spel dwingt het af), en nooit bijkopen in een verliezer puur om te 'middelen' zonder de these opnieuw te toetsen.</div>`},
+r4:{t:"🐂 Stieren- & berenmarkten — het weer, niet het klimaat",h:`<p>Een stierenmarkt is een lange stijging met optimisme aan het stuur; een berenmarkt is een daling van 20%+ met angst achter het stuur. De Amerikaanse beurs overleefde wereldoorlogen, olieschokken, de dotcom-manie, 2008 en een pandemie — en zette na elk daarvan nieuwe records.</p><p>Beren doen pijn maar zijn historisch tijdelijk; de fout die tijdelijk permanent maakt, is verkopen op de bodem.</p><div class="lp-tip">💡 <b>De fix:</b> schrijf in rustige tijden een 'als-dan'-plan: "als de markt 30% daalt, dan…". Beslissingen van vóór de storm verslaan beslissingen erin.</div>`},
+r5:{t:"🐢 Samengestelde groei — het achtste wereldwonder",h:`<p>Geld dat 8% per jaar groeit, verdubbelt ruwweg elke 9 jaar. Dat klinkt bescheiden tot de verdubbelingen stapelen: €1.000 wordt €2.000, dan €4.000, dan €8.000 — groei die groei verdient.</p>${SVGS.comp}<p>De harde implicatie: tijd is het waardevolste bezit van een belegger, en een 17-jarige met €50 per maand heeft een voorsprong die geen enkel salaris van een 40-jarige kan terugkopen.</p><div class="lp-tip">💡 <b>De fix:</b> automatiseer het. Een vaste maandelijkse overschrijving naar een brede ETF schakelt emotie, timing en vergeetachtigheid uit — de drie grote moordenaars van samengestelde groei.</div>`},
+bk3:{t:"📖 Boeken om dieper te gaan",h:`<div class="lp-books"><div>📕 <b>A Random Walk Down Wall Street</b> — Burton Malkiel. Waarom markten moeilijk te verslaan zijn en wat écht werkt, al vijftig jaar geactualiseerd.</div><div>📗 <b>The Psychology of Money</b> — Morgan Housel. Twintig korte verhalen over rijkdom, hebzucht en geluk; niet voor niets hét cadeauboek over geld van dit decennium.</div></div>`},
+p1:{t:"😱 Angst, hebzucht & de cyclus",h:`<p>Markten zijn machines die geld overdragen van de ongeduldigen naar de geduldigen — want de meeste beleggers kopen euforie en verkopen paniek, precies het omgekeerde van winstgevend.</p>${SVGS.fg}<p>De cyclus herhaalt zich om de paar jaar in een nieuw kostuum: tulpen, dotcoms, meme-aandelen, AI. De namen veranderen; de emoties nooit.</p><div class="lp-tip">💡 <b>Wat werkt:</b> ① de 48-uursregel — koop nooit op de dag dat de drang opkomt; ② schrijf vóór elke trade de reden in één zin op (de historiek van dit spel bewaart de bonnetjes); ③ praat iedereen op school over een aandeel, ga er dan van uit dat het makkelijke geld al binnen is.</div>`},
+p2:{t:"📉 Verliesaversie — waarom verliezers verkopen pijn doet",h:`<p>Psychologen Kahneman en Tversky bewezen dat verlies ongeveer twee keer zo hard aankomt als evenveel winst goed voelt. Het gevolg: beleggers klampen zich vast aan verliezers ("hij komt wel terug!") en verkopen winnaars te vroeg ("winst veiligstellen!") — systematisch andersom.</p><p>Het aandeel kent zijn aankoopprijs niet. Elke dag aanhouden is een impliciete beslissing om tegen de prijs van vandaag te kopen.</p><div class="lp-tip">💡 <b>Wat werkt:</b> ① beoordeel beslissingen op het proces, niet op de uitkomst — een goede inzet kan verliezen; ② vraag "zou ik dit vandaag tegen deze prijs kopen?" — nee? waarom houd je het dan?; ③ bekijk op de 1e de trades van de maand als een coach die wedstrijdbeelden terugkijkt, zonder zelfkastijding.</div>`},
+p3:{t:"🏃 Traden vs beleggen — weet welk spel je speelt",h:`<p>Een competitie van één maand beloont geconcentreerde, agressieve zetten — volatiliteit is de vriend van wie als eerste moet finishen. Echte vermogensopbouw is de omgekeerde sport: gespreid, automatisch, gemeten in decennia, waar de schildpad de haas betrouwbaar verslaat.</p><p>De twee spellen verwarren — zo verliezen mensen echt geld met competitietactieken.</p><div class="lp-tip">💡 <b>Wat werkt:</b> geniet hier van maximale agressie — dáár is een zandbak voor. Draai met echt geld het saaie draaiboek: brede ETF, automatische maandelijkse aankoop, negeer het nieuws. Twee spellen, twee strategieën.</div>`},
+p4:{t:"⚠️ Dit spel vs de werkelijkheid",h:`<p>Stonk Arena gebruikt echte beurskoersen maar virtueel geld. Geen spreads, geen belastingen, geen zweethanden — het emotionele gewicht van echte euro's valt simpelweg niet te simuleren, en dat gewicht is de helft van beleggen.</p><p>Beschouw elk resultaat hier als leergeld: patronen geleerd, fouten gratis gemaakt, instincten getraind voordat er één echte euro op het spel staat. Niets in deze app is beleggingsadvies.</p><div class="lp-tip">💡 <b>Laatste fix:</b> houd een dagboek van één regel per maand bij: "wat heeft de markt me geleerd?". Twaalf eerlijke regels per jaar verslaan de meeste financiële opleidingen.</div>`},
+bk4:{t:"📖 Boeken om dieper te gaan",h:`<div class="lp-books"><div>📘 <b>Thinking, Fast and Slow</b> — Daniel Kahneman. De Nobelprijswinnende kaart van de twee systemen in ons brein en elke bias die beleggers geld kost.</div><div>📙 <b>Misbehaving</b> — Richard Thaler. Het grappige ontstaansverhaal van de gedragseconomie, door haar andere Nobelprijswinnaar.</div><div>📗 <b>The Psychology of Money</b> — Morgan Housel. Als er uit deze hele cursus één boek gelezen wordt, laat het dit zijn.</div></div>`}
+}};
+function mTitle(m){return lang==="nl"?(COURSE_NL.mods[m.title]||m.title):m.title;}
+function lT(l){const o=lang==="nl"&&COURSE_NL.lessons[l.id];return o?o.t:l.t;}
+function lH(l){const o=lang==="nl"&&COURSE_NL.lessons[l.id];return o?o.h:l.h;}
+
 function learnDone(){return store.get("sa_learn")||{};}
 function renderLearn(){
   const done=learnDone();
@@ -1586,15 +1640,15 @@ function renderLearn(){
     total+=n;got+=d;
     const pct=Math.round(d/n*100);
     return `<div class="learn-mod">
-      <div class="learn-mod-head"><span class="learn-mod-title">${m.title}</span><span class="learn-mod-pct">${pct}%</span></div>
+      <div class="learn-mod-head"><span class="learn-mod-title">${mTitle(m)}</span><span class="learn-mod-pct">${pct}%</span></div>
       <div class="learn-bar"><div class="learn-bar-fill" style="width:${pct}%"></div></div>
       ${m.lessons.map((l,li)=>`<button class="lesson-row" onclick="openLesson(${mi},${li})">
-        <span>${done[l.id]?"✅":"○"}</span><span>${l.t}</span><span class="lr-chev">›</span>
+        <span>${done[l.id]?"✅":"○"}</span><span>${lT(l)}</span><span class="lr-chev">›</span>
       </button>`).join("")}
     </div>`;
   }).join("");
   const opct=total?Math.round(got/total*100):0;
-  $("learn-overall").innerHTML=`<div class="learn-mod-head"><span style="font-size:12px;font-weight:600;color:var(--text2)">Overall progress · ${got}/${total} lessons</span><span class="learn-mod-pct">${opct}%</span></div>
+  $("learn-overall").innerHTML=`<div class="learn-mod-head"><span style="font-size:12px;font-weight:600;color:var(--text2)">${t("lnOverall")} · ${got}/${total} ${t("lnLessons")}</span><span class="learn-mod-pct">${opct}%</span></div>
   <div class="learn-bar" style="margin-bottom:0"><div class="learn-bar-fill" style="width:${opct}%"></div></div>`;
 }
 let lpM=0,lpL=0;
@@ -1605,13 +1659,13 @@ function openLesson(mi,li){
 }
 function renderLesson(){
   const m=COURSE[lpM],l=m.lessons[lpL];
-  $("lp-mod").textContent=m.title;
+  $("lp-mod").textContent=mTitle(m);
   $("lp-count").textContent=(lpL+1)+"/"+m.lessons.length;
-  $("lp-title").textContent=l.t;
-  $("lp-content").innerHTML=l.h;
+  $("lp-title").textContent=lT(l);
+  $("lp-content").innerHTML=lH(l);
   $("lp-scroll").scrollTop=0;
-  $("lp-backbtn").textContent=lpL===0?"← Overview":"← Back";
-  $("lp-nextbtn").textContent=lpL===m.lessons.length-1?"Finish module ✓":"Next →";
+  $("lp-backbtn").textContent=lpL===0?"← "+t("lnOverview"):"← "+t("lnBack");
+  $("lp-nextbtn").textContent=lpL===m.lessons.length-1?t("lnFinish"):t("lnNext");
   const d=learnDone();
   if(!d[l.id]){d[l.id]=1;store.set("sa_learn",d);}
 }
@@ -1620,7 +1674,7 @@ function lessonNav(dir){
   const nx=lpL+dir;
   if(nx<0||nx>=m.lessons.length){
     closeLesson();
-    if(dir>0)showToast("🎉 "+m.title.split("·")[1].trim()+" complete!");
+    if(dir>0)showToast("🎉 "+mTitle(m).split("·").pop().trim()+" "+t("lnDone"));
     return;
   }
   lpL=nx;renderLesson();
@@ -1629,13 +1683,12 @@ function closeLesson(){
   $("learn-page").classList.remove("open");
   renderLearn();
 }
-const TUT=[["👋","Welcome to Stonk Arena","Everyone starts with €10,000 virtual capital at real market prices. Highest return this month wins €100 REAL-LIFE cash — paid to your bank account, not in-game money. Let me show you around the app itself."]];
 const TOUR=[
-  {sel:".stock-item",title:"Tap any stock 👇",text:"Opens the full stock page: a 10-year chart with hover prices, key stats, what the company does and why it moved.",pos:"below"},
-  {sel:".stock-item .btn-buy",title:"Trade safely 👇",text:"BUY and SELL always open a confirmation panel first — pick the amount, see the total, then confirm. Max 30% per stock keeps it fair.",pos:"below"},
-  {sel:"#nav-portfolio",title:"Your portfolio 👆",text:"Your positions, cash and full trade history live here.",pos:"above"},
-  {sel:"#nav-leaderboard",title:"The ranking 👆",text:"The live leaderboard. Make at least 5 trades to qualify — highest return wins real life €100, paid to your bank account. The competition restarts every month, so everyone gets a fresh shot.",pos:"above"},
-  {sel:"#nav-learn",title:"Learn & track progress 👆",text:"Short courses with progress bars — from the absolute basics to value investing.",pos:"above"},
+  {sel:".stock-item",k:"tour1",pos:"below"},
+  {sel:".stock-item .btn-buy",k:"tour2",pos:"below"},
+  {sel:"#nav-portfolio",k:"tour3",pos:"above"},
+  {sel:"#nav-leaderboard",k:"tour4",pos:"above"},
+  {sel:"#nav-learn",k:"tour5",pos:"above"},
 ];
 let tutI=0,coachI=0;
 // Tutorial "seen" flag is per account, so every new account gets the tour
@@ -1654,11 +1707,10 @@ function tutStart(){
   $("tut-ov").classList.add("open");
 }
 function tutRender(){
-  const [e,ti,tx]=TUT[0];
-  $("tut-emoji").textContent=e;
-  $("tut-title").textContent=ti;
-  $("tut-text").textContent=tx;
-  $("tut-next").textContent="Show me around →";
+  $("tut-emoji").textContent="👋";
+  $("tut-title").textContent=t("tutT");
+  $("tut-text").textContent=t("tutX");
+  $("tut-next").textContent=t("tutGo");
 }
 function tutNext(){
   $("tut-ov").classList.remove("open");
@@ -1681,9 +1733,9 @@ function coachShow(){
     $("coach-ov").classList.add("open");
     hole.style.left=(r.left-6)+"px";hole.style.top=(r.top-6)+"px";
     hole.style.width=(r.width+12)+"px";hole.style.height=(r.height+12)+"px";
-    $("coach-title").textContent=st.title;
-    $("coach-text").textContent=st.text;
-    $("coach-next").textContent=coachI===TOUR.length-1?"Start trading 🚀":"Next →";
+    $("coach-title").textContent=t(st.k+"t");
+    $("coach-text").textContent=t(st.k+"x");
+    $("coach-next").textContent=coachI===TOUR.length-1?t("tourGo"):t("tourNext");
     $("coach-step").textContent=(coachI+1)+" / "+TOUR.length;
     tip.style.visibility="hidden";
     requestAnimationFrame(()=>{
@@ -1781,8 +1833,8 @@ function showToast(msg,type="ok"){
 }
 function doBuyLocal(ticker,n){
   const _ms=mktStatus();
-  if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
-  if(!(prices[ticker]>0)){showToast("⏳ Waiting for live price...","err");return false;}
+  if(_ms!=="open"){showToast(_ms==="weekend"?t("toWknd"):t("toClosed"),"err");return false;}
+  if(!(prices[ticker]>0)){showToast(t("toWait"),"err");return false;}
   n=Math.max(1,parseInt(n)||1);
   const cost=(prices[ticker]||0)*n;
   if(cost>cash){showToast(t("noCash"),"err");return false;}
@@ -1797,8 +1849,8 @@ function doBuyLocal(ticker,n){
 }
 function doSellLocal(ticker,n){
   const _ms=mktStatus();
-  if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
-  if(!(prices[ticker]>0)){showToast("⏳ Waiting for live price...","err");return false;}
+  if(_ms!=="open"){showToast(_ms==="weekend"?t("toWknd"):t("toClosed"),"err");return false;}
+  if(!(prices[ticker]>0)){showToast(t("toWait"),"err");return false;}
   n=Math.max(1,parseInt(n)||1);
   if(n>(holdings[ticker]||0)){showToast(t("noShares"),"err");return false;}
   cash+=(prices[ticker]||0)*n;holdings[ticker]-=n;
@@ -1810,13 +1862,13 @@ function doSellLocal(ticker,n){
 }
 function errMsg(e){
   const m=(e&&e.message)||"Trade failed";
-  return m.includes("INTERNAL")?"Server error — try again":m;
+  return m.includes("INTERNAL")?t("toSrv"):m;
 }
 async function doBuy(ticker,n){
   n=Math.max(1,parseInt(n)||1);
   if(!FB||!FB.fns||!FBuser)return doBuyLocal(ticker,n);
   const _ms=mktStatus();
-  if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
+  if(_ms!=="open"){showToast(_ms==="weekend"?t("toWknd"):t("toClosed"),"err");return false;}
   try{
     const res=await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"BUY",name:username});
     const d=res.data||{};
@@ -1831,7 +1883,7 @@ async function doSell(ticker,n){
   n=Math.max(1,parseInt(n)||1);
   if(!FB||!FB.fns||!FBuser)return doSellLocal(ticker,n);
   const _ms=mktStatus();
-  if(_ms!=="open"){showToast(_ms==="weekend"?"📅 Weekend — trading resumes Monday":"🕐 Market closed — trading 15:30–22:00 CET (Mon–Fri)","err");return false;}
+  if(_ms!=="open"){showToast(_ms==="weekend"?t("toWknd"):t("toClosed"),"err");return false;}
   try{
     const res=await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"SELL",name:username});
     const d=res.data||{};
@@ -1905,13 +1957,13 @@ async function loadHist(tk){
   }
   if(spTk!==tk)return;
   $("sp-chart-load").style.display="none";
-  if(!data){$("sp-about").textContent="Chart & profile unavailable for this instrument.";drawSP([]);return;}
+  if(!data){$("sp-about").textContent=t("spUnav");drawSP([]);return;}
   drawSP(data.series);
   buildStats(data.series,data.meta||{});
   const m=data.meta||{};
   const descs=await loadDescs();
   const story=descs&&descs[tk];
-  let about=`<b style="color:var(--text)">${esc(m.name||tk)}</b><br>${esc(m.description||"No description available.")}`;
+  let about=`<b style="color:var(--text)">${esc(m.name||tk)}</b><br>${esc(m.description||t("spNoDesc"))}`;
   if(story){
     about+=`<div class="card-header" style="padding:18px 0 8px">📈 ${t("whyMoved")}</div>${esc(story)}`;
   }
@@ -1958,14 +2010,14 @@ function buildStats(series,meta){
   };
   const stk=STOCKS.find(x=>x.t===spTk);
   const items=[
-    ["52W HIGH",hi52?"$"+fmt(hi52):"—"],
-    ["52W LOW",lo52?"$"+fmt(lo52):"—"],
-    ["1Y RETURN",fmtRet(retOver(1))],
-    ["5Y RETURN",fmtRet(retOver(5))],
-    ["10Y RETURN",fmtRet(retOver(10))],
-    ["SECTOR",stk?esc(stk.s):"—"],
-    ["EXCHANGE",esc(meta.exchange||"—")],
-    ["LISTED SINCE",esc(meta.since||"—")],
+    [t("stHi"),hi52?"$"+fmt(hi52):"—"],
+    [t("stLo"),lo52?"$"+fmt(lo52):"—"],
+    ["1Y "+t("hR"),fmtRet(retOver(1))],
+    ["5Y "+t("hR"),fmtRet(retOver(5))],
+    ["10Y "+t("hR"),fmtRet(retOver(10))],
+    [t("stSec"),stk?esc(stk.s):"—"],
+    [t("stEx"),esc(meta.exchange||"—")],
+    [t("stSince"),esc(meta.since||"—")],
   ];
   $("sp-stats").innerHTML=items.map(([l,v])=>`<div class="sp-stat"><div class="sp-stat-l">${l}</div><div class="sp-stat-v">${v}</div></div>`).join("");
 }
@@ -2078,16 +2130,16 @@ function sheetUpdate(){
   $("sh-chg").style.color=up?"var(--green)":"var(--red)";
   $("seg-buy").className=sheetMode==="buy"?"on-buy":"";
   $("seg-sell").className=sheetMode==="sell"?"on-sell":"";
-  $("sh-held").textContent=`You own ${held}×`;
+  $("sh-held").textContent=`${t("shOwn")} ${held}×`;
   $("sh-total").textContent="$"+fmt(p*n);
   const mktOpen=mktStatus()==="open";
   const hasPrice=p>0;
   const tradable=mktOpen&&hasPrice;
-  const lockLabel=mktOpen?"⏳ Loading live price...":"🔒 Market closed";
+  const lockLabel=mktOpen?t("shLoadPx"):t("shClosed");
   const sellN=Math.min(n,held)||0;
   let btns="";
   if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:lockLabel}</button>`;
-  else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):"You own 0 shares — nothing to sell"}</button>`;
+  else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):t("shNone")}</button>`;
   $("sheet-actions").innerHTML=btns;
 }
 async function sheetBuy(){
@@ -2121,11 +2173,11 @@ function updateHeader(){
   $("h-timer").textContent=`${tl.days}d ${tl.hours}h`;
   const mkt=mktStatus();
   const db=$("data-badge");
-  if(!live){db.textContent="⏳ LOADING";db.className="header-badge badge-sim";}
-  else if(mkt==="open"){db.textContent="LIVE";db.className="header-badge badge-live";}
-  else{db.textContent="CLOSED";db.className="header-badge badge-closed";}
+  if(!live){db.textContent=t("bLoad");db.className="header-badge badge-sim";}
+  else if(mkt==="open"){db.textContent=t("bLive");db.className="header-badge badge-live";}
+  else{db.textContent=t("bClosed");db.className="header-badge badge-closed";}
   const mb=$("mkt-badge");
-  mb.textContent=mkt==="open"?"OPEN":mkt==="weekend"?"WEEKEND":mkt==="pre"?"PRE":"AFTER";
+  mb.textContent=mkt==="open"?t("bOpen"):mkt==="weekend"?t("bWknd"):mkt==="pre"?t("bPre"):t("bAfter");
   mb.className="header-badge "+(mkt==="open"?"badge-open":"badge-closed");
 }
 function renderPortfolio(){
@@ -2164,7 +2216,7 @@ function leaderRow(rank,name,val,ret,trades,isMe,uid){
     <div class="leader-avatar">${avatarFor(name)}</div>
     <div class="leader-info">
       <div class="leader-name">${esc(name)}${isMe?` <span class="leader-you">${t("you")}</span>`:""}</div>
-      ${hof&&hof.wins>0?`<div class="leader-title">🏆 ${hof.wins}× winner</div>`:""}
+      ${hof&&hof.wins>0?`<div class="leader-title">🏆 ${hof.wins}× ${t("wWin")}</div>`:""}
       <div class="leader-trades">${trades} ${t("trades")} · <span style="color:${q?"var(--green)":"var(--text3)"};font-weight:600">${q?"✓ "+t("qual"):trades+"/5 "+t("qualNeed")}</span></div>
     </div>
     <div class="leader-right">
@@ -2192,7 +2244,7 @@ function renderLeaderboard(){
   $("leader-list").innerHTML=rows;
   // Previous winners
   $("winners-card").innerHTML=winnersList.length===0?"":`<div class="card" style="margin-top:16px">
-    <div class="card-header">🏆 PREVIOUS WINNERS</div>
+    <div class="card-header">🏆 ${t("wPrev")}</div>
     ${winnersList.map(w=>`<div class="pos-row">
       <div><div class="pos-sym">${esc(w.name||"Player")}</div><div class="pos-name">${String(w.month||"").replace("_","/")}</div></div>
       <div class="pos-right"><div class="pos-val" style="color:var(--gold)">€100</div><div class="pos-shares" style="color:var(--green)">+${Number(w.ret||0).toFixed(2)}%</div></div>
@@ -2200,7 +2252,7 @@ function renderLeaderboard(){
   </div>`;
   // Hall of Fame
   $("hof-card").innerHTML=hofList.length===0?"":`<div class="card" style="margin-top:12px">
-    <div class="card-header">👑 HALL OF FAME — MOST WINS</div>
+    <div class="card-header">👑 ${t("wHof")}</div>
     ${hofList.map((p,i)=>`<div class="pos-row">
       <div style="display:flex;align-items:center;gap:10px"><span class="leader-rank${i===0?" gold":""}" style="font-size:18px;min-width:22px">${i+1}</span><div><div class="pos-sym">${esc(p.name||"Player")}</div></div></div>
       <div class="pos-right"><div class="pos-val">🏆 ${p.wins||0}</div></div>
@@ -2237,24 +2289,29 @@ function switchTab(id){
 
 // ══ LANGUAGE ══
 function setLang(code){
-  try{const lf=L[code]||L.en;$("lang-toggle-btn").textContent=lf.f;}catch(e){}
-  lang=code;const l=L[code];
-  $("h-plbl").textContent=l.hP;$("h-rlbl").textContent=l.hR;$("h-clbl").textContent=l.hC;$("h-llbl").textContent=l.hL;
-  $("n-market").textContent=l.nM;$("n-portfolio").textContent=l.nP;$("n-leaderboard").textContent=l.nLb;$("n-profile").textContent=t("nPr");$("n-learn").textContent=t("nLn");
-  $("pt-l1").textContent=l.ptL1;$("pt-l2").textContent=l.ptL2;$("pt-l3").textContent=l.ptL3;
-  $("pt-poslbl").textContent=l.ptPos;$("pt-trlbl").textContent=l.ptTr;
-  $("lb-lbl").textContent=l.lbLbl;$("lb-you").textContent=l.you;
-  $("lang-toggle-btn").textContent=l.f;
+  lang=(L[code])?code:"en";code=lang;
+  const st=(id,v)=>{const e=$(id);if(e&&v!=null)e.textContent=v;};
+  st("lang-toggle-btn",t("f"));
+  st("h-plbl",t("hP"));st("h-rlbl",t("hR"));st("h-clbl",t("hC"));st("h-llbl",t("hL"));
+  st("n-market",t("nM"));st("n-portfolio",t("nP"));st("n-leaderboard",t("nLb"));st("n-profile",t("nPr"));st("n-learn",t("nLn"));
+  st("pt-l1",t("ptL1"));st("pt-l2",t("ptL2"));st("pt-l3",t("ptL3"));
+  st("pt-poslbl",t("ptPos"));st("pt-trlbl",t("ptTr"));
+  st("lb-lbl",t("lbLbl"));
+  // generic engine: every tagged element translates itself
+  document.querySelectorAll("[data-i18n]").forEach(e=>{const v=t(e.dataset.i18n);if(v!==e.dataset.i18n)e.textContent=v;});
+  document.querySelectorAll("[data-i18n-html]").forEach(e=>{const v=t(e.dataset.i18nHtml);if(v!==e.dataset.i18nHtml)e.innerHTML=v;});
+  document.querySelectorAll("[data-i18n-ph]").forEach(e=>{const v=t(e.dataset.i18nPh);if(v!==e.dataset.i18nPh)e.placeholder=v;});
   document.querySelectorAll(".lang-opt").forEach(b=>b.classList.toggle("active",b.dataset.c===code));
-  const sf=$("sector-sel");if(sf&&sf.options[0])sf.options[0].text=l.allSec;
-  saveState();
-  if(tab==="market")renderMarket();
+  const sf=$("sector-sel");if(sf&&sf.options[0])sf.options[0].text=t("allSec");
+  try{saveState();}catch(e){}
+  try{applyRulesText&&applyRulesText();}catch(e){}
+  try{if(tab==="market")renderMarket();if(tab==="leaderboard")renderLeaderboard();if(tab==="portfolio")renderPortfolio();if(tab==="learn")renderLearn();if(tab==="profile")renderProfile();updateHeader();}catch(e){}
 }
 function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AA";
+const APP_VERSION="v22.07-AB";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
@@ -2299,6 +2356,7 @@ function init(){
       }
     });
   }else if(loadState()){appStarted=true;startLoading();}
+  try{setLang(lang);}catch(e){}
 }
 init();
 if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
