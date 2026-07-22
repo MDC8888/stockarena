@@ -1603,7 +1603,7 @@ const TOUR=[
   {sel:".stock-item",title:"Tap any stock 👇",text:"Opens the full stock page: a 10-year chart with hover prices, key stats, what the company does and why it moved.",pos:"below"},
   {sel:".stock-item .btn-buy",title:"Trade safely 👇",text:"BUY and SELL always open a confirmation panel first — pick the amount, see the total, then confirm. Max 30% per stock keeps it fair.",pos:"below"},
   {sel:"#nav-portfolio",title:"Your portfolio 👆",text:"Your positions, cash and full trade history live here.",pos:"above"},
-  {sel:"#nav-leaderboard",title:"The ranking 👆",text:"The live leaderboard. Make at least 5 trades to qualify — highest monthly return wins the €100 prize.",pos:"above"},
+  {sel:"#nav-leaderboard",title:"The ranking 👆",text:"The live leaderboard. Make at least 5 trades to qualify — highest return wins €100. The competition restarts every month, so everyone gets a fresh shot.",pos:"above"},
   {sel:"#nav-learn",title:"Learn & track progress 👆",text:"Short courses with progress bars — from the absolute basics to value investing.",pos:"above"},
 ];
 let tutI=0,coachI=0;
@@ -2193,7 +2193,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-T";
+const APP_VERSION="v22.07-U";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
