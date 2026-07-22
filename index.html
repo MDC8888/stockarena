@@ -1369,10 +1369,10 @@ async function doSell(ticker,n){
   }catch(e){showToast(errMsg(e),"err");return false;}
 }
 // ══ TRADE SHEET (confirmation) ══
-let sheetTk=null;
+let sheetTk=null,sheetMode='buy';
 function openSheet(tk,mode){
   const s=STOCKS.find(x=>x.t===tk);if(!s)return;
-  sheetTk=tk;
+  sheetTk=tk;sheetMode=(mode==="sell")?"sell":"buy";
   $("sh-sym").textContent=tk;
   $("sh-name").textContent=s.n;
   const held=holdings[tk]||0;
@@ -1396,6 +1396,13 @@ function sheetUpdate(){
   $("sh-sellbtn").disabled=!tradable||held===0;
   $("sh-buybtn").textContent=tradable?`BUY ${n}×`:"🔒 LOCKED";
   $("sh-sellbtn").textContent=`SELL ${Math.min(n,held)}×`;
+  const sp=sheetMode==="sell";
+  $("sh-sellbtn").style.background=sp?"var(--red)":"var(--white)";
+  $("sh-sellbtn").style.color=sp?"#fff":"var(--text)";
+  $("sh-sellbtn").style.border=sp?"none":"1px solid var(--border)";
+  $("sh-buybtn").style.background=sp?"var(--white)":"var(--blue)";
+  $("sh-buybtn").style.color=sp?"var(--text)":"#fff";
+  $("sh-buybtn").style.border=sp?"1px solid var(--border)":"none";
 }
 async function sheetBuy(){
   if(!sheetTk)return;
@@ -1450,7 +1457,7 @@ function renderPortfolio(){
       const p=prices[tk]||0,val=sh*p,b2=base[tk]||1,r2=((p-b2)/b2)*100;
       const w=v>0?val/v*100:0;
       const stk=STOCKS.find(s=>s.t===tk);
-      return`<div class="pos-row"><div style="flex:1"><div class="pos-sym">${tk} <span style="font-weight:500;color:var(--text3);font-size:11px">${w.toFixed(0)}%</span></div><div class="pos-name">${stk?stk.n:""}</div></div><div class="pos-right"><div class="pos-shares">${sh}× @ $${fmt(p)}</div><div class="pos-val">$${fmt(val)} <span style="color:${r2>=0?"var(--green)":"var(--red)"};font-size:11px">${r2>=0?"+":""}${r2.toFixed(2)}%</span></div><div class="pos-controls"><button class="btn-sell" onclick="openSheet('${tk}','sell')">${t("sell")}</button></div></div></div>`;
+      return`<div class="pos-row"><div style="flex:1"><div class="pos-sym">${tk} <span style="font-weight:500;color:var(--text3);font-size:11px">${w.toFixed(0)}%</span></div><div class="pos-name">${stk?stk.n:""}</div></div><div class="pos-right"><div class="pos-shares">${sh}× @ $${fmt(p)}</div><div class="pos-val">$${fmt(val)} <span style="color:${r2>=0?"var(--green)":"var(--red)"};font-size:11px">${r2>=0?"+":""}${r2.toFixed(2)}%</span></div><div class="pos-controls"><button class="btn-buy" onclick="openSheet('${tk}','buy')">${t("buy")}</button><button class="btn-sell" onclick="openSheet('${tk}','sell')">${t("sell")}</button></div></div></div>`;
     }).join("");
   $("trade-list").innerHTML=tradeLog.length===0?`<div class="empty-state">${t("ptNoTr")}</div>`:
     tradeLog.slice(0,10).map(tr=>`<div class="trade-row"><span class="trade-badge tb-${tr.type.toLowerCase()}">${tr.type}</span><span class="trade-sym">${tr.ticker}</span><span class="trade-detail">${tr.qty}× @ $${fmt(tr.price)}</span><span class="trade-time">${tr.time}</span></div>`).join("");
