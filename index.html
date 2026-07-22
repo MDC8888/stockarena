@@ -463,6 +463,19 @@ svg.mc{flex-shrink:0}
     <div class="sheet-handle"></div>
     <div class="sheet-head"><span class="sheet-sym" id="sh-sym">—</span><span class="sheet-price" id="sh-price">—</span></div>
     <div class="sheet-sub"><span id="sh-name">—</span><span id="sh-chg">—</span></div>
+    <div id="sheet-detail" style="display:none">
+      <div style="position:relative">
+        <canvas id="sh-chart" style="width:100%;height:150px;display:block"></canvas>
+        <div id="sh-chart-load" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text3)">Loading chart…</div>
+      </div>
+      <div style="display:flex;gap:6px;margin:10px 0 4px" id="sh-ranges">
+        <button class="btn-sell" style="flex:1;padding:7px;border-radius:8px" onclick="sheetRange(1)">1Y</button>
+        <button class="btn-sell" style="flex:1;padding:7px;border-radius:8px" onclick="sheetRange(5)">5Y</button>
+        <button class="btn-sell" style="flex:1;padding:7px;border-radius:8px" onclick="sheetRange(10)">10Y</button>
+      </div>
+      <div id="sh-perf" style="font-size:12px;font-weight:600;margin:6px 0"></div>
+      <div id="sh-meta" style="font-size:12px;color:var(--text2);line-height:1.5;max-height:110px;overflow-y:auto;margin-bottom:12px"></div>
+    </div>
     <div class="sheet-qty-row">
       <button class="qbtn" onclick="sheetStep(-1)">−</button>
       <input type="number" id="sheet-qty" value="1" min="1" inputmode="numeric" oninput="sheetUpdate()">
@@ -1369,7 +1382,72 @@ async function doSell(ticker,n){
   }catch(e){showToast(errMsg(e),"err");return false;}
 }
 // ══ TRADE SHEET (confirmation) ══
-let sheetTk=null,sheetMode='buy';
+let sheetTk=null,sheetMode='buy',sheetYears=10;
+const histCache={};
+async function loadHist(tk){
+  $("sh-chart-load").style.display="flex";
+  $("sh-meta").textContent="";$("sh-perf").textContent="";
+  let data=histCache[tk];
+  if(!data){
+    try{
+      const res=await fetch(`/.netlify/functions/history?ticker=${tk}`);
+      if(res.ok)data=await res.json();
+      if(data&&data.series&&data.series.length>1)histCache[tk]=data;else data=null;
+    }catch(e){data=null;}
+  }
+  if(sheetTk!==tk)return; // user moved on
+  $("sh-chart-load").style.display="none";
+  if(!data){$("sh-meta").textContent="Chart unavailable for this instrument.";drawChart([]);return;}
+  drawChart(data.series);
+  const m=data.meta||{};
+  const stk=STOCKS.find(x=>x.t===tk);
+  const bits=[stk?stk.s:"",m.exchange,m.since?("since "+m.since):""].filter(Boolean).join(" · ");
+  $("sh-meta").innerHTML=`<b style="color:var(--text)">${esc(m.name||tk)}</b>${bits?" — "+esc(bits):""}<br>${esc(m.description||"")}`;
+}
+function sheetRange(y){sheetYears=y;if(histCache[sheetTk])drawChart(histCache[sheetTk].series);}
+function drawChart(series){
+  const c=$("sh-chart");if(!c)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=c.clientWidth||300,H=150;
+  c.width=W*dpr;c.height=H*dpr;
+  const x=c.getContext("2d");x.scale(dpr,dpr);x.clearRect(0,0,W,H);
+  // range buttons state
+  const btns=$("sh-ranges").children;
+  [1,5,10].forEach((y,i)=>{
+    btns[i].style.background=y===sheetYears?"var(--blue)":"var(--white)";
+    btns[i].style.color=y===sheetYears?"#fff":"var(--text2)";
+    btns[i].style.borderColor=y===sheetYears?"var(--blue)":"var(--border)";
+  });
+  if(!series||series.length<2)return;
+  const cutoff=new Date();cutoff.setFullYear(cutoff.getFullYear()-sheetYears);
+  const cs=cutoff.toISOString().slice(0,10);
+  let pts=series.filter(p=>p[0]>=cs);
+  if(pts.length<2)pts=series;
+  const vals=pts.map(p=>p[1]);
+  const mn=Math.min(...vals),mx=Math.max(...vals),rng=(mx-mn)||1;
+  const up=vals[vals.length-1]>=vals[0];
+  const col=up?"#059669":"#dc2626";
+  const px=i=>8+(i/(pts.length-1))*(W-16);
+  const py=v=>10+(1-(v-mn)/rng)*(H-30);
+  // fill
+  x.beginPath();x.moveTo(px(0),py(vals[0]));
+  vals.forEach((v,i)=>x.lineTo(px(i),py(v)));
+  x.lineTo(px(vals.length-1),H-8);x.lineTo(px(0),H-8);x.closePath();
+  const g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,up?"rgba(5,150,105,.18)":"rgba(220,38,38,.18)");g.addColorStop(1,"rgba(255,255,255,0)");
+  x.fillStyle=g;x.fill();
+  // line
+  x.beginPath();x.moveTo(px(0),py(vals[0]));
+  vals.forEach((v,i)=>x.lineTo(px(i),py(v)));
+  x.strokeStyle=col;x.lineWidth=2;x.lineJoin="round";x.stroke();
+  // min/max labels
+  x.fillStyle="#9ca3af";x.font="10px -apple-system,sans-serif";
+  x.fillText("$"+mx.toLocaleString("en-US",{maximumFractionDigits:0}),8,10);
+  x.fillText("$"+mn.toLocaleString("en-US",{maximumFractionDigits:0}),8,H-2);
+  // perf
+  const perf=((vals[vals.length-1]-vals[0])/vals[0])*100;
+  $("sh-perf").innerHTML=`<span style="color:${col}">${perf>=0?"+":""}${perf.toFixed(1)}% </span><span style="color:var(--text3);font-weight:500">over ${sheetYears===10?"10 years":sheetYears+" year"+(sheetYears>1?"s":"")}</span>`;
+}
 function openSheet(tk,mode){
   const s=STOCKS.find(x=>x.t===tk);if(!s)return;
   sheetTk=tk;sheetMode=(mode==="sell")?"sell":(mode==="buy")?"buy":"both";
@@ -1377,8 +1455,11 @@ function openSheet(tk,mode){
   $("sh-name").textContent=s.n;
   const held=holdings[tk]||0;
   $("sheet-qty").value=(mode==="sell"&&held>0)?held:1;
+  const detail=sheetMode==="both";
+  $("sheet-detail").style.display=detail?"block":"none";
   sheetUpdate();
   $("sheet-ov").classList.add("open");
+  if(detail){sheetYears=10;loadHist(tk);}
 }
 function closeSheet(){$("sheet-ov").classList.remove("open");sheetTk=null;}
 function sheetStep(d){const i=$("sheet-qty");i.value=Math.max(1,(parseInt(i.value)||1)+d);sheetUpdate();}
