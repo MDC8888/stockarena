@@ -217,3 +217,64 @@ exports.monthly = onSchedule(
     await db.doc(`releases/${prev}`).set({ open: true, ts: admin.firestore.FieldValue.serverTimestamp() });
   }
 );
+
+
+// ── HTTP: 10y history + profile (FMP primary, Tiingo fallback) served via Hosting CDN ──
+const { onRequest } = require("firebase-functions/v2/https");
+const FMPKEY = "DH5Ok3sQuOf99czXACqQk0h4ftJpKaDj";
+function weeklySample(rows) {
+  const byWeek = new Map();
+  for (const r of rows) {
+    const d = new Date(r.date + "T00:00:00Z");
+    const y = d.getUTCFullYear();
+    const onejan = new Date(Date.UTC(y, 0, 1));
+    const week = Math.ceil((((d - onejan) / 86400000) + onejan.getUTCDay() + 1) / 7);
+    byWeek.set(y + "-" + week, [r.date, Math.round(r.price * 100) / 100]);
+  }
+  return [...byWeek.values()];
+}
+exports.history = onRequest({ cors: true }, async (req, res) => {
+  const t = String(req.query.ticker || "").toUpperCase().replace(/[^A-Z0-9.\-]/g, "").slice(0, 12);
+  if (!t) { res.status(400).json({ error: "ticker required" }); return; }
+  const start = new Date(); start.setFullYear(start.getFullYear() - 10);
+  const s = start.toISOString().slice(0, 10);
+  let series = [], meta = {};
+  try {
+    const [pr, mr] = await Promise.all([
+      fetch(`https://financialmodelingprep.com/stable/historical-price-eod/light?symbol=${t}&from=${s}&apikey=${FMPKEY}`),
+      fetch(`https://financialmodelingprep.com/stable/profile?symbol=${t}&apikey=${FMPKEY}`),
+    ]);
+    if (pr.ok) {
+      let rows = await pr.json();
+      if (Array.isArray(rows) && rows.length > 1) {
+        rows = rows.filter((r) => r && r.date && r.price > 0).sort((a, b) => (a.date < b.date ? -1 : 1));
+        series = weeklySample(rows);
+      }
+    }
+    if (mr.ok) {
+      const p = await mr.json();
+      const m = Array.isArray(p) ? p[0] : p;
+      if (m) meta = {
+        name: m.companyName || t,
+        exchange: m.exchange || m.exchangeShortName || "",
+        since: m.ipoDate ? String(m.ipoDate).slice(0, 4) : "",
+        description: String(m.description || "").slice(0, 1500),
+      };
+    }
+  } catch (e) {}
+  if (series.length < 2) {
+    try {
+      const hdr = { headers: { Authorization: `Token ${TIINGO}` } };
+      const pr2 = await fetch(`https://api.tiingo.com/tiingo/daily/${t}/prices?startDate=${s}&resampleFreq=weekly&token=${TIINGO}`, hdr);
+      if (pr2.ok) {
+        const rows = await pr2.json();
+        series = (Array.isArray(rows) ? rows : [])
+          .map((p) => [String(p.date).slice(0, 10), Math.round((p.adjClose || p.close || 0) * 100) / 100])
+          .filter((x) => x[1] > 0);
+      }
+    } catch (e) {}
+  }
+  const ok = series.length > 1;
+  res.set("Cache-Control", ok ? "public, max-age=3600, s-maxage=86400" : "public, max-age=120, s-maxage=300");
+  res.json({ meta, series });
+});
