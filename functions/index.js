@@ -7,6 +7,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { setGlobalOptions } = require("firebase-functions/v2");
 const admin = require("firebase-admin");
+const crypto = require("crypto");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -88,6 +89,23 @@ async function upsertPlayer(uid, name, state, prices, tradeIncrement) {
   await db.doc(`players_${monthKey()}/${uid}`).set(doc, { merge: true });
 }
 
+function emailKey(email) {
+  if (!email) return null;
+  let [l, d] = String(email).toLowerCase().split("@");
+  if (!d) return null;
+  l = l.split("+")[0];
+  if (d === "googlemail.com") d = "gmail.com";
+  if (d === "gmail.com") l = l.replace(/\./g, "");
+  return crypto.createHash("sha256").update(l + "@" + d).digest("hex").slice(0, 40);
+}
+async function restoredState(email, mk) {
+  const k = emailKey(email);
+  if (!k) return null;
+  const r = await db.doc(`retired/${k}`).get();
+  if (r.exists && r.data().month === mk) return r.data();
+  return null;
+}
+
 // ── callable: execute a trade (THE anti-cheat core) ────────
 exports.trade = onCall(async (req) => {
   const uid = req.auth && req.auth.uid;
@@ -104,11 +122,17 @@ exports.trade = onCall(async (req) => {
   const price = prices.p[ticker].p;
   const mk = monthKey();
   const stateRef = db.doc(`states/${uid}`);
+  const preSnap = await stateRef.get();
+  let seed = null;
+  if (!preSnap.exists || preSnap.data().month !== mk) {
+    const r = await restoredState(req.auth.token.email, mk);
+    if (r) seed = { cash: r.cash, holdings: r.holdings || {}, month: mk };
+  }
 
   const result = await db.runTransaction(async (tx) => {
     const snap = await tx.get(stateRef);
-    let s = snap.exists ? snap.data() : { cash: CASH0, holdings: {}, month: mk };
-    if (s.month !== mk) s = { cash: CASH0, holdings: {}, month: mk }; // monthly reset
+    let s = snap.exists ? snap.data() : (seed || { cash: CASH0, holdings: {}, month: mk });
+    if (s.month !== mk) s = seed || { cash: CASH0, holdings: {}, month: mk }; // monthly reset
 
     if (side === "BUY") {
       const cost = price * n;
@@ -144,11 +168,39 @@ exports.hello = onCall(async (req) => {
   const mk = monthKey();
   const stateRef = db.doc(`states/${uid}`);
   const snap = await stateRef.get();
-  let s = snap.exists ? snap.data() : { cash: CASH0, holdings: {}, month: mk };
-  if (s.month !== mk) { s = { cash: CASH0, holdings: {}, month: mk }; await stateRef.set(s); }
-  else if (!snap.exists) await stateRef.set(s);
+  let s = snap.exists ? snap.data() : null;
+  let restoredTrades = 0;
+  if (!s || s.month !== mk) {
+    const r = await restoredState(req.auth.token.email, mk);
+    if (r) { s = { cash: r.cash, holdings: r.holdings || {}, month: mk }; restoredTrades = r.trades || 0; }
+    else s = { cash: CASH0, holdings: {}, month: mk };
+    await stateRef.set(s);
+  }
   if (prices) await upsertPlayer(uid, req.data && req.data.name, s, prices, false);
+  if (restoredTrades > 0) {
+    await db.doc(`players_${mk}/${uid}`).set({ trades: restoredTrades }, { merge: true });
+  }
   return { cash: s.cash, holdings: s.holdings, month: mk };
+});
+
+// ── callable: bind this month's result to the email before account deletion ──
+exports.retire = onCall(async (req) => {
+  const uid = req.auth && req.auth.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Login required");
+  const mk = monthKey();
+  const k = emailKey(req.auth.token.email);
+  const sSnap = await db.doc(`states/${uid}`).get();
+  const pSnap = await db.doc(`players_${mk}/${uid}`).get();
+  const s = sSnap.exists ? sSnap.data() : null;
+  if (k && s && s.month === mk) {
+    await db.doc(`retired/${k}`).set({
+      month: mk, cash: s.cash, holdings: s.holdings || {},
+      trades: (pSnap.exists && pSnap.data().trades) || 0,
+      ts: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  }
+  try { await db.doc(`states/${uid}`).delete(); } catch (e) {}
+  return { ok: true };
 });
 
 // ── callable: force a price refresh (first visitor of the day) ──

@@ -273,7 +273,10 @@ svg.mc{flex-shrink:0}
 .sheet{background:var(--white);width:100%;max-width:380px;border-radius:22px;padding:18px 20px 20px;animation:popIn .16s ease;box-shadow:0 24px 64px rgba(0,0,0,.3)}
 @keyframes popIn{from{transform:scale(.96);opacity:.5}to{transform:scale(1);opacity:1}}
 .sheet-toprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.sheet-modebadge{font-size:11px;font-weight:800;letter-spacing:.8px;padding:5px 12px;border-radius:20px}
+.sheet-seg{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:3px;flex:1;max-width:200px}
+.sheet-seg button{flex:1;padding:8px;border:none;border-radius:9px;background:transparent;font-weight:800;font-size:12px;letter-spacing:.6px;color:var(--text3);font-family:var(--sans);cursor:pointer}
+.sheet-seg .on-buy{background:var(--blue);color:#fff}
+.sheet-seg .on-sell{background:#dc2626;color:#fff}
 .sheet-x{width:30px;height:30px;border-radius:50%;border:none;background:var(--bg);color:var(--text3);font-size:13px;cursor:pointer;font-family:var(--sans)}
 .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
 .sheet-sym{font-size:22px;font-weight:800;color:var(--text);line-height:1.1}
@@ -640,7 +643,10 @@ svg.mc{flex-shrink:0}
 <div class="sheet-overlay" id="sheet-ov" onclick="closeSheet()">
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-toprow">
-      <span class="sheet-modebadge" id="sh-mode">BUY</span>
+      <div class="sheet-seg">
+        <button id="seg-buy" onclick="sheetSetMode('buy')">BUY</button>
+        <button id="seg-sell" onclick="sheetSetMode('sell')">SELL</button>
+      </div>
       <button class="sheet-x" onclick="closeSheet()">✕</button>
     </div>
     <div class="sheet-head">
@@ -1327,7 +1333,7 @@ async function deleteAccount(){
   if(!confirm("Permanently delete your account and all data? This cannot be undone."))return;
   try{
     if(FB&&FBuser){
-      try{await FB.db.collection(LBCOL).doc(FBuser.uid).delete();}catch(e){}
+      try{await FB.fns.httpsCallable("retire")({});}catch(e){}
       await releaseUsername(username);
       await FBuser.delete();
     }
@@ -1956,11 +1962,17 @@ function drawSP(series){
 }
 function openSheet(tk,mode){
   const s=STOCKS.find(x=>x.t===tk);if(!s)return;
-  sheetTk=tk;sheetMode=(mode==="sell")?"sell":(mode==="buy")?"buy":"both";
+  sheetTk=tk;sheetMode=(mode==="sell")?"sell":"buy";
   const held=holdings[tk]||0;
   $("sheet-qty").value=(sheetMode==="sell"&&held>0)?held:1;
   sheetUpdate();
   $("sheet-ov").classList.add("open");
+}
+function sheetSetMode(m){
+  sheetMode=m;
+  const held=holdings[sheetTk]||0;
+  if(m==="sell"&&held>0)$("sheet-qty").value=Math.min(parseInt($("sheet-qty").value)||1,held);
+  sheetUpdate();
 }
 function closeSheet(){$("sheet-ov").classList.remove("open");sheetTk=null;}
 function sheetStep(d){const i=$("sheet-qty");i.value=Math.max(1,(parseInt(i.value)||1)+d);sheetUpdate();}
@@ -1975,17 +1987,15 @@ function sheetUpdate(){
   $("sh-price").textContent="$"+fmt(p);
   $("sh-chg").textContent=(up?"▲ ":"▼ ")+Math.abs(ch).toFixed(2)+"%";
   $("sh-chg").style.color=up?"var(--green)":"var(--red)";
-  const b=$("sh-mode");
-  b.textContent=sheetMode==="sell"?"SELL":sheetMode==="buy"?"BUY":"TRADE";
-  b.style.background=sheetMode==="sell"?"#fee2e2":sheetMode==="buy"?"var(--blue3)":"var(--bg)";
-  b.style.color=sheetMode==="sell"?"#b91c1c":sheetMode==="buy"?"var(--blue)":"var(--text2)";
+  $("seg-buy").className=sheetMode==="buy"?"on-buy":"";
+  $("seg-sell").className=sheetMode==="sell"?"on-sell":"";
   $("sh-held").textContent=`You own ${held}×`;
   $("sh-total").textContent="$"+fmt(p*n);
   const tradable=liveSet.has(sheetTk)&&mktStatus()!=="weekend";
   const sellN=Math.min(n,held)||0;
   let btns="";
-  if(sheetMode!=="sell")btns+=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:"🔒 Market closed"}</button>`;
-  if(sheetMode!=="buy")btns+=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:"Nothing to sell"}</button>`;
+  if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:"🔒 Market closed"}</button>`;
+  else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:"Nothing to sell"}</button>`;
   $("sheet-actions").innerHTML=btns;
 }
 async function sheetBuy(){
@@ -2143,7 +2153,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-G";
+const APP_VERSION="v22.07-H";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
