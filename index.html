@@ -1901,11 +1901,11 @@ let spTk=null,spYears=10;
 const histCache={};
 let descMap=null,descLoading=null,descLang=null;
 function loadDescs(){
-  const want=(lang==="nl")?"nl":"en";
+  const want=(L[lang]&&lang!=="en")?lang:"en";
   if(descMap&&descLang===want)return Promise.resolve(descMap);
   if(descLoading&&descLang===want)return descLoading;
   descLang=want;
-  const url=want==="nl"?"/descriptions_nl.json":"/descriptions.json";
+  const url=want==="en"?"/descriptions.json":"/descriptions_"+want+".json";
   descLoading=fetch(url).then(r=>{if(!r.ok)throw 0;return r.json();})
     .catch(()=>fetch("/descriptions.json").then(r=>r.json()).catch(()=>({})))
     .then(d=>{descMap=d;return d;});
@@ -1928,7 +1928,8 @@ function openStockPage(tk){
     if(spTk!==tk)return;
     const story=d&&d[tk];
     if(story&&!$("sp-about").dataset.full){
-      $("sp-about").innerHTML=`<b style="color:var(--text)">${esc(s.n)}</b><br><span style="color:var(--text3)">${t("loadProf")}</span><div class="card-header" style="padding:18px 0 8px">📈 ${t("whyMoved")}</div>${esc(story)}`;
+      const prof=lang==="en"?`<br><span style="color:var(--text3)">${t("loadProf")}</span>`:"";
+      $("sp-about").innerHTML=`<b style="color:var(--text)">${esc(s.n)}</b>${prof}<div class="card-header" style="padding:18px 0 8px">📈 ${t("whyMoved")}</div>${esc(story)}`;
     }
   });
   delete $("sp-about").dataset.full;
@@ -1963,7 +1964,10 @@ async function loadHist(tk){
   const m=data.meta||{};
   const descs=await loadDescs();
   const story=descs&&descs[tk];
-  let about=`<b style="color:var(--text)">${esc(m.name||tk)}</b><br>${esc(m.description||t("spNoDesc"))}`;
+  // the FMP company profile only exists in English — show it only when the app language is English,
+  // otherwise the translated editorial story carries the page (FMP as fallback when no story exists)
+  let about=`<b style="color:var(--text)">${esc(m.name||tk)}</b>`;
+  if(lang==="en"||!story)about+=`<br>${esc(m.description||t("spNoDesc"))}`;
   if(story){
     about+=`<div class="card-header" style="padding:18px 0 8px">📈 ${t("whyMoved")}</div>${esc(story)}`;
   }
