@@ -286,6 +286,16 @@ svg.mc{flex-shrink:0}
 .sheet-buybtn{flex:1;padding:15px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
 .sheet-buybtn:disabled,.sheet-sellbtn:disabled{opacity:.35;cursor:not-allowed}
 .stock-item{cursor:pointer}
+.stock-chev{color:var(--text3);font-size:20px;margin-left:4px;flex-shrink:0;line-height:1}
+.coach-ov{position:fixed;inset:0;z-index:720;display:none;pointer-events:none}
+.coach-ov.open{display:block}
+.coach-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 4px rgba(37,99,235,.6),0 0 0 9999px rgba(17,24,39,.6);transition:all .25s ease}
+.coach-tip{position:fixed;background:var(--white);border-radius:16px;padding:16px 18px;max-width:320px;width:calc(100vw - 24px);box-shadow:0 16px 48px rgba(0,0,0,.3);pointer-events:auto}
+.coach-title{font-weight:700;font-size:15px;color:var(--text);margin-bottom:6px}
+.coach-text{font-size:13px;color:var(--text2);line-height:1.55}
+.coach-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.coach-step{font-size:11px;color:var(--text3);font-weight:600}
+.coach-nextbtn{padding:9px 18px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:13px;font-family:var(--sans);cursor:pointer}
 .tut-ov{position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:700;display:none;align-items:center;justify-content:center;padding:24px}
 .tut-ov.open{display:flex}
 .tut-card{background:var(--white);border-radius:20px;padding:28px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
@@ -297,7 +307,13 @@ svg.mc{flex-shrink:0}
 .tut-dot.on{background:var(--blue)}
 .tut-next{width:100%;padding:13px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:14px;font-family:var(--sans);cursor:pointer}
 .tut-skip{background:none;border:none;color:var(--text3);font-size:12px;margin-top:10px;cursor:pointer;font-family:var(--sans)}
-.learn-item{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.learn-mod{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;padding:14px 16px}
+.learn-mod-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.learn-mod-title{font-size:14px;font-weight:700;color:var(--text)}
+.learn-mod-pct{font-size:12px;font-weight:700;color:var(--blue)}
+.learn-bar{height:6px;border-radius:6px;background:var(--bg);overflow:hidden;margin-bottom:12px;border:1px solid var(--border2)}
+.learn-bar-fill{height:100%;background:var(--blue);border-radius:6px;transition:width .3s ease}
+.learn-item{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
 .learn-item summary{padding:14px 16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
 .learn-item summary::-webkit-details-marker{display:none}
 .learn-item summary::after{content:"+";color:var(--text3);font-size:18px;font-weight:400}
@@ -484,6 +500,16 @@ svg.mc{flex-shrink:0}
       <div id="leader-list"></div>
       <div id="winners-card"></div>
       <div id="hof-card"></div>
+      <div class="card" style="margin-top:12px">
+        <div class="card-header">🤝 TRUST & CONTACT</div>
+        <div style="padding:0 16px 16px;font-size:12.5px;color:var(--text2);line-height:1.8">
+          🏆 The monthly prize is paid via <b>SEPA bank transfer</b> within 14 days of verification — see <a href="terms.html" target="_blank" style="color:var(--blue)">Terms</a>.<br>
+          📊 Market data: Financial Modeling Prep &amp; Tiingo — real exchange prices, refreshed every few minutes.<br>
+          🔒 Trades are validated server-side; the leaderboard cannot be manipulated.<br>
+          ✉️ Questions or payouts: <a href="mailto:support@stonkarena.net" style="color:var(--blue)">support@stonkarena.net</a><br>
+          👤 Founder: <a href="mailto:mdc@stonkarena.net" style="color:var(--blue)">mdc@stonkarena.net</a>
+        </div>
+      </div>
       <div class="invite-card">
         <div class="invite-title">Invite friends to compete</div>
         <div class="invite-sub" id="lb-invite">Share your link and build the leaderboard.</div>
@@ -495,19 +521,10 @@ svg.mc{flex-shrink:0}
       <button class="btn-buy" style="width:100%;padding:12px;border-radius:10px;margin-top:8px" onclick="shareCard()">📸 Share my result</button>
     </div>
     <div class="panel" id="panel-learn">
-      <h1 class="auth-heading" style="font-size:24px;margin-bottom:4px">Learn the <em>basics</em></h1>
-      <p class="auth-sub" style="margin-bottom:18px">Short explanations of the concepts behind the game.</p>
-      <details class="learn-item"><summary>📈 What is a stock?</summary><div class="learn-body">A stock (or share) is a small ownership piece of a company. Own one Apple share and a tiny slice of Apple's profits and future belongs to the holder. Prices move constantly because buyers and sellers keep renegotiating what that slice is worth.</div></details>
-      <details class="learn-item"><summary>🧺 What is an ETF?</summary><div class="learn-body">An ETF is a basket of many stocks traded as one instrument. Buying SPY means buying a little of all 500 biggest US companies at once. It's the easiest way to spread risk — if one company crashes, the other 499 cushion the blow.</div></details>
-      <details class="learn-item"><summary>💹 Why do prices move?</summary><div class="learn-body">A price is simply the last deal between a buyer and a seller. News, profits, interest rates, hype and fear shift what people are willing to pay. In the short term prices follow emotions; over years they follow the company's real earnings.</div></details>
-      <details class="learn-item"><summary>🏦 What is market cap?</summary><div class="learn-body">Market capitalisation = share price × number of shares, i.e. what the whole company costs. A €5 stock isn't 'cheaper' than a €500 one — what matters is the total company value behind it and what you get for it.</div></details>
-      <details class="learn-item"><summary>💰 What is a dividend?</summary><div class="learn-body">Some companies pay part of their profit to shareholders in cash — that's a dividend. Mature firms (Coca-Cola, banks) pay steadily; fast growers usually reinvest everything instead. Total return = price change + dividends.</div></details>
-      <details class="learn-item"><summary>🐂 Bull vs 🐻 bear market</summary><div class="learn-body">A bull market is a long period of rising prices and optimism; a bear market is a fall of 20%+ with fear in charge. Both are normal. Historically every bear market has eventually been followed by new highs — but nobody rings a bell at the bottom.</div></details>
-      <details class="learn-item"><summary>🎢 Volatility & risk</summary><div class="learn-body">Volatility is how wildly a price swings. High-volatility stocks (small caps, meme stocks) can gain or lose double digits in a day; ETFs and staples move gently. More volatility means more chance AND more risk — never only one of the two.</div></details>
-      <details class="learn-item"><summary>🧩 Diversification (the 30% rule)</summary><div class="learn-body">Spreading money across companies and sectors protects against one bad bet ruining everything. It's the only 'free lunch' in investing. That's exactly why Stonk Arena caps every position at 30% of the portfolio — all-in gambling isn't a strategy.</div></details>
-      <details class="learn-item"><summary>📊 Reading the chart</summary><div class="learn-body">The 10-year charts here use weekly closing prices, adjusted for stock splits. Zoom between 1Y, 5Y and 10Y to separate noise from trend: almost every 'crash' looks small on a long enough chart of a strong company.</div></details>
-      <details class="learn-item"><summary>🐢 Compounding & the long game</summary><div class="learn-body">Money that grows 8% a year doubles roughly every 9 years — growth on top of growth is compounding, the strongest force in investing. In this monthly game bold moves score, but in real life the boring index-fund holder usually beats the frantic trader.</div></details>
-      <details class="learn-item"><summary>⚠️ This game vs real investing</summary><div class="learn-body">Stonk Arena uses real prices but virtual money, and a one-month contest rewards risk-taking that would be reckless with savings. Treat it as a sandbox to learn how markets feel — nothing here is investment advice.</div></details>
+      <h1 class="auth-heading" style="font-size:24px;margin-bottom:4px">Learn <em>investing</em></h1>
+      <p class="auth-sub" style="margin-bottom:6px">Open a lesson to mark it complete.</p>
+      <div id="learn-overall" style="margin-bottom:16px"></div>
+      <div id="learn-list"></div>
     </div>
     <div class="panel" id="panel-profile">
       <div class="card">
@@ -611,6 +628,20 @@ svg.mc{flex-shrink:0}
     <div class="sheet-actions">
       <button class="sheet-sellbtn" id="sh-sellbtn" onclick="sheetSell()">SELL</button>
       <button class="sheet-buybtn" id="sh-buybtn" onclick="sheetBuy()">BUY</button>
+    </div>
+  </div>
+</div>
+<div class="coach-ov" id="coach-ov">
+  <div class="coach-hole" id="coach-hole"></div>
+  <div class="coach-tip" id="coach-tip">
+    <div class="coach-title" id="coach-title">—</div>
+    <div class="coach-text" id="coach-text">—</div>
+    <div class="coach-row">
+      <span class="coach-step" id="coach-step">1/5</span>
+      <div>
+        <button class="tut-skip" style="margin:0 10px 0 0" onclick="coachEnd()">End tour</button>
+        <button class="coach-nextbtn" id="coach-next" onclick="coachNext()">Next →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1393,31 +1424,133 @@ function enterApp(){
   safe(syncMe);safe(startLB);safe(startMeta);safe(loadServerHistory);
   if(!store.get("sa_tut"))setTimeout(()=>{try{tutStart();}catch(e){}},600);
 }
-const TUT=[
-  ["👋","Welcome to Stonk Arena","Everyone starts with €10,000 virtual capital and trades at real market prices. Highest return this month wins €100 — for real."],
-  ["📈","Explore any stock","Tap a stock row to open its page: a 10-year chart, key stats, what the company does and why the price moved in recent years."],
-  ["🛒","Trade with confidence","BUY and SELL always open a confirmation panel first — pick the amount, see the total, then confirm. No accidental trades. Max 30% in one stock keeps it fair."],
-  ["🏆","Climb the ranking","The Ranking tab shows the live leaderboard. Make at least 5 trades to qualify for the monthly €100 prize. Winners earn a permanent 🏆 title."],
-  ["📚","Learn as you play","New to investing? The Learn tab explains stocks, ETFs, diversification and more in plain language. Good luck, trader!"]
+const COURSE=[
+{id:"m1",title:"Module 1 · The basics",lessons:[
+["b1","📈 What is a stock?","A stock (or share) is a small ownership piece of a company. Owning one Apple share means a tiny slice of Apple's profits and future belongs to the holder. Prices move constantly because buyers and sellers keep renegotiating what that slice is worth."],
+["b2","🧺 What is an ETF?","An ETF is a basket of many stocks traded as one instrument. Buying SPY means buying a little of all 500 biggest US companies at once — the easiest way to spread risk, because one crashing company is cushioned by the other 499."],
+["b3","💹 Why do prices move?","A price is simply the last deal between a buyer and a seller. News, profits, interest rates, hype and fear shift what people will pay. Short term, prices follow emotions; over years, they follow the company's real earnings."],
+["b4","🏦 Market cap","Market capitalisation = share price × number of shares: what the whole company costs. A €5 stock isn't 'cheaper' than a €500 one — what matters is the total value behind it and what the buyer gets for it."],
+["b5","💰 Dividends","Some companies pay part of their profit to shareholders in cash — a dividend. Mature firms (Coca-Cola, banks) pay steadily; fast growers reinvest everything instead. Total return = price change + dividends."]]},
+{id:"m2",title:"Module 2 · Value investing",lessons:[
+["v1","🎯 Price vs value","Value investing, made famous by Benjamin Graham and Warren Buffett, starts from one idea: price is what is paid, value is what is received. The market sometimes offers great companies below their real worth — the value investor waits for exactly those moments."],
+["v2","🔢 The P/E ratio","Price-to-earnings divides the share price by yearly profit per share. A P/E of 15 means paying €15 for €1 of annual profit. Low P/E can signal a bargain — or a business in decline. It's a starting point for questions, never the answer."],
+["v3","🏰 Moats","A moat is a durable advantage competitors can't easily copy: a brand (Coca-Cola), a network (Visa), switching costs (Microsoft) or scale (Costco). Companies with wide moats defend their profits for decades — that's what makes them worth more."],
+["v4","🛡️ Margin of safety","Buying below estimated value creates a buffer for being wrong — the margin of safety. If a business seems worth €100 per share, the disciplined value investor wants to pay €70, because every estimate contains errors."],
+["v5","⏳ Time in the market","The value approach needs patience: cheap stocks can stay cheap for years. Historically, time in the market beat timing the market — missing just the 10 best days of a decade roughly halves total returns."]]},
+{id:"m3",title:"Module 3 · Risk & portfolio",lessons:[
+["r1","🎢 Volatility","Volatility measures how wildly a price swings. Meme stocks can move double digits in a day; ETFs and staples move gently. Higher volatility means bigger possible gains AND losses — never just one of the two."],
+["r2","🧩 Diversification","Spreading money across companies and sectors is the only 'free lunch' in investing: it removes company-specific disasters without lowering expected return. It's exactly why Stonk Arena caps each position at 30% of the portfolio."],
+["r3","⚖️ Position sizing","How much to put in one idea matters more than most picks. Professionals risk small, survivable amounts per position, so no single mistake is fatal. Going all-in isn't conviction — it's handing the outcome to luck."],
+["r4","🐂 Bull & bear markets","A bull market is a long rise with optimism in charge; a bear market is a 20%+ fall driven by fear. Both are normal weather. Every bear market so far has eventually been followed by new highs — but nobody rings a bell at the bottom."],
+["r5","🐢 Compounding","Money growing 8% a year doubles roughly every 9 years — growth on top of growth. It's the strongest force in investing and the reason starting young beats starting rich."]]},
+{id:"m4",title:"Module 4 · Psychology & practice",lessons:[
+["p1","😱 Fear, greed & FOMO","Most investing mistakes are emotional: buying after everyone got rich (greed), selling after a crash (fear), chasing what already rocketed (FOMO). Recognizing these reflexes in yourself is worth more than any formula."],
+["p2","📊 Reading the charts here","The stock pages show 10 years of weekly closing prices, adjusted for splits. Switching between 1Y, 5Y and 10Y separates noise from trend — most 'crashes' look small on a long chart of a strong company."],
+["p3","🏃 Trading vs investing","A one-month contest rewards bold, fast moves. Real wealth-building is the opposite: boring, diversified, decades long. Enjoy the game's aggression — and know the index-fund tortoise usually beats the trading hare in real life."],
+["p4","⚠️ Game vs reality","Stonk Arena uses real prices but virtual money. Nothing here is investment advice — it's a sandbox to learn how markets feel before a single real euro is at stake."]]}
 ];
-let tutI=0;
+function learnDone(){return store.get("sa_learn")||{};}
+function renderLearn(){
+  const done=learnDone();
+  let total=0,got=0;
+  $("learn-list").innerHTML=COURSE.map(m=>{
+    const n=m.lessons.length,d=m.lessons.filter(l=>done[l[0]]).length;
+    total+=n;got+=d;
+    const pct=Math.round(d/n*100);
+    return `<div class="learn-mod">
+      <div class="learn-mod-head"><span class="learn-mod-title">${m.title}</span><span class="learn-mod-pct">${pct}%</span></div>
+      <div class="learn-bar"><div class="learn-bar-fill" style="width:${pct}%"></div></div>
+      ${m.lessons.map(l=>`<details class="learn-item" ${done[l[0]]?'data-done="1"':''} ontoggle="if(this.open)learnMark('${l[0]}')">
+        <summary>${done[l[0]]?"✅ ":""}${l[1]}</summary>
+        <div class="learn-body">${l[2]}</div>
+      </details>`).join("")}
+    </div>`;
+  }).join("");
+  const opct=total?Math.round(got/total*100):0;
+  $("learn-overall").innerHTML=`<div class="learn-mod-head"><span style="font-size:12px;font-weight:600;color:var(--text2)">Overall progress · ${got}/${total} lessons</span><span class="learn-mod-pct">${opct}%</span></div>
+  <div class="learn-bar" style="margin-bottom:0"><div class="learn-bar-fill" style="width:${opct}%"></div></div>`;
+}
+function learnMark(id){
+  const d=learnDone();
+  if(d[id])return;
+  d[id]=1;
+  store.set("sa_learn",d);
+  const done=learnDone();
+  let total=0,got=0;
+  COURSE.forEach(m=>{total+=m.lessons.length;got+=m.lessons.filter(l=>done[l[0]]).length;});
+  // update bars without collapsing open lessons
+  COURSE.forEach((m,i)=>{
+    const d2=m.lessons.filter(l=>done[l[0]]).length;
+    const pct=Math.round(d2/m.lessons.length*100);
+    const mod=$("learn-list").children[i];
+    if(mod){mod.querySelector(".learn-mod-pct").textContent=pct+"%";mod.querySelector(".learn-bar-fill").style.width=pct+"%";}
+  });
+  const opct=Math.round(got/total*100);
+  $("learn-overall").querySelector(".learn-mod-pct").textContent=opct+"%";
+  $("learn-overall").querySelector(".learn-bar-fill").style.width=opct+"%";
+  $("learn-overall").querySelector("span").textContent=`Overall progress · ${got}/${total} lessons`;
+}
+const TUT=[["👋","Welcome to Stonk Arena","Everyone starts with €10,000 virtual capital at real market prices. Highest return this month wins €100 — for real. Let me show you around the app itself."]];
+const TOUR=[
+  {sel:".stock-item",title:"Tap any stock 👇",text:"Opens the full stock page: a 10-year chart with hover prices, key stats, what the company does and why it moved.",pos:"below"},
+  {sel:".stock-item .btn-buy",title:"Trade safely 👇",text:"BUY and SELL always open a confirmation panel first — pick the amount, see the total, then confirm. Max 30% per stock keeps it fair.",pos:"below"},
+  {sel:"#nav-portfolio",title:"Your portfolio 👆",text:"Your positions, cash and full trade history live here.",pos:"above"},
+  {sel:"#nav-leaderboard",title:"The ranking 👆",text:"The live leaderboard. Make at least 5 trades to qualify — highest monthly return wins the €100 prize.",pos:"above"},
+  {sel:"#nav-learn",title:"Learn & track progress 👆",text:"Short courses with progress bars — from the absolute basics to value investing.",pos:"above"},
+];
+let tutI=0,coachI=0;
 function tutStart(){
-  tutI=0;
-  $("tut-dots").innerHTML=TUT.map((_,i)=>`<div class="tut-dot${i===0?" on":""}"></div>`).join("");
+  $("tut-dots").innerHTML="";
   tutRender();
   $("tut-ov").classList.add("open");
 }
 function tutRender(){
-  const [e,ti,tx]=TUT[tutI];
+  const [e,ti,tx]=TUT[0];
   $("tut-emoji").textContent=e;
   $("tut-title").textContent=ti;
   $("tut-text").textContent=tx;
-  [...$("tut-dots").children].forEach((d,i)=>d.classList.toggle("on",i===tutI));
-  $("tut-next").textContent=tutI===TUT.length-1?"Start trading 🚀":"Next →";
+  $("tut-next").textContent="Show me around →";
 }
 function tutNext(){
-  if(tutI>=TUT.length-1)return tutClose();
-  tutI++;tutRender();
+  $("tut-ov").classList.remove("open");
+  coachStart();
+}
+function coachStart(){
+  switchTab("market");
+  coachI=0;
+  setTimeout(()=>coachShow(),250);
+}
+function coachShow(){
+  const st=TOUR[coachI];
+  if(!st)return coachEnd();
+  const el=document.querySelector(st.sel);
+  if(!el){coachI++;return coachShow();}
+  el.scrollIntoView({block:"center",behavior:"instant"});
+  setTimeout(()=>{
+    const r=el.getBoundingClientRect();
+    const hole=$("coach-hole"),tip=$("coach-tip");
+    $("coach-ov").classList.add("open");
+    hole.style.left=(r.left-6)+"px";hole.style.top=(r.top-6)+"px";
+    hole.style.width=(r.width+12)+"px";hole.style.height=(r.height+12)+"px";
+    $("coach-title").textContent=st.title;
+    $("coach-text").textContent=st.text;
+    $("coach-next").textContent=coachI===TOUR.length-1?"Start trading 🚀":"Next →";
+    $("coach-step").textContent=(coachI+1)+" / "+TOUR.length;
+    tip.style.visibility="hidden";
+    requestAnimationFrame(()=>{
+      const th=tip.offsetHeight,vw=window.innerWidth;
+      let top=st.pos==="below"?r.bottom+16:r.top-th-16;
+      top=Math.max(12,Math.min(top,window.innerHeight-th-12));
+      let left=Math.max(12,Math.min(r.left+r.width/2-tip.offsetWidth/2,vw-tip.offsetWidth-12));
+      tip.style.top=top+"px";tip.style.left=left+"px";
+      tip.style.visibility="visible";
+    });
+  },60);
+}
+function coachNext(){coachI++;coachShow();}
+function coachEnd(){
+  $("coach-ov").classList.remove("open");
+  store.set("sa_tut",true);
 }
 function tutClose(){
   $("tut-ov").classList.remove("open");
@@ -1479,6 +1612,7 @@ function renderMarket(){
         <button class="btn-buy" onclick="event.stopPropagation();openSheet('${s.t}','buy')" ${liveSet.has(s.t)&&!wknd?"":"disabled"}>${t("buy")}</button>
         <button class="btn-sell" onclick="event.stopPropagation();openSheet('${s.t}','sell')" ${held===0||!liveSet.has(s.t)||wknd?"disabled":""}>${t("sell")}</button>
       </div>
+      <div class="stock-chev">›</div>
     </div>`;
   }).join("");
 }
@@ -1759,6 +1893,7 @@ function openSheet(tk,mode){
   $("sh-name").textContent=s.n;
   const held=holdings[tk]||0;
   $("sheet-qty").value=(mode==="sell"&&held>0)?held:1;
+  $("sh-buybtn").disabled=false;$("sh-sellbtn").disabled=false;
   sheetUpdate();
   $("sheet-ov").classList.add("open");
 }
@@ -1777,7 +1912,7 @@ function sheetUpdate(){
   $("sh-buybtn").disabled=!tradable;
   $("sh-sellbtn").disabled=!tradable||held===0;
   $("sh-buybtn").textContent=tradable?`BUY ${n}×`:"🔒 LOCKED";
-  $("sh-sellbtn").textContent=`SELL ${Math.min(n,held)}×`;
+  $("sh-sellbtn").textContent=held>0?`SELL ${Math.min(n,held)}×`:"SELL";
   $("sh-buybtn").style.display=(sheetMode==="sell")?"none":"block";
   $("sh-sellbtn").style.display=(sheetMode==="buy")?"none":"block";
   const sp=sheetMode==="sell";
@@ -1903,6 +2038,7 @@ function updateAll(){
   if(tab==="portfolio")renderPortfolio();
   if(tab==="leaderboard")renderLeaderboard();
   if(tab==="profile")renderProfile();
+  if(tab==="learn")renderLearn();
 }
 
 // ══ TABS ══
@@ -1935,7 +2071,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-A";
+const APP_VERSION="v22.07-B";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
