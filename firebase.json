@@ -3,6 +3,7 @@
   "firestore": { "rules": "firestore.rules" },
   "hosting": {
     "public": ".",
+    "cleanUrls": true,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "functions/**", "netlify/**", "*.py"],
     "rewrites": [
       { "source": "/api/history", "function": { "functionId": "history", "region": "europe-west1" } }
