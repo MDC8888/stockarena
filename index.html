@@ -752,6 +752,7 @@ svg.mc{flex-shrink:0}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver }
@@ -1192,6 +1193,26 @@ function authWith(provider){
   if(FB){
     if(provider==="apple")return showToast("Apple sign-in coming soon","err");
     const gp=new firebase.auth.GoogleAuthProvider();
+    if(GOOGLE_CLIENT_ID&&window.google&&google.accounts&&google.accounts.oauth2){
+      try{
+        const tc=google.accounts.oauth2.initTokenClient({
+          client_id:GOOGLE_CLIENT_ID,
+          scope:"openid email profile",
+          callback:(resp)=>{
+            if(!resp||!resp.access_token)return showToast("Google sign-in cancelled","err");
+            const cred=firebase.auth.GoogleAuthProvider.credential(null,resp.access_token);
+            FB.auth.signInWithCredential(cred).then(c=>{
+              username=(c.user&&c.user.displayName)||username||"Player";saveState();
+            }).catch(err=>{
+              if(err.code==="auth/multi-factor-auth-required"){mfaChallenge(err,null);return;}
+              showToast("Google sign-in failed","err");
+            });
+          },
+        });
+        tc.requestAccessToken();
+        return;
+      }catch(e){console.warn("gis:",e);}
+    }
     showToast("Connecting to Google…");
     FB.auth.signInWithPopup(gp).then(cred=>{
       username=cred.user.displayName||"Player";saveState();
@@ -2558,7 +2579,8 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AS";
+const GOOGLE_CLIENT_ID="";
+const APP_VERSION="v22.07-AT";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
