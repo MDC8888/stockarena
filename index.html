@@ -1847,10 +1847,21 @@ function closeLesson(){
 }
 const TOUR=[
   {sel:".stock-item",t:"Tap this stock 👇",x:"Tap the highlighted stock to open its full page.",pos:"below",act:true},
-  {sel:"#stock-page .sp-back",t:"This is the stock page",x:"Chart, key stats, BUY/SELL with market or limit orders, and the company story. Tap ← to go back.",pos:"below",act:true},
-  {sel:"#nav-portfolio",t:"Your portfolio 👆",x:"Tap it — positions, pending limit orders, cash and history. Pending buy orders reserve their cash until they fill or you cancel them, so available cash can be lower than total cash.",pos:"above",act:true},
-  {sel:"#nav-leaderboard",t:"The ranking 👆",x:"Tap it — make at least 5 trades to qualify. Highest return wins real life €100, paid to your bank account. Restarts every month.",pos:"above",act:true},
-  {sel:"#nav-learn",t:"Learn 👆",x:"Tap it — short courses from the basics (market vs limit orders) to value investing.",pos:"above",act:true},
+  {sel:"#sp-chart",t:"📈 The price chart",x:"Ten years of weekly prices, adjusted for splits. Hover or drag across it to see the exact price on any date.",pos:"below"},
+  {sel:"#sp-ranges",t:"🕐 Time ranges",x:"Switch between 1, 5 and 10 years — it separates short-term noise from the long-term trend.",pos:"below"},
+  {sel:"#sp-stats",t:"📊 Key stats",x:"52-week high and low, returns over 1/5/10 years, sector and exchange at a glance.",pos:"above"},
+  {sel:"#stock-page .sp-actions",t:"🛒 Trading",x:"BUY or SELL opens the trade panel. Choose Market for an instant fill, or Limit to set your own price and let it fill automatically.",pos:"above"},
+  {sel:"#sp-about",t:"📖 The story",x:"What the company does — and why the price moved in recent years.",pos:"above"},
+  {sel:"#stock-page .sp-back",t:"Back 👆",x:"Tap ← to return to the market.",pos:"below",act:true},
+  {sel:"#nav-portfolio",t:"Your portfolio 👆",x:"Tap it to open your portfolio.",pos:"above",act:true},
+  {sel:"#panel-portfolio .stats-row",t:"💰 Your numbers",x:"Total value, return this month and cash. Pending buy orders reserve their cash, so available cash can be lower than total.",pos:"below"},
+  {sel:"#pending-card",t:"⏳ Pending orders",x:"Limit orders wait here and fill automatically while the market is open — even when you are offline or signed out. Cancel any time with ✕.",pos:"below"},
+  {sel:"#panel-portfolio .card:last-of-type",t:"🧾 Trade history",x:"Every trade is recorded on the server and released publicly at the end of the month — full transparency for the competition.",pos:"above"},
+  {sel:"#nav-leaderboard",t:"The ranking 👆",x:"Tap it to open the competition.",pos:"above",act:true},
+  {sel:".prize-card",t:"🏆 The prize",x:"Highest return wins real life €100, paid to your bank account. The competition restarts every month, so everyone gets a fresh shot.",pos:"below"},
+  {sel:"#leader-list .leader-card",t:"📋 Live leaderboard",x:"Make at least 5 trades to qualify. Winners earn a permanent 🏆 title next to their name.",pos:"below"},
+  {sel:"#nav-learn",t:"Learn 👆",x:"Tap it to open the courses.",pos:"above",act:true},
+  {sel:"#learn-list .learn-mod",t:"🎓 Courses with progress",x:"From the basics (market vs limit orders) to value investing and psychology. Every lesson you open counts toward your progress bar. Good luck, trader!",pos:"below"},
 ];
 let tutI=0,coachI=0;
 // Tutorial "seen" flag is per account, so every new account gets the tour
@@ -1887,7 +1898,7 @@ function coachShow(){
   const st=TOUR[coachI];
   if(!st)return coachEnd();
   const el=document.querySelector(st.sel);
-  if(!el){coachI++;return coachShow();}
+  if(!el||el.offsetParent===null||el.getBoundingClientRect().width===0){coachI++;return coachShow();}
   el.scrollIntoView({block:"center",behavior:"instant"});
   setTimeout(()=>{
     const r=el.getBoundingClientRect();
@@ -2551,7 +2562,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AO";
+const APP_VERSION="v22.07-AP";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
@@ -2592,7 +2603,14 @@ function init(){
         // saved state (incl. a changed name) wins over the auth displayName
         if(!loadState())username=u.displayName||(u.email?u.email.split("@")[0]:"Player");
         if(obSeen()){appStarted=true;startLoading();}
-        else{appStarted=true;showRules("onboard");}
+        else{
+          appStarted=true;
+          // Returning player on a new device? The server knows — skip onboarding.
+          FB.db.doc("states/"+u.uid).get().then(sn=>{
+            if(sn.exists){obMark();startLoading();}
+            else showRules("onboard");
+          }).catch(()=>showRules("onboard"));
+        }
       }
     });
   }else if(loadState()){appStarted=true;startLoading();}
