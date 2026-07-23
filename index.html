@@ -396,7 +396,8 @@ svg.mc{flex-shrink:0}
     </div>
     <h1 class="auth-heading" style="margin-bottom:4px">Where are you from?</h1>
     <p class="auth-sub">Your flag is shown next to your name in the ranking.</p>
-    <div class="rules-list" id="nat-list" style="max-height:52vh;overflow-y:auto;flex-wrap:nowrap"></div>
+    <input type="search" class="form-input" id="nat-search" placeholder="Search country..." oninput="natFilter()" style="margin-bottom:10px">
+    <div class="rules-list" id="nat-list" style="max-height:46vh;overflow-y:auto;flex-wrap:nowrap"></div>
   </div>
 </div>
 
@@ -579,7 +580,7 @@ svg.mc{flex-shrink:0}
           </div>
           <div style="font-size:12px;color:var(--text3);margin-top:6px" data-i18n="prUniq">Names are unique — if it's taken, pick another.</div>
           <label class="form-label" style="margin-top:12px;display:block">Nationality</label>
-          <div style="display:flex;gap:8px;align-items:center"><select class="form-input" id="prof-nat" onchange="profSetNat()" style="flex:1"></select><span id="prof-nat-flag" style="min-width:24px;text-align:center"></span></div>
+          <button class="btn-sell" id="prof-nat-btn" onclick="showNatScreen(true)" style="width:100%;padding:11px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px"><span id="prof-nat-flag" style="display:flex;align-items:center"></span><span id="prof-nat-name">Pick your flag</span></button>
           <div style="font-size:12px;color:var(--text2);margin-top:12px" id="prof-email"></div>
           <div style="font-size:10px;color:var(--text3);margin-top:6px" id="prof-ver"></div>
           <button class="btn-sell" style="margin-top:14px;width:100%;padding:12px;border-radius:10px" onclick="tutStart()" data-i18n="prTut">🎓 View tutorial again</button>
@@ -1250,24 +1251,40 @@ function flagImg(c,h){
   const hh=h||14;
   return`<img src="https://flagcdn.com/w40/${c.toLowerCase()}.png" alt="${c}" style="height:${hh}px;width:auto;border-radius:2px;vertical-align:-2px;box-shadow:0 0 0 1px rgba(0,0,0,.08)" loading="lazy">`;
 }
-let natListBuilt=false;
-function showNatScreen(){
+let natListBuilt=false,natFromProfile=false;
+function showNatScreen(fromProfile){
+  natFromProfile=!!fromProfile;
   if(!natListBuilt){
     natListBuilt=true;
     const ll=$("nat-list");
-    NATIONS.forEach(([code,label])=>{
+    const sorted=[...NATIONS].sort((a,b)=>a[0]==="WW"?1:b[0]==="WW"?-1:a[1].localeCompare(b[1]));
+    sorted.forEach(([code,label])=>{
       const b=document.createElement("button");
-      b.className="rule-item";b.style.cursor="pointer";b.style.width="100%";b.style.border="1px solid var(--border)";b.style.background="var(--white)";b.style.fontFamily="var(--sans)";
+      b.className="rule-item nat-opt";b.style.cursor="pointer";b.style.width="100%";b.style.border="1px solid var(--border)";b.style.background="var(--white)";b.style.fontFamily="var(--sans)";
+      b.dataset.q=label.toLowerCase();
       b.innerHTML=`<div class="rule-icon" style="display:flex;align-items:center">${flagImg(code,20)||"🌍"}</div><div class="rule-title" style="align-self:center">${label}</div>`;
       b.onclick=()=>pickNat(code);
       ll.appendChild(b);
     });
   }
+  const si=$("nat-search");if(si){si.value="";natFilter();}
   show("nat-screen");
+}
+function natFilter(){
+  const q=($("nat-search").value||"").toLowerCase().trim();
+  document.querySelectorAll(".nat-opt").forEach(b=>{b.style.display=!q||b.dataset.q.includes(q)?"flex":"none";});
 }
 function pickNat(code){
   nat=code;saveState();
   if(FB&&FBuser)syncMe();
+  if(natFromProfile){
+    natFromProfile=false;
+    show("app-screen");
+    try{renderProfile();if(tab==="leaderboard")renderLeaderboard();}catch(e){}
+    const n=NATIONS.find(x=>x[0]===code);
+    showToast("✓ "+(n?n[1]:code));
+    return;
+  }
   if(natThenApp){natThenApp=false;enterApp();return;}
   showNameScreen();
 }
@@ -1312,14 +1329,11 @@ async function releaseUsername(oldName){
 function renderProfile(){
   const pn=$("prof-name");
   if(document.activeElement!==pn)pn.value=username;
-  const ns=$("prof-nat");
-  if(ns){
-    if(!ns.options.length){
-      const o0=document.createElement("option");o0.value="";o0.textContent="— pick your flag —";ns.appendChild(o0);
-      NATIONS.forEach(([code,label])=>{const o=document.createElement("option");o.value=code;o.textContent=label;ns.appendChild(o);});
-    }
-    ns.value=nat||"";
-    const nf=$("prof-nat-flag");if(nf)nf.innerHTML=flagImg(nat,16)||"";
+  const nf=$("prof-nat-flag"),nn=$("prof-nat-name");
+  if(nf&&nn){
+    nf.innerHTML=flagImg(nat,16)||"";
+    const cn=NATIONS.find(x=>x[0]===nat);
+    nn.textContent=cn?cn[1]:"Pick your flag";
   }
   $("reset-btn").style.display=(FB&&FBuser)?"none":"block";
   renderTFA();
@@ -1346,14 +1360,6 @@ async function profSaveName(){
     try{await FBuser.updateProfile({displayName:username});}catch(e){}
     showToast("✓ "+username);
   }catch(e){showToast(t("toNameFail"),"err");}
-}
-function profSetNat(){
-  nat=$("prof-nat").value;
-  saveState();syncMe();
-  const nf=$("prof-nat-flag");if(nf)nf.innerHTML=flagImg(nat,16)||"";
-  const n=NATIONS.find(x=>x[0]===nat);
-  showToast("✓ "+(n?n[1]:"—"));
-  if(tab==="leaderboard")renderLeaderboard();
 }
 function plainSignOut(){
   saveState();
@@ -2418,7 +2424,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AG";
+const APP_VERSION="v22.07-AH";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
