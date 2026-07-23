@@ -315,7 +315,9 @@ svg.mc{flex-shrink:0}
 .nat-opt:active{transform:scale(.985)}
 .nat-flagbox{width:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
 .nat-name{font-size:14px;font-weight:600;color:var(--text)}
-.nat-x{position:absolute;top:calc(var(--safe-top) + 14px);right:16px;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--white);color:var(--text2);font-size:15px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.06);font-family:var(--sans);z-index:5}
+.nat-x{position:absolute;top:calc(var(--safe-top) + 14px);left:16px;width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--text);font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.06);font-family:var(--sans);z-index:5}
+.lb-more{display:block;width:100%;margin-top:8px;padding:11px;border-radius:12px;border:1px dashed var(--border);background:var(--white);color:var(--blue);font-weight:700;font-size:13px;font-family:var(--sans);cursor:pointer}
+.lb-more:hover{background:var(--bg)}
 .tut-emoji{font-size:44px;margin-bottom:14px}
 .tut-title{font-family:var(--serif);font-size:21px;color:var(--text);margin-bottom:8px}
 .tut-text{font-size:14px;color:var(--text2);line-height:1.55;min-height:66px}
@@ -395,7 +397,7 @@ svg.mc{flex-shrink:0}
 
 <!-- NATIONALITY -->
 <div id="nat-screen" class="screen">
-  <button class="nat-x" id="nat-x" onclick="natClose()" title="Close">✕</button>
+  <button class="nat-x" id="nat-x" onclick="natClose()" title="Back">←</button>
   <div class="auth-wrap" style="justify-content:center">
     <div class="auth-logo" style="margin-bottom:24px">
       <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
@@ -604,13 +606,7 @@ svg.mc{flex-shrink:0}
           </div>
         </div>
       </div>
-      <div class="card" style="border-color:#fecaca">
-        <div class="card-header" style="color:#991b1b" data-i18n="prDz">DANGER ZONE</div>
-        <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px">
-          <button class="btn-sell" id="reset-btn" style="padding:12px;border-radius:10px" onclick="resetAccount()" data-i18n="prReset">Sign out & reset portfolio</button>
-          <button class="btn-sell" style="padding:12px;border-radius:10px;color:#991b1b;border-color:#fecaca" onclick="deleteAccount()" data-i18n="prDel">🗑️ Delete account permanently</button>
-        </div>
-      </div>
+
     </div>
   </div>
 
@@ -975,7 +971,8 @@ function startPriceStream(){
     }
   },e=>console.warn("prices:",e.message));
 }
-let hofMap={},hofList=[],winnersList=[];
+let hofMap={},hofList=[],winnersList=[],lbExpanded=false;
+function lbToggle(){lbExpanded=!lbExpanded;renderLeaderboard();}
 function startMeta(){
   if(!FB)return;
   try{
@@ -1348,7 +1345,7 @@ function renderProfile(){
     const cn=NATIONS.find(x=>x[0]===nat);
     nn.textContent=cn?cn[1]:"Pick your flag";
   }
-  $("reset-btn").style.display=(FB&&FBuser)?"none":"block";
+  const _rb=$("reset-btn");if(_rb)_rb.style.display=(FB&&FBuser)?"none":"block";
   renderTFA();
   $("prof-ver").textContent="Stonk Arena "+APP_VERSION;
   $("prof-email").textContent=FB&&FBuser?(t("prSignedAs")+" "+(FBuser.email||"Google account")):t("prLocal");
@@ -2355,19 +2352,27 @@ function renderLeaderboard(){
   const v=pval(),r=pret(v),tl=timeLeft();
   $("lb-sub").textContent=`${t("lbSub")} · ${tl.days} ${t("dLeft")}`;
   $("lb-invite").textContent=t("invite");
-  let rows="";
+  let items=[],myIdx=-1;
   if(FB&&lbData.length>0){
-    let meIn=false;
-    rows=lbData.map((p,i)=>{
+    lbData.forEach((p,i)=>{
       const isMe=FBuser&&p.id===FBuser.uid;
-      if(isMe)meIn=true;
-      return leaderRow(i+1,p.name||"Player",isMe?v:(p.value||0),isMe?r:(p.ret||0),isMe?tradeLog.length:(p.trades||0),isMe,p.id,isMe?(nat||p.nat):p.nat);
-    }).join("");
-    if(!meIn)rows+=leaderRow(lbData.length+1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null,nat);
+      if(isMe)myIdx=items.length;
+      items.push(leaderRow(i+1,p.name||"Player",isMe?v:(p.value||0),isMe?r:(p.ret||0),isMe?tradeLog.length:(p.trades||0),isMe,p.id,isMe?(nat||p.nat):p.nat));
+    });
+    if(myIdx<0){items.push(leaderRow(lbData.length+1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null,nat));myIdx=items.length-1;}
   }else{
-    rows=leaderRow(1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null,nat);
+    items=[leaderRow(1,username,v,r,tradeLog.length,true,FBuser?FBuser.uid:null,nat)];myIdx=0;
   }
-  $("leader-list").innerHTML=rows;
+  const LB_SHOW=5;
+  let html;
+  if(!lbExpanded&&items.length>LB_SHOW){
+    const shown=items.slice(0,LB_SHOW);
+    if(myIdx>=LB_SHOW)shown.push(items[myIdx]); // always keep your own row visible
+    html=shown.join("")+`<button class="lb-more" onclick="lbToggle()">Show all ${items.length} players ▾</button>`;
+  }else{
+    html=items.join("")+(items.length>LB_SHOW?`<button class="lb-more" onclick="lbToggle()">Show less ▴</button>`:"");
+  }
+  $("leader-list").innerHTML=html;
   // Previous winners
   $("winners-card").innerHTML=winnersList.length===0?"":`<div class="card" style="margin-top:16px">
     <div class="card-header">🏆 ${t("wPrev")}</div>
@@ -2437,7 +2442,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AI";
+const APP_VERSION="v22.07-AJ";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
