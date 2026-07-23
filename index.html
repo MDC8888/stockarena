@@ -238,7 +238,8 @@ svg.mc{flex-shrink:0}
 .divmeter-limit{position:absolute;left:30%;top:0;bottom:0;width:2px;background:var(--text3);opacity:.5}
 .pos-controls{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:6px}
 #stock-page{position:fixed;inset:0;background:var(--white);z-index:550;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
-#stock-page.open{display:flex}
+#stock-page.open{display:flex;animation:pageIn .16s ease}
+@keyframes pageIn{from{opacity:.4;transform:translateY(10px)}to{opacity:1;transform:none}}
 .sp-top{position:sticky;top:0;background:var(--white);border-bottom:1px solid var(--border);padding:calc(var(--safe-top) + 10px) 16px 10px;display:flex;align-items:center;gap:12px;z-index:2;flex-shrink:0}
 .sp-back{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--white);font-size:17px;cursor:pointer;color:var(--text);flex-shrink:0}
 .sp-brand{flex:1;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -294,7 +295,8 @@ svg.mc{flex-shrink:0}
 .sheet-cta.buy{background:var(--blue);color:#fff}
 .sheet-cta.sell{background:#dc2626;color:#fff}
 .sheet-cta:disabled{opacity:.4;cursor:not-allowed}
-.stock-item{cursor:pointer}
+.stock-item{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.stock-item:active{background:var(--bg)}
 .stock-chev{color:var(--text3);font-size:20px;margin-left:4px;flex-shrink:0;line-height:1}
 .coach-ov{position:fixed;inset:0;z-index:720;display:none;pointer-events:none}
 .coach-ov.open{display:block;pointer-events:auto}
@@ -540,7 +542,7 @@ svg.mc{flex-shrink:0}
       </div>
       <div id="divmeter"></div>
       <div class="card"><div class="card-header" id="pt-poslbl">OPEN POSITIONS</div><div id="pos-list"><div class="empty-state">No positions yet.</div></div></div>
-      <div class="card" id="pending-card" style="display:none"><div class="card-header">⏳ PENDING ORDERS</div><div id="pending-list" style="padding:0 16px 12px"></div></div>
+      <div class="card" id="pending-card"><div class="card-header">⏳ PENDING ORDERS</div><div id="pending-list" style="padding:0 16px 12px"></div></div>
       <div class="card"><div class="card-header" id="pt-trlbl">TRADE HISTORY</div><div id="trade-list"><div class="empty-state">No trades yet.</div></div></div>
     </div>
 
@@ -2117,6 +2119,7 @@ function openStockPage(tk){
   $("sp-sym").textContent=tk;
   $("sp-nm").textContent=s.n;
   $("sp-stats").innerHTML="";$("sp-about").textContent="";$("sp-perf").textContent="";
+  try{const c=$("sp-chart");c.getContext("2d").clearRect(0,0,c.width,c.height);}catch(e){}
   updateSP();
   $("stock-page").classList.add("open");
   spHover=null;spBindHover();
@@ -2439,9 +2442,10 @@ function renderPortfolio(){
     }).join("");
   const pc=$("pending-card"),pl=$("pending-list");
   if(pc&&pl){
-    if(!ordersList.length)pc.style.display="none";
-    else{
-      pc.style.display="block";
+    pc.style.display="block";
+    if(!ordersList.length){
+      pl.innerHTML=`<div class="empty-state" style="padding:6px 0 10px">No pending orders. Open any stock, choose <b>Limit</b> in the trade panel and set your price — the order waits here and fills automatically, even while you're offline.</div>`;
+    }else{
       pl.innerHTML=ordersList.map(o=>`<div class="pos-row"><div><div class="pos-sym">${o.side==="BUY"?"🟩 BUY":"🟥 SELL"} ${o.qty}× ${esc(o.ticker)}</div><div class="pos-name">fills at ${o.side==="BUY"?"≤":"≥"} $${fmt(o.limit)} while the market is open</div></div><div class="pos-right"><button class="sheet-x" title="Cancel order" onclick="cancelOrder('${o.id}')">✕</button></div></div>`).join("")
         +(reservedCash()>0?`<div class="pos-name" style="padding:8px 0 2px">💰 Reserved by buy orders: $${fmt(reservedCash())} · available cash: $${fmt(availCash())}</div>`:"");
     }
@@ -2562,7 +2566,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AP";
+const APP_VERSION="v22.07-AQ";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
