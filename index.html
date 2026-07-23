@@ -579,7 +579,7 @@ svg.mc{flex-shrink:0}
           </div>
           <div style="font-size:12px;color:var(--text3);margin-top:6px" data-i18n="prUniq">Names are unique — if it's taken, pick another.</div>
           <label class="form-label" style="margin-top:12px;display:block">Nationality</label>
-          <select class="form-input" id="prof-nat" onchange="profSetNat()" style="width:100%"></select>
+          <div style="display:flex;gap:8px;align-items:center"><select class="form-input" id="prof-nat" onchange="profSetNat()" style="flex:1"></select><span id="prof-nat-flag" style="min-width:24px;text-align:center"></span></div>
           <div style="font-size:12px;color:var(--text2);margin-top:12px" id="prof-email"></div>
           <div style="font-size:10px;color:var(--text3);margin-top:6px" id="prof-ver"></div>
           <button class="btn-sell" style="margin-top:14px;width:100%;padding:12px;border-radius:10px" onclick="tutStart()" data-i18n="prTut">🎓 View tutorial again</button>
@@ -1242,6 +1242,14 @@ function flagOf(c){
   if(!/^[A-Z]{2}$/.test(c))return"";
   return String.fromCodePoint(...[...c].map(ch=>127397+ch.charCodeAt(0)));
 }
+// real flag images — emoji flags render as plain letters on Windows
+function flagImg(c,h){
+  if(!c)return"";
+  if(c==="WW")return`<span style="font-size:${h||14}px;line-height:1">🌍</span>`;
+  if(!/^[A-Z]{2}$/.test(c))return"";
+  const hh=h||14;
+  return`<img src="https://flagcdn.com/w40/${c.toLowerCase()}.png" alt="${c}" style="height:${hh}px;width:auto;border-radius:2px;vertical-align:-2px;box-shadow:0 0 0 1px rgba(0,0,0,.08)" loading="lazy">`;
+}
 let natListBuilt=false;
 function showNatScreen(){
   if(!natListBuilt){
@@ -1250,7 +1258,7 @@ function showNatScreen(){
     NATIONS.forEach(([code,label])=>{
       const b=document.createElement("button");
       b.className="rule-item";b.style.cursor="pointer";b.style.width="100%";b.style.border="1px solid var(--border)";b.style.background="var(--white)";b.style.fontFamily="var(--sans)";
-      b.innerHTML=`<div class="rule-icon">${flagOf(code)}</div><div class="rule-title" style="align-self:center">${label}</div>`;
+      b.innerHTML=`<div class="rule-icon" style="display:flex;align-items:center">${flagImg(code,20)||"🌍"}</div><div class="rule-title" style="align-self:center">${label}</div>`;
       b.onclick=()=>pickNat(code);
       ll.appendChild(b);
     });
@@ -1260,6 +1268,7 @@ function showNatScreen(){
 function pickNat(code){
   nat=code;saveState();
   if(FB&&FBuser)syncMe();
+  if(natThenApp){natThenApp=false;enterApp();return;}
   showNameScreen();
 }
 function showNameScreen(){
@@ -1307,9 +1316,10 @@ function renderProfile(){
   if(ns){
     if(!ns.options.length){
       const o0=document.createElement("option");o0.value="";o0.textContent="— pick your flag —";ns.appendChild(o0);
-      NATIONS.forEach(([code,label])=>{const o=document.createElement("option");o.value=code;o.textContent=`${flagOf(code)} ${label}`;ns.appendChild(o);});
+      NATIONS.forEach(([code,label])=>{const o=document.createElement("option");o.value=code;o.textContent=label;ns.appendChild(o);});
     }
     ns.value=nat||"";
+    const nf=$("prof-nat-flag");if(nf)nf.innerHTML=flagImg(nat,16)||"";
   }
   $("reset-btn").style.display=(FB&&FBuser)?"none":"block";
   renderTFA();
@@ -1340,7 +1350,9 @@ async function profSaveName(){
 function profSetNat(){
   nat=$("prof-nat").value;
   saveState();syncMe();
-  showToast("✓ "+(flagOf(nat)||"—"));
+  const nf=$("prof-nat-flag");if(nf)nf.innerHTML=flagImg(nat,16)||"";
+  const n=NATIONS.find(x=>x[0]===nat);
+  showToast("✓ "+(n?n[1]:"—"));
   if(tab==="leaderboard")renderLeaderboard();
 }
 function plainSignOut(){
@@ -1609,7 +1621,9 @@ async function startLoading(){
 }
 
 // ══ APP ══
+let natThenApp=false;
 function enterApp(){
+  if(FB&&FBuser&&!nat){natThenApp=true;showNatScreen();return;}
   show("app-screen");
   const safe=f=>{try{f();}catch(e){console.warn("startup:",e);}};
   safe(()=>setLang(lang));safe(updateAll);safe(startSim);
@@ -2308,7 +2322,7 @@ function leaderRow(rank,name,val,ret,trades,isMe,uid,natC){
     <div class="leader-rank${rank===1?" gold":""}">${rank}</div>
     <div class="leader-avatar">${avatarFor(name)}</div>
     <div class="leader-info">
-      <div class="leader-name">${flagOf(natC)?flagOf(natC)+" ":""}${esc(name)}${isMe?` <span class="leader-you">${t("you")}</span>`:""}</div>
+      <div class="leader-name">${flagImg(natC,13)?flagImg(natC,13)+" ":""}${esc(name)}${isMe?` <span class="leader-you">${t("you")}</span>`:""}</div>
       ${hof&&hof.wins>0?`<div class="leader-title">🏆 ${hof.wins}× ${t("wWin")}</div>`:""}
       <div class="leader-trades">${trades} ${t("trades")} · <span style="color:${q?"var(--green)":"var(--text3)"};font-weight:600">${q?"✓ "+t("qual"):trades+"/5 "+t("qualNeed")}</span></div>
     </div>
@@ -2404,7 +2418,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AF";
+const APP_VERSION="v22.07-AG";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
