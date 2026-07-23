@@ -1183,7 +1183,7 @@ function authWith(provider){
     return;
   }
   username=provider==="google"?"Google User":"Apple User";saveState();
-  if(isSignup)showNatScreen();else startLoading();
+  if(isSignup)showRules("onboard");else startLoading();
 }
 async function loginWithEmail(){
   const e=$("login-email").value.trim(),p=$("login-pass").value;
@@ -1211,17 +1211,25 @@ async function signupWithEmail(){
     try{
       const cred=await FB.auth.createUserWithEmailAndPassword(e,p);
       await cred.user.updateProfile({displayName:n});
-      appStarted=true;username=n;saveState();showNatScreen();
+      appStarted=true;username=n;saveState();showRules("onboard");
     }catch(err){onboarding=false;showToast(err.code==="auth/email-already-in-use"?"Email already in use":"Signup failed","err");}
     return;
   }
-  username=n;saveState();showNatScreen();
+  username=n;saveState();showRules("onboard");
 }
+function obKey(){return (typeof FB!=="undefined"&&FB&&FBuser)?"sa_onb_"+FBuser.uid:"sa_onboarded";}
+function obSeen(){
+  if(FB&&FBuser&&!store.get("sa_onb_"+FBuser.uid)&&store.get("sa_onboarded")){
+    store.set("sa_onb_"+FBuser.uid,true);store.del("sa_onboarded"); // one-time migration
+  }
+  return !!store.get(obKey());
+}
+function obMark(){store.set(obKey(),true);}
 let rulesMode="onboard";
 function applyRulesText(){
   $("rules-head").textContent=t("rHead");
   $("rules-sub").textContent=t("rSub");
-  $("rules-accept-lbl").textContent=t("rAccept");
+  $("rules-accept-lbl").innerHTML=t("rAccept")+' — and I agree to the <a href="terms.html" target="_blank" style="color:var(--blue)">Terms of Service</a> and <a href="privacy.html" target="_blank" style="color:var(--blue)">Privacy Policy</a>.';
   for(let i=1;i<=6;i++){
     $("r"+i+"t").textContent=t("r"+i+"t");
     $("r"+i+"w").textContent=t("r"+i+"w");
@@ -1242,7 +1250,7 @@ function onAcceptChange(){
 function rulesContinue(){
   if(rulesMode==="app")show("app-screen");
   else if(rulesMode==="auth")show("auth-screen");
-  else{store.set("sa_onboarded",true);startLoading();}
+  else showNatScreen(); // onboarding: rules → nationality → name
 }
 function pickLang(code){
   try{setLang(code);}catch(e){lang=code;saveState();}
@@ -1323,7 +1331,7 @@ async function nameContinue(){
     try{FBuser.updateProfile({displayName:username});}catch(e){}
     syncMe();
   }
-  showRules("onboard");
+  obMark();startLoading();
 }
 const nameKey=n=>String(n).toLowerCase().trim().replace(/[^a-z0-9_-]/g,"_").slice(0,30);
 async function claimUsername(newName){
@@ -2450,7 +2458,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AK";
+const APP_VERSION="v22.07-AL";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
@@ -2490,8 +2498,8 @@ function init(){
       if(u&&!appStarted&&!onboarding){
         // saved state (incl. a changed name) wins over the auth displayName
         if(!loadState())username=u.displayName||(u.email?u.email.split("@")[0]:"Player");
-        if(store.get("sa_onboarded")){appStarted=true;startLoading();}
-        else{appStarted=true;showNatScreen();}
+        if(obSeen()){appStarted=true;startLoading();}
+        else{appStarted=true;showRules("onboard");}
       }
     });
   }else if(loadState()){appStarted=true;startLoading();}

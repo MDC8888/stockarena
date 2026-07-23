@@ -404,6 +404,13 @@ exports.monthly = onSchedule(
     }
     // release last month's private trade history for everyone
     await db.doc(`releases/${prev}`).set({ open: true, ts: admin.firestore.FieldValue.serverTimestamp() });
+    // purge pseudonymised anti-restart records of the finished month (GDPR data minimisation)
+    try {
+      const ret = await db.collection("retired").where("month", "==", prev).get();
+      const b = db.batch();
+      ret.forEach((d) => b.delete(d.ref));
+      await b.commit();
+    } catch (e) {}
   }
 );
 
