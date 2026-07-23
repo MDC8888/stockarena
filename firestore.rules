@@ -33,6 +33,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Pending limit orders: owner can read and cancel (delete); server creates/fills
+    match /orders/{id} {
+      allow read, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create, update: if false;
+    }
+
     match /releases/{month} {
       allow read: if true;
       allow write: if false;

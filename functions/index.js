@@ -138,6 +138,18 @@ exports.trade = onCall(async (req) => {
   if (!STOCKS[ticker]) throw new HttpsError("invalid-argument", "Unknown ticker");
   if (!Number.isFinite(n) || n < 1 || n > 100000) throw new HttpsError("invalid-argument", "Bad quantity");
   if (side !== "BUY" && side !== "SELL") throw new HttpsError("invalid-argument", "Bad side");
+  // limit orders can be PLACED any time; they execute server-side during market hours
+  if ((req.data && req.data.orderType) === "limit") {
+    const lim = Math.round(Number(req.data.limit) * 100) / 100;
+    if (!Number.isFinite(lim) || lim <= 0 || lim > 1000000) throw new HttpsError("invalid-argument", "Bad limit price");
+    const mine = await db.collection("orders").where("uid", "==", uid).get();
+    if (mine.size >= 20) throw new HttpsError("resource-exhausted", "Max 20 pending orders");
+    await db.collection("orders").add({
+      uid, ticker, qty: n, side, limit: lim, month: monthKey(),
+      ts: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return { ok: true, pending: true };
+  }
   const ms = marketStatusET();
   if (ms !== "open") throw new HttpsError("failed-precondition", ms === "weekend" ? "Market closed — weekend" : "Market closed — outside trading hours (15:30–22:00 CET)");
 
@@ -291,7 +303,10 @@ exports.refreshNow = onCall(async (req) => {
 // ── schedule: refresh price cache every 5 min during market hours ──
 exports.refreshPrices = onSchedule(
   { schedule: "*/5 9-16 * * 1-5", timeZone: "America/New_York" },
-  async () => { await getPrices(true); }
+  async () => {
+    const p = await getPrices(true);
+    try { await executeLimitOrders(p); } catch (e) {}
+  }
 );
 
 // ── schedule: recompute everyone's value every 15 min (market hours) ──
@@ -357,10 +372,58 @@ async function janitorSweep(prices) {
   await batch.commit();
 }
 
+async function executeLimitOrders(prices) {
+  if (!prices || !prices.p) return;
+  const mk = monthKey();
+  const snap = await db.collection("orders").get();
+  for (const doc of snap.docs) {
+    const o = doc.data();
+    try {
+      if (o.month !== mk) { await doc.ref.delete(); continue; }
+      const pr = prices.p[o.ticker] && prices.p[o.ticker].p;
+      if (!pr) continue;
+      const hit = o.side === "BUY" ? pr <= o.limit : pr >= o.limit;
+      if (!hit) continue;
+      const stateRef = db.doc(`states/${o.uid}`);
+      const res = await db.runTransaction(async (tx) => {
+        const os = await tx.get(doc.ref);
+        if (!os.exists) return null; // cancelled meanwhile
+        const ss = await tx.get(stateRef);
+        let s = ss.exists ? ss.data() : { cash: CASH0, holdings: {}, month: mk };
+        if (s.month !== mk) s = { cash: CASH0, holdings: {}, month: mk };
+        if (o.side === "BUY") {
+          const cost = pr * o.qty;
+          if (cost > s.cash + 0.001) return "void";
+          const v = portfolioValue(s, prices);
+          const posAfter = (s.holdings[o.ticker] || 0) * pr + cost;
+          if (posAfter > v * 0.30 + 0.001) return "void";
+          s.cash = Math.round((s.cash - cost) * 100) / 100;
+          s.holdings[o.ticker] = (s.holdings[o.ticker] || 0) + o.qty;
+        } else {
+          if ((s.holdings[o.ticker] || 0) < o.qty) return "void";
+          s.cash = Math.round((s.cash + pr * o.qty) * 100) / 100;
+          s.holdings[o.ticker] -= o.qty;
+          if (!s.holdings[o.ticker]) delete s.holdings[o.ticker];
+        }
+        tx.set(stateRef, s);
+        tx.delete(doc.ref);
+        tx.set(db.collection("trades").doc(o.uid).collection("log").doc(), {
+          ticker: o.ticker, qty: o.qty, side: o.side, price: pr, month: mk,
+          limit: o.limit, ts: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return s;
+      });
+      if (res === "void") { await doc.ref.delete(); continue; } // can no longer fill
+      if (res) await upsertPlayer(o.uid, null, res, prices, true);
+    } catch (e) {}
+  }
+}
+
 exports.revalue = onSchedule(
   { schedule: "*/15 9-16 * * 1-5", timeZone: "America/New_York" },
   async () => {
     const prices = await getPrices();
+    try { await executeLimitOrders(prices); } catch (e) {}
     await janitorSweep(prices);
   }
 );

@@ -540,6 +540,7 @@ svg.mc{flex-shrink:0}
       </div>
       <div id="divmeter"></div>
       <div class="card"><div class="card-header" id="pt-poslbl">OPEN POSITIONS</div><div id="pos-list"><div class="empty-state">No positions yet.</div></div></div>
+      <div class="card" id="pending-card" style="display:none"><div class="card-header">⏳ PENDING ORDERS</div><div id="pending-list" style="padding:0 16px 12px"></div></div>
       <div class="card"><div class="card-header" id="pt-trlbl">TRADE HISTORY</div><div id="trade-list"><div class="empty-state">No trades yet.</div></div></div>
     </div>
 
@@ -682,10 +683,18 @@ svg.mc{flex-shrink:0}
       <div><div class="sheet-sym" id="sh-sym">—</div><div class="sheet-name" id="sh-name">—</div></div>
       <div class="sheet-pb"><div class="sheet-price" id="sh-price">—</div><div class="sheet-chg" id="sh-chg">—</div></div>
     </div>
+    <div class="sheet-seg" style="margin-bottom:10px">
+      <button id="ot-mkt" class="on-buy" onclick="setOrderType('market')">Market</button>
+      <button id="ot-lim" onclick="setOrderType('limit')">Limit</button>
+    </div>
     <div class="sheet-qty-row">
       <button class="qbtn" onclick="sheetStep(-1)">−</button>
       <input type="number" id="sheet-qty" value="1" min="1" inputmode="numeric" oninput="sheetUpdate()">
       <button class="qbtn" onclick="sheetStep(1)">+</button>
+    </div>
+    <div class="sheet-qty-row" id="sheet-limit-row" style="display:none">
+      <span style="font-size:12px;font-weight:700;color:var(--text3);padding:0 6px">LIMIT&nbsp;$</span>
+      <input type="number" id="sheet-limit" step="0.01" min="0.01" inputmode="decimal" oninput="sheetUpdate()">
     </div>
     <div class="sheet-meta"><span id="sh-held">—</span><span><span data-i18n="shTotal">Total:</span> <b id="sh-total">—</b></span></div>
     <div id="sheet-actions" class="sheet-actions"></div>
@@ -1009,6 +1018,20 @@ async function loadServerHistory(){
       if(tab==="portfolio")renderPortfolio();
     }
   }catch(e){console.warn("history:",e.message);}
+}
+let ordersList=[],ordersUnsub=null;
+function startOrders(){
+  if(!FB||!FBuser||ordersUnsub)return;
+  ordersUnsub=FB.db.collection("orders").where("uid","==",FBuser.uid).onSnapshot(s=>{
+    ordersList=s.docs.map(d=>({id:d.id,...d.data()}));
+    if(tab==="portfolio")renderPortfolio();
+  },e=>console.warn("orders:",e.message));
+}
+function cancelOrder(id){
+  if(!FB||!FBuser)return;
+  FB.db.collection("orders").doc(id).delete()
+    .then(()=>showToast("Order cancelled"))
+    .catch(()=>showToast("Could not cancel — try again","err"));
 }
 function startLB(){
   if(!FB||lbUnsub)return;
@@ -1659,7 +1682,7 @@ function enterApp(){
   show("app-screen");
   const safe=f=>{try{f();}catch(e){console.warn("startup:",e);}};
   safe(()=>setLang(lang));safe(updateAll);safe(startSim);
-  safe(syncMe);safe(startLB);safe(startMeta);safe(loadServerHistory);
+  safe(syncMe);safe(startLB);safe(startMeta);safe(startOrders);safe(loadServerHistory);
   if(!tutSeen())setTimeout(()=>{try{tutStart();}catch(e){}},600);
 }
 const SVGS={
@@ -1676,6 +1699,7 @@ const COURSE=[
 {id:"b3",t:"💹 Why do prices move?",h:`<p>A price is nothing more than the last deal between a buyer and a seller. When news breaks — profits beat expectations, a CEO resigns, interest rates change — thousands of participants instantly renegotiate what they'll pay.</p><p>In the short run, prices follow emotions and headlines. Over years, they follow one thing with remarkable loyalty: the company's actual earnings. Day-to-day wiggles are mostly noise; the long trend is signal.</p><div class="lp-tip">💡 <b>In practice:</b> when a stock drops on news, ask "does this change what the business earns in five years?". Usually the honest answer is no — and that's information about the seller, not the company.</div>`},
 {id:"b4",t:"🏦 Market cap — what a company really costs",h:`<p>Market capitalisation = share price × number of shares. It's the price tag on the entire company. Apple at $200 per share with 15 billion shares costs ~$3 trillion; a $5 stock with billions of shares can be "more expensive" than a $500 one.</p><p>This is why judging stocks by their per-share price is a beginner's trap — the share count decides how big each slice is. Always think in whole-company terms.</p><div class="lp-tip">💡 <b>In practice:</b> the stock pages here show real prices; a "cheap-looking" $12 stock like a penny-priced media firm may carry heavy debt and shrinking profits. Price tells nothing without context.</div>`},
 {id:"b5",t:"💰 Dividends — getting paid to wait",h:`<p>Some companies pay part of their profit to shareholders in cash, typically every quarter — a dividend. Mature cash machines (Coca-Cola, banks, utilities) pay reliably; fast growers like Amazon reinvest everything into expansion instead.</p><p>Neither approach is 'better': total return = price change + dividends. A boring 3%-yielder that grows slowly can quietly outperform a glamour stock that goes nowhere.</p><div class="lp-tip">💡 <b>In practice:</b> in the one-month contest dividends barely matter — but in real life, reinvested dividends historically supplied a huge share of the stock market's total return.</div>`},
+{id:"b6",t:"🛒 Market orders vs limit orders",h:`<p>A <b>market order</b> executes immediately at the best available price. It guarantees the trade happens, but not the exact price — perfect when getting in or out <i>now</i> matters more than squeezing the last cent.</p><p>A <b>limit order</b> names your price: a buy limit fills only at your price <i>or lower</i>, a sell limit only at your price <i>or higher</i>. It guarantees the price but not the fill — the market may simply never come to you.</p><div class="lp-tip">💡 <b>In practice:</b> in Stonk Arena, pick <b>Market</b> in the trade panel for an instant trade while the market is open, or <b>Limit</b> to set your price — the order waits under Portfolio → Pending orders and fills automatically (checked every few minutes during market hours) once your price trades, even while you're offline. Cancel any time with the ✕.</div>`},
 {id:"bk1",t:"📖 Books to go deeper",h:`<p>Two beloved starting points, readable without any finance background:</p><div class="lp-books"><div>📕 <b>The Little Book of Common Sense Investing</b> — John Bogle. The founder of Vanguard explains in plain words why low-cost index funds beat almost everyone.</div><div>📗 <b>One Up on Wall Street</b> — Peter Lynch. A legendary fund manager on spotting great companies in everyday life.</div></div><p>Both are available at any bookshop or online for the price of two cinema tickets — likely the highest-return purchase in all of investing.</p>`}]},
 {title:"Module 2 · Value investing",lessons:[
 {id:"v1",t:"🎯 Price is what you pay, value is what you get",h:`<p>Value investing, founded by Benjamin Graham and perfected by Warren Buffett, rests on one insight: the market is a moody business partner. Graham called him <i>Mr. Market</i> — some days euphoric and overpaying, some days depressed and dumping quality at a discount.</p>${SVGS.pv}<p>The value investor estimates what a business is truly worth (its future earnings), then acts only when the moody price falls meaningfully below that steady value line.</p><div class="lp-tip">💡 <b>How to think:</b> treat every quote as an offer, not a verdict. The question is never "what is the price doing?" but "what would I pay for the whole business?"</div>`},
@@ -1818,11 +1842,11 @@ function closeLesson(){
   renderLearn();
 }
 const TOUR=[
-  {sel:".stock-item",k:"tour1",pos:"below"},
-  {sel:".stock-item .btn-buy",k:"tour2",pos:"below"},
-  {sel:"#nav-portfolio",k:"tour3",pos:"above"},
-  {sel:"#nav-leaderboard",k:"tour4",pos:"above"},
-  {sel:"#nav-learn",k:"tour5",pos:"above"},
+  {sel:".stock-item",t:"Tap this stock 👇",x:"Tap the highlighted stock to open its full page.",pos:"below",act:true},
+  {sel:"#stock-page .sp-back",t:"This is the stock page",x:"Chart, key stats, BUY/SELL with market or limit orders, and the company story. Tap ← to go back.",pos:"below",act:true},
+  {sel:"#nav-portfolio",t:"Your portfolio 👆",x:"Tap it — your positions, pending limit orders, cash and trade history live here.",pos:"above",act:true},
+  {sel:"#nav-leaderboard",t:"The ranking 👆",x:"Tap it — make at least 5 trades to qualify. Highest return wins real life €100, paid to your bank account. Restarts every month.",pos:"above",act:true},
+  {sel:"#nav-learn",t:"Learn 👆",x:"Tap it — short courses from the basics (market vs limit orders) to value investing.",pos:"above",act:true},
 ];
 let tutI=0,coachI=0;
 // Tutorial "seen" flag is per account, so every new account gets the tour
@@ -1867,8 +1891,8 @@ function coachShow(){
     $("coach-ov").classList.add("open");
     hole.style.left=(r.left-6)+"px";hole.style.top=(r.top-6)+"px";
     hole.style.width=(r.width+12)+"px";hole.style.height=(r.height+12)+"px";
-    $("coach-title").textContent=t(st.k+"t");
-    $("coach-text").textContent=t(st.k+"x");
+    $("coach-title").textContent=st.t;
+    $("coach-text").textContent=st.x;
     $("coach-next").textContent=coachI===TOUR.length-1?t("tourGo"):t("tourNext");
     $("coach-step").textContent=(coachI+1)+" / "+TOUR.length;
     tip.style.visibility="hidden";
@@ -1882,10 +1906,16 @@ function coachShow(){
     });
   },60);
 }
-function coachNext(){coachI++;coachShow();}
+function coachNext(){
+  const st=TOUR[coachI];
+  try{if(st&&st.act){const el=document.querySelector(st.sel);if(el)el.click();}}catch(e){}
+  coachI++;
+  setTimeout(()=>coachShow(),st&&st.act?380:60);
+}
 function coachEnd(){
   $("coach-ov").classList.remove("open");
   tutMark();
+  try{closeStockPage();switchTab("market");}catch(e){}
 }
 function tutClose(){
   $("tut-ov").classList.remove("open");
@@ -1998,8 +2028,16 @@ function errMsg(e){
   const m=(e&&e.message)||"Trade failed";
   return m.includes("INTERNAL")?t("toSrv"):m;
 }
-async function doBuy(ticker,n){
+async function doBuy(ticker,n,limitPx){
   n=Math.max(1,parseInt(n)||1);
+  if(limitPx>0){
+    if(!FB||!FB.fns||!FBuser){showToast("Sign in to use limit orders","err");return false;}
+    try{
+      await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"BUY",name:username,orderType:"limit",limit:limitPx});
+      showToast(`⏳ Order placed — BUY ${n}× ${ticker} @ ≤ $${fmt(limitPx)}`);
+      return true;
+    }catch(e){showToast(errMsg(e),"err");return false;}
+  }
   if(!FB||!FB.fns||!FBuser)return doBuyLocal(ticker,n);
   const _ms=mktStatus();
   if(_ms!=="open"){showToast(_ms==="weekend"?t("toWknd"):t("toClosed"),"err");return false;}
@@ -2013,8 +2051,16 @@ async function doBuy(ticker,n){
     return true;
   }catch(e){showToast(errMsg(e),"err");return false;}
 }
-async function doSell(ticker,n){
+async function doSell(ticker,n,limitPx){
   n=Math.max(1,parseInt(n)||1);
+  if(limitPx>0){
+    if(!FB||!FB.fns||!FBuser){showToast("Sign in to use limit orders","err");return false;}
+    try{
+      await FB.fns.httpsCallable("trade")({ticker,qty:n,side:"SELL",name:username,orderType:"limit",limit:limitPx});
+      showToast(`⏳ Order placed — SELL ${n}× ${ticker} @ ≥ $${fmt(limitPx)}`);
+      return true;
+    }catch(e){showToast(errMsg(e),"err");return false;}
+  }
   if(!FB||!FB.fns||!FBuser)return doSellLocal(ticker,n);
   const _ms=mktStatus();
   if(_ms!=="open"){showToast(_ms==="weekend"?t("toWknd"):t("toClosed"),"err");return false;}
@@ -2245,8 +2291,21 @@ function openSheet(tk,mode){
   sheetTk=tk;sheetMode=(mode==="sell")?"sell":"buy";
   const held=holdings[tk]||0;
   $("sheet-qty").value=(sheetMode==="sell"&&held>0)?held:1;
+  orderType="market";
+  $("ot-mkt").className="on-buy";$("ot-lim").className="";
+  $("sheet-limit-row").style.display="none";
+  $("sheet-limit").value=(prices[tk]||0).toFixed(2);
   sheetUpdate();
   $("sheet-ov").classList.add("open");
+}
+let orderType="market";
+function setOrderType(m){
+  orderType=m;
+  $("ot-mkt").className=m==="market"?"on-buy":"";
+  $("ot-lim").className=m==="limit"?"on-buy":"";
+  $("sheet-limit-row").style.display=m==="limit"?"flex":"none";
+  if(m==="limit"&&sheetTk&&!(parseFloat($("sheet-limit").value)>0))$("sheet-limit").value=(prices[sheetTk]||0).toFixed(2);
+  sheetUpdate();
 }
 function sheetSetMode(m){
   sheetMode=m;
@@ -2271,21 +2330,30 @@ function sheetUpdate(){
   $("seg-sell").className=sheetMode==="sell"?"on-sell":"";
   $("sh-held").textContent=`${t("shOwn")} ${held}×`;
   $("sh-total").textContent="$"+fmt(p*n);
-  const mktOpen=mktStatus()==="open";
-  const hasPrice=p>0;
-  const tradable=mktOpen&&hasPrice;
-  const lockLabel=mktOpen?t("shLoadPx"):t("shClosed");
   const sellN=Math.min(n,held)||0;
   let btns="";
-  if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:lockLabel}</button>`;
-  else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):t("shNone")}</button>`;
+  if(orderType==="limit"){
+    const lim=parseFloat($("sheet-limit").value);
+    const okLim=lim>0&&FB&&FBuser;
+    const lockL=!FB||!FBuser?"Sign in to use limit orders":"Enter a limit price";
+    if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${okLim?"":"disabled"}>${okLim?`Place order · BUY ${n}× ${sheetTk} @ ≤ $${fmt(lim)}`:lockL}</button>`;
+    else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${okLim&&held>0?"":"disabled"}>${held>0?(okLim?`Place order · SELL ${sellN}× ${sheetTk} @ ≥ $${fmt(lim)}`:lockL):t("shNone")}</button>`;
+  }else{
+    const mktOpen=mktStatus()==="open";
+    const hasPrice=p>0;
+    const tradable=mktOpen&&hasPrice;
+    const lockLabel=mktOpen?t("shLoadPx"):t("shClosed");
+    if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:lockLabel}</button>`;
+    else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):t("shNone")}</button>`;
+  }
   $("sheet-actions").innerHTML=btns;
 }
 async function sheetBuy(){
   if(!sheetTk)return;
   const n=Math.max(1,parseInt($("sheet-qty").value)||1);
   $("sheet-actions").style.opacity=".55";
-  const ok=await doBuy(sheetTk,n);
+  const lim=orderType==="limit"?parseFloat($("sheet-limit").value):null;
+  const ok=await doBuy(sheetTk,n,lim);
   $("sheet-actions").style.opacity="1";
   sheetUpdate();
   if(ok)closeSheet();
@@ -2296,7 +2364,8 @@ async function sheetSell(){
   const n=Math.min(Math.max(1,parseInt($("sheet-qty").value)||1),held);
   if(n<1)return;
   $("sheet-actions").style.opacity=".55";
-  const ok=await doSell(sheetTk,n);
+  const lim=orderType==="limit"?parseFloat($("sheet-limit").value):null;
+  const ok=await doSell(sheetTk,n,lim);
   $("sheet-actions").style.opacity="1";
   sheetUpdate();
   if(ok)closeSheet();
@@ -2342,6 +2411,14 @@ function renderPortfolio(){
       const stk=STOCKS.find(s=>s.t===tk);
       return`<div class="pos-row"><div style="flex:1"><div class="pos-sym">${tk} <span style="font-weight:500;color:var(--text3);font-size:11px">${w.toFixed(0)}%</span></div><div class="pos-name">${stk?stk.n:""}</div></div><div class="pos-right"><div class="pos-shares">${sh}× @ $${fmt(p)}</div><div class="pos-val">$${fmt(val)} <span style="color:${r2>=0?"var(--green)":"var(--red)"};font-size:11px">${r2>=0?"+":""}${r2.toFixed(2)}%</span></div><div class="pos-controls"><button class="btn-buy" onclick="openSheet('${tk}','buy')">${t("buy")}</button><button class="btn-sell" onclick="openSheet('${tk}','sell')">${t("sell")}</button></div></div></div>`;
     }).join("");
+  const pc=$("pending-card"),pl=$("pending-list");
+  if(pc&&pl){
+    if(!ordersList.length)pc.style.display="none";
+    else{
+      pc.style.display="block";
+      pl.innerHTML=ordersList.map(o=>`<div class="pos-row"><div><div class="pos-sym">${o.side==="BUY"?"🟩 BUY":"🟥 SELL"} ${o.qty}× ${esc(o.ticker)}</div><div class="pos-name">fills at ${o.side==="BUY"?"≤":"≥"} $${fmt(o.limit)} while the market is open</div></div><div class="pos-right"><button class="sheet-x" title="Cancel order" onclick="cancelOrder('${o.id}')">✕</button></div></div>`).join("");
+    }
+  }
   $("trade-list").innerHTML=tradeLog.length===0?`<div class="empty-state">${t("ptNoTr")}</div>`:
     tradeLog.slice(0,10).map(tr=>`<div class="trade-row"><span class="trade-badge tb-${tr.type.toLowerCase()}">${tr.type}</span><span class="trade-sym">${tr.ticker}</span><span class="trade-detail">${tr.qty}× @ $${fmt(tr.price)}</span><span class="trade-time">${tr.time}</span></div>`).join("");
 }
@@ -2458,7 +2535,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AL";
+const APP_VERSION="v22.07-AM";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
