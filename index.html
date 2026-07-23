@@ -1192,27 +1192,19 @@ function authWith(provider){
   if(FB){
     if(provider==="apple")return showToast("Apple sign-in coming soon","err");
     const gp=new firebase.auth.GoogleAuthProvider();
-    const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if(mobile){
-      // Popups are unreliable on mobile browsers - use the redirect flow
-      FB.auth.signInWithRedirect(gp).catch(()=>showToast("Google sign-in failed","err"));
-      return;
-    }
+    showToast("Connecting to Google…");
     FB.auth.signInWithPopup(gp).then(cred=>{
       username=cred.user.displayName||"Player";saveState();
       // Routing is handled by onAuthStateChanged
     }).catch(err=>{
       if(err.code==="auth/multi-factor-auth-required"){mfaChallenge(err,null);return;}
-      if(err.code==="auth/popup-blocked"||err.code==="auth/popup-closed-by-user"||err.code==="auth/cancelled-popup-request"){
-        FB.auth.signInWithRedirect(gp).catch(()=>showToast("Google sign-in failed","err"));
-        return;
-      }
-      showToast("Google sign-in failed","err");
+      if(err.code==="auth/popup-closed-by-user"||err.code==="auth/cancelled-popup-request")return;
+      // Popup blocked or unsupported on this browser -> redirect flow
+      FB.auth.signInWithRedirect(gp).catch(()=>showToast("Google sign-in failed","err"));
     });
     return;
   }
-  username=provider==="google"?"Google User":"Apple User";saveState();
-  if(isSignup)showRules("onboard");else startLoading();
+  showToast("Connection unavailable — reload and try again","err");
 }
 async function loginWithEmail(){
   const e=$("login-email").value.trim(),p=$("login-pass").value;
@@ -2496,7 +2488,7 @@ function renderLeaderboard(){
   }else{
     html=items.join("")+(items.length>LB_SHOW?`<button class="lb-more" onclick="lbToggle()">Show less ▴</button>`:"");
   }
-  $("leader-list").innerHTML=html;
+  if(window.__lbHtml!==html){window.__lbHtml=html;$("leader-list").innerHTML=html;}
   // Previous winners
   $("winners-card").innerHTML=winnersList.length===0?"":`<div class="card" style="margin-top:16px">
     <div class="card-header">🏆 ${t("wPrev")}</div>
@@ -2566,7 +2558,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AQ";
+const APP_VERSION="v22.07-AR";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();
