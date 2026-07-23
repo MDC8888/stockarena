@@ -697,6 +697,7 @@ svg.mc{flex-shrink:0}
       <input type="number" id="sheet-limit" step="0.01" min="0.01" inputmode="decimal" oninput="sheetUpdate()">
     </div>
     <div class="sheet-meta"><span id="sh-held">—</span><span><span data-i18n="shTotal">Total:</span> <b id="sh-total">—</b></span></div>
+    <div class="sheet-meta" id="sheet-avail" style="margin-top:2px"></div>
     <div id="sheet-actions" class="sheet-actions"></div>
   </div>
 </div>
@@ -1027,6 +1028,9 @@ function startOrders(){
     if(tab==="portfolio")renderPortfolio();
   },e=>console.warn("orders:",e.message));
 }
+function reservedCash(){let r=0;ordersList.forEach(o=>{if(o.side==="BUY")r+=o.limit*o.qty;});return r;}
+function availCash(){return Math.max(0,cash-reservedCash());}
+function reservedShares(tk){let r=0;ordersList.forEach(o=>{if(o.side==="SELL"&&o.ticker===tk)r+=o.qty;});return r;}
 function cancelOrder(id){
   if(!FB||!FBuser)return;
   FB.db.collection("orders").doc(id).delete()
@@ -1699,7 +1703,7 @@ const COURSE=[
 {id:"b3",t:"💹 Why do prices move?",h:`<p>A price is nothing more than the last deal between a buyer and a seller. When news breaks — profits beat expectations, a CEO resigns, interest rates change — thousands of participants instantly renegotiate what they'll pay.</p><p>In the short run, prices follow emotions and headlines. Over years, they follow one thing with remarkable loyalty: the company's actual earnings. Day-to-day wiggles are mostly noise; the long trend is signal.</p><div class="lp-tip">💡 <b>In practice:</b> when a stock drops on news, ask "does this change what the business earns in five years?". Usually the honest answer is no — and that's information about the seller, not the company.</div>`},
 {id:"b4",t:"🏦 Market cap — what a company really costs",h:`<p>Market capitalisation = share price × number of shares. It's the price tag on the entire company. Apple at $200 per share with 15 billion shares costs ~$3 trillion; a $5 stock with billions of shares can be "more expensive" than a $500 one.</p><p>This is why judging stocks by their per-share price is a beginner's trap — the share count decides how big each slice is. Always think in whole-company terms.</p><div class="lp-tip">💡 <b>In practice:</b> the stock pages here show real prices; a "cheap-looking" $12 stock like a penny-priced media firm may carry heavy debt and shrinking profits. Price tells nothing without context.</div>`},
 {id:"b5",t:"💰 Dividends — getting paid to wait",h:`<p>Some companies pay part of their profit to shareholders in cash, typically every quarter — a dividend. Mature cash machines (Coca-Cola, banks, utilities) pay reliably; fast growers like Amazon reinvest everything into expansion instead.</p><p>Neither approach is 'better': total return = price change + dividends. A boring 3%-yielder that grows slowly can quietly outperform a glamour stock that goes nowhere.</p><div class="lp-tip">💡 <b>In practice:</b> in the one-month contest dividends barely matter — but in real life, reinvested dividends historically supplied a huge share of the stock market's total return.</div>`},
-{id:"b6",t:"🛒 Market orders vs limit orders",h:`<p>A <b>market order</b> executes immediately at the best available price. It guarantees the trade happens, but not the exact price — perfect when getting in or out <i>now</i> matters more than squeezing the last cent.</p><p>A <b>limit order</b> names your price: a buy limit fills only at your price <i>or lower</i>, a sell limit only at your price <i>or higher</i>. It guarantees the price but not the fill — the market may simply never come to you.</p><div class="lp-tip">💡 <b>In practice:</b> in Stonk Arena, pick <b>Market</b> in the trade panel for an instant trade while the market is open, or <b>Limit</b> to set your price — the order waits under Portfolio → Pending orders and fills automatically (checked every few minutes during market hours) once your price trades, even while you're offline. Cancel any time with the ✕.</div>`},
+{id:"b6",t:"🛒 Market orders vs limit orders",h:`<p>A <b>market order</b> executes immediately at the best available price. It guarantees the trade happens, but not the exact price — perfect when getting in or out <i>now</i> matters more than squeezing the last cent.</p><p>A <b>limit order</b> names your price: a buy limit fills only at your price <i>or lower</i>, a sell limit only at your price <i>or higher</i>. It guarantees the price but not the fill — the market may simply never come to you.</p><div class="lp-tip">💡 <b>In practice:</b> in Stonk Arena, pick <b>Market</b> in the trade panel for an instant trade while the market is open, or <b>Limit</b> to set your price — the order waits under Portfolio → Pending orders and fills automatically (checked every few minutes during market hours) once your price trades, even while you're offline. Cancel any time with the ✕. While a buy order is pending its cash is <b>reserved</b> — the trade panel shows the remaining <i>available</i> cash.</div>`},
 {id:"bk1",t:"📖 Books to go deeper",h:`<p>Two beloved starting points, readable without any finance background:</p><div class="lp-books"><div>📕 <b>The Little Book of Common Sense Investing</b> — John Bogle. The founder of Vanguard explains in plain words why low-cost index funds beat almost everyone.</div><div>📗 <b>One Up on Wall Street</b> — Peter Lynch. A legendary fund manager on spotting great companies in everyday life.</div></div><p>Both are available at any bookshop or online for the price of two cinema tickets — likely the highest-return purchase in all of investing.</p>`}]},
 {title:"Module 2 · Value investing",lessons:[
 {id:"v1",t:"🎯 Price is what you pay, value is what you get",h:`<p>Value investing, founded by Benjamin Graham and perfected by Warren Buffett, rests on one insight: the market is a moody business partner. Graham called him <i>Mr. Market</i> — some days euphoric and overpaying, some days depressed and dumping quality at a discount.</p>${SVGS.pv}<p>The value investor estimates what a business is truly worth (its future earnings), then acts only when the moody price falls meaningfully below that steady value line.</p><div class="lp-tip">💡 <b>How to think:</b> treat every quote as an offer, not a verdict. The question is never "what is the price doing?" but "what would I pay for the whole business?"</div>`},
@@ -1844,7 +1848,7 @@ function closeLesson(){
 const TOUR=[
   {sel:".stock-item",t:"Tap this stock 👇",x:"Tap the highlighted stock to open its full page.",pos:"below",act:true},
   {sel:"#stock-page .sp-back",t:"This is the stock page",x:"Chart, key stats, BUY/SELL with market or limit orders, and the company story. Tap ← to go back.",pos:"below",act:true},
-  {sel:"#nav-portfolio",t:"Your portfolio 👆",x:"Tap it — your positions, pending limit orders, cash and trade history live here.",pos:"above",act:true},
+  {sel:"#nav-portfolio",t:"Your portfolio 👆",x:"Tap it — positions, pending limit orders, cash and history. Pending buy orders reserve their cash until they fill or you cancel them, so available cash can be lower than total cash.",pos:"above",act:true},
   {sel:"#nav-leaderboard",t:"The ranking 👆",x:"Tap it — make at least 5 trades to qualify. Highest return wins real life €100, paid to your bank account. Restarts every month.",pos:"above",act:true},
   {sel:"#nav-learn",t:"Learn 👆",x:"Tap it — short courses from the basics (market vs limit orders) to value investing.",pos:"above",act:true},
 ];
@@ -2330,12 +2334,19 @@ function sheetUpdate(){
   $("seg-sell").className=sheetMode==="sell"?"on-sell":"";
   $("sh-held").textContent=`${t("shOwn")} ${held}×`;
   $("sh-total").textContent="$"+fmt(p*n);
+  const avC=availCash(),avSh=Math.max(0,held-reservedShares(sheetTk));
+  const av=$("sheet-avail");
+  if(av)av.innerHTML=sheetMode==="buy"
+    ?`<span>Available cash: <b>$${fmt(avC)}</b>${reservedCash()>0?` <span style="color:var(--text3)">($${fmt(reservedCash())} reserved)</span>`:""}</span><span></span>`
+    :`<span>Available to sell: <b>${avSh}×</b>${reservedShares(sheetTk)>0?` <span style="color:var(--text3)">(${reservedShares(sheetTk)}× reserved)</span>`:""}</span><span></span>`;
   const sellN=Math.min(n,held)||0;
   let btns="";
   if(orderType==="limit"){
     const lim=parseFloat($("sheet-limit").value);
-    const okLim=lim>0&&FB&&FBuser;
-    const lockL=!FB||!FBuser?"Sign in to use limit orders":"Enter a limit price";
+    let okLim=lim>0&&FB&&FBuser;
+    let lockL=!FB||!FBuser?"Sign in to use limit orders":"Enter a limit price";
+    if(sheetMode==="buy"&&okLim&&lim*n>avC+0.001){okLim=false;lockL="Not enough available cash";}
+    if(sheetMode==="sell"&&okLim&&n>avSh){okLim=false;lockL="Shares reserved by a pending order";}
     if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${okLim?"":"disabled"}>${okLim?`Place order · BUY ${n}× ${sheetTk} @ ≤ $${fmt(lim)}`:lockL}</button>`;
     else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${okLim&&held>0?"":"disabled"}>${held>0?(okLim?`Place order · SELL ${sellN}× ${sheetTk} @ ≥ $${fmt(lim)}`:lockL):t("shNone")}</button>`;
   }else{
@@ -2343,8 +2354,12 @@ function sheetUpdate(){
     const hasPrice=p>0;
     const tradable=mktOpen&&hasPrice;
     const lockLabel=mktOpen?t("shLoadPx"):t("shClosed");
-    if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${tradable?"":"disabled"}>${tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:lockLabel}</button>`;
-    else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${tradable&&held>0?"":"disabled"}>${held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):t("shNone")}</button>`;
+    let buyOk=tradable,buyLbl=tradable?`BUY ${n}× ${sheetTk} · $${fmt(p*n)}`:lockLabel;
+    if(tradable&&sheetMode==="buy"&&p*n>avC+0.001){buyOk=false;buyLbl="Not enough available cash";}
+    let sellOk=tradable&&held>0,sellLbl=held>0?(tradable?`SELL ${sellN}× ${sheetTk} · $${fmt(p*sellN)}`:lockLabel):t("shNone");
+    if(tradable&&held>0&&sheetMode==="sell"&&n>avSh){sellOk=false;sellLbl="Shares reserved by a pending order";}
+    if(sheetMode==="buy")btns=`<button class="sheet-cta buy" onclick="sheetBuy()" ${buyOk?"":"disabled"}>${buyLbl}</button>`;
+    else btns=`<button class="sheet-cta sell" onclick="sheetSell()" ${sellOk?"":"disabled"}>${sellLbl}</button>`;
   }
   $("sheet-actions").innerHTML=btns;
 }
@@ -2416,7 +2431,8 @@ function renderPortfolio(){
     if(!ordersList.length)pc.style.display="none";
     else{
       pc.style.display="block";
-      pl.innerHTML=ordersList.map(o=>`<div class="pos-row"><div><div class="pos-sym">${o.side==="BUY"?"🟩 BUY":"🟥 SELL"} ${o.qty}× ${esc(o.ticker)}</div><div class="pos-name">fills at ${o.side==="BUY"?"≤":"≥"} $${fmt(o.limit)} while the market is open</div></div><div class="pos-right"><button class="sheet-x" title="Cancel order" onclick="cancelOrder('${o.id}')">✕</button></div></div>`).join("");
+      pl.innerHTML=ordersList.map(o=>`<div class="pos-row"><div><div class="pos-sym">${o.side==="BUY"?"🟩 BUY":"🟥 SELL"} ${o.qty}× ${esc(o.ticker)}</div><div class="pos-name">fills at ${o.side==="BUY"?"≤":"≥"} $${fmt(o.limit)} while the market is open</div></div><div class="pos-right"><button class="sheet-x" title="Cancel order" onclick="cancelOrder('${o.id}')">✕</button></div></div>`).join("")
+        +(reservedCash()>0?`<div class="pos-name" style="padding:8px 0 2px">💰 Reserved by buy orders: $${fmt(reservedCash())} · available cash: $${fmt(availCash())}</div>`:"");
     }
   }
   $("trade-list").innerHTML=tradeLog.length===0?`<div class="empty-state">${t("ptNoTr")}</div>`:
@@ -2535,7 +2551,7 @@ function openLangMenu(){$("lang-overlay").classList.add("open");}
 function closeLangMenu(){$("lang-overlay").classList.remove("open");}
 
 // ══ INIT ══
-const APP_VERSION="v22.07-AM";
+const APP_VERSION="v22.07-AN";
 console.log("Stonk Arena "+APP_VERSION);
 function init(){
   beginPriceLoad();

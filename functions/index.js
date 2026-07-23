@@ -129,6 +129,18 @@ async function restoredState(email, mk) {
   return null;
 }
 
+async function orderReservations(uid, ticker) {
+  let cash = 0, shares = 0, count = 0;
+  const snap = await db.collection("orders").where("uid", "==", uid).get();
+  snap.forEach((d) => {
+    const o = d.data();
+    count++;
+    if (o.side === "BUY") cash += o.limit * o.qty;
+    else if (o.ticker === ticker) shares += o.qty;
+  });
+  return { cash, shares, count };
+}
+
 // ── callable: execute a trade (THE anti-cheat core) ────────
 exports.trade = onCall(async (req) => {
   const uid = req.auth && req.auth.uid;
@@ -142,8 +154,18 @@ exports.trade = onCall(async (req) => {
   if ((req.data && req.data.orderType) === "limit") {
     const lim = Math.round(Number(req.data.limit) * 100) / 100;
     if (!Number.isFinite(lim) || lim <= 0 || lim > 1000000) throw new HttpsError("invalid-argument", "Bad limit price");
-    const mine = await db.collection("orders").where("uid", "==", uid).get();
-    if (mine.size >= 20) throw new HttpsError("resource-exhausted", "Max 20 pending orders");
+    const resv = await orderReservations(uid, ticker);
+    if (resv.count >= 20) throw new HttpsError("resource-exhausted", "Max 20 pending orders");
+    const sSnap = await db.doc(`states/${uid}`).get();
+    let st = sSnap.exists ? sSnap.data() : { cash: CASH0, holdings: {} };
+    if (st.month !== monthKey()) st = { cash: CASH0, holdings: {} };
+    if (side === "BUY") {
+      if (lim * n > (st.cash || 0) - resv.cash + 0.001)
+        throw new HttpsError("failed-precondition", "Not enough available cash — pending buy orders reserve their cash");
+    } else {
+      if (((st.holdings || {})[ticker] || 0) - resv.shares < n)
+        throw new HttpsError("failed-precondition", "Not enough available shares — already reserved by a pending sell order");
+    }
     await db.collection("orders").add({
       uid, ticker, qty: n, side, limit: lim, month: monthKey(),
       ts: admin.firestore.FieldValue.serverTimestamp(),
@@ -165,6 +187,7 @@ exports.trade = onCall(async (req) => {
     if (r) seed = { cash: r.cash, holdings: r.holdings || {}, month: mk };
   }
 
+  const resvM = await orderReservations(uid, ticker);
   const result = await db.runTransaction(async (tx) => {
     const snap = await tx.get(stateRef);
     let s = snap.exists ? snap.data() : (seed || { cash: CASH0, holdings: {}, month: mk });
@@ -172,14 +195,14 @@ exports.trade = onCall(async (req) => {
 
     if (side === "BUY") {
       const cost = price * n;
-      if (cost > s.cash + 0.001) throw new HttpsError("failed-precondition", "Insufficient cash");
+      if (cost > s.cash - resvM.cash + 0.001) throw new HttpsError("failed-precondition", "Not enough available cash — pending buy orders reserve their cash");
       const v = portfolioValue(s, prices);
       const posAfter = (s.holdings[ticker] || 0) * price + cost;
       if (posAfter > v * 0.30 + 0.001) throw new HttpsError("failed-precondition", "Max 30% per stock");
       s.cash = Math.round((s.cash - cost) * 100) / 100;
       s.holdings[ticker] = (s.holdings[ticker] || 0) + n;
     } else {
-      if ((s.holdings[ticker] || 0) < n) throw new HttpsError("failed-precondition", "Not enough shares");
+      if ((s.holdings[ticker] || 0) - resvM.shares < n) throw new HttpsError("failed-precondition", "Not enough available shares — already reserved by a pending sell order");
       s.cash = Math.round((s.cash + price * n) * 100) / 100;
       s.holdings[ticker] -= n;
       if (!s.holdings[ticker]) delete s.holdings[ticker];
